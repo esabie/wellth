@@ -3,6 +3,7 @@ import { useState } from 'react';
 import PreorderNotice from '../../Components/PreorderNotice';
 import ProductCard from '../../Components/ProductCard';
 import ShopLayout from '../../Layouts/ShopLayout';
+import { cartMutationOptions } from '../../lib/cartVisit';
 
 function formatMoney(value) {
     return new Intl.NumberFormat('en-GH', {
@@ -18,14 +19,10 @@ export default function Show({ product, relatedProducts }) {
 
     const addToCart = () => {
         setAdding(true);
-        router.post(
-            '/cart',
-            { product_id: product.id, quantity },
-            {
-                preserveScroll: true,
-                onFinish: () => setAdding(false),
-            },
-        );
+        router.post('/cart', { product_id: product.id, quantity }, {
+            ...cartMutationOptions,
+            onFinish: () => setAdding(false),
+        });
     };
 
     return (

@@ -1,5 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useId, useState } from 'react';
+import { cartMutationOptions } from '../lib/cartVisit';
 
 function formatMoney(value) {
     return new Intl.NumberFormat('en-GH', {
@@ -54,15 +55,15 @@ export default function CartDrawer({ open, onClose }) {
     }, [open, onClose]);
 
     const updateQuantity = (slug, quantity) => {
-        router.patch(`/cart/${slug}`, { quantity }, { preserveScroll: true });
+        router.patch(`/cart/${slug}`, { quantity }, cartMutationOptions);
     };
 
     const removeItem = (slug) => {
-        router.delete(`/cart/${slug}`, { preserveScroll: true });
+        router.delete(`/cart/${slug}`, cartMutationOptions);
     };
 
     const clearCart = () => {
-        router.delete('/cart', { preserveScroll: true });
+        router.delete('/cart', cartMutationOptions);
     };
 
     if (!mounted) {

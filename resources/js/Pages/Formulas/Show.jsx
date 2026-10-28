@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import ShopLayout from '../../Layouts/ShopLayout';
+import { cartMutationOptions } from '../../lib/cartVisit';
 
 function formatMoney(value) {
     return new Intl.NumberFormat('en-GH', {
@@ -18,14 +19,10 @@ export default function Show({ formula }) {
         }
 
         setAdding(true);
-        router.post(
-            '/cart',
-            { product_id: formula.product_id, quantity: 1 },
-            {
-                preserveScroll: true,
-                onFinish: () => setAdding(false),
-            },
-        );
+        router.post('/cart', { product_id: formula.product_id, quantity: 1 }, {
+            ...cartMutationOptions,
+            onFinish: () => setAdding(false),
+        });
     };
 
     return (

@@ -1,5 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import ShopLayout from '../../Layouts/ShopLayout';
+import { cartPageMutationOptions } from '../../lib/cartVisit';
 
 function formatMoney(value) {
     return new Intl.NumberFormat('en-GH', {
@@ -15,11 +16,11 @@ export default function Index({ items, subtotal }) {
     const remainingForMinimum = cart?.remaining_for_minimum_order ?? minimumOrderQuantity;
 
     const updateQuantity = (slug, quantity) => {
-        router.patch(`/cart/${slug}`, { quantity }, { preserveScroll: true });
+        router.patch(`/cart/${slug}`, { quantity }, cartPageMutationOptions);
     };
 
     const removeItem = (slug) => {
-        router.delete(`/cart/${slug}`, { preserveScroll: true });
+        router.delete(`/cart/${slug}`, cartPageMutationOptions);
     };
 
     return (
