@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Orders\Pages;
 
+use App\Actions\RestoreOrderStock;
 use App\Enums\OrderStatus;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Support\LoyaltyPoints;
@@ -40,5 +41,6 @@ class EditOrder extends EditRecord
         }
 
         app(LoyaltyPoints::class)->releaseRedeem($this->record);
+        app(RestoreOrderStock::class)->handle($this->record);
     }
 }

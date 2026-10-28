@@ -44,7 +44,7 @@ test('admins can view an order and its line items', function () {
         ->assertSee('ama@example.com');
 });
 
-test('admins can update fulfilment status without changing customer details', function () {
+test('admins can update fulfilment notes and cancel without changing customer details', function () {
     $order = Order::factory()->paid()->create([
         'customer_name' => 'Ama Mensah',
         'customer_email' => 'ama@example.com',
@@ -54,15 +54,15 @@ test('admins can update fulfilment status without changing customer details', fu
     Livewire::test(EditOrder::class, ['record' => $order->getRouteKey()])
         ->assertOk()
         ->fillForm([
-            'status' => OrderStatus::Preparing->value,
-            'shipping_notes' => 'Start batch Friday morning.',
+            'status' => OrderStatus::Cancelled->value,
+            'shipping_notes' => 'Customer asked to cancel before prep.',
         ])
         ->call('save')
         ->assertHasNoFormErrors();
 
     expect($order->fresh())
-        ->status->toBe(OrderStatus::Preparing)
-        ->shipping_notes->toBe('Start batch Friday morning.')
+        ->status->toBe(OrderStatus::Cancelled)
+        ->shipping_notes->toBe('Customer asked to cancel before prep.')
         ->customer_name->toBe('Ama Mensah')
         ->customer_email->toBe('ama@example.com');
 });

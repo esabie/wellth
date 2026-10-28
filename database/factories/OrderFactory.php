@@ -50,6 +50,9 @@ class OrderFactory extends Factory
             'paystack_reference' => $number,
             'paystack_access_code' => null,
             'paid_at' => null,
+            'prepared_at' => null,
+            'shipped_at' => null,
+            'stock_decremented_at' => null,
         ];
     }
 
@@ -58,6 +61,27 @@ class OrderFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'status' => OrderStatus::Paid,
             'paid_at' => now(),
+        ]);
+    }
+
+    public function preparing(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => OrderStatus::Preparing,
+            'paid_at' => now()->subHour(),
+            'prepared_at' => now(),
+            'stock_decremented_at' => now(),
+        ]);
+    }
+
+    public function shipped(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => OrderStatus::Shipped,
+            'paid_at' => now()->subHours(2),
+            'prepared_at' => now()->subHour(),
+            'shipped_at' => now(),
+            'stock_decremented_at' => now()->subHour(),
         ]);
     }
 }

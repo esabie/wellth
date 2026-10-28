@@ -78,7 +78,7 @@ export default function Index({ items, subtotal }) {
                                             <button
                                                 type="button"
                                                 onClick={() => updateQuantity(item.product.slug, item.quantity - 1)}
-                                                className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-lg font-bold text-ink transition hover:bg-mist"
+                                                className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 text-lg font-bold text-ink transition hover:bg-mist"
                                                 aria-label="Decrease quantity"
                                             >
                                                 −
@@ -87,19 +87,19 @@ export default function Index({ items, subtotal }) {
                                             <button
                                                 type="button"
                                                 onClick={() => updateQuantity(item.product.slug, Math.min(48, item.quantity + 1))}
-                                                className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-lg font-bold text-ink transition hover:bg-mist"
+                                                className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 text-lg font-bold text-ink transition hover:bg-mist"
                                                 aria-label="Increase quantity"
                                             >
                                                 +
                                             </button>
                                         </div>
-                                        <p className="w-20 text-right text-sm font-bold text-ink">
+                                        <p className="min-w-16 text-right text-sm font-bold text-ink">
                                             {formatMoney(item.line_total)}
                                         </p>
                                         <button
                                             type="button"
                                             onClick={() => removeItem(item.product.slug)}
-                                            className="text-sm font-semibold text-ink/50 transition hover:text-ink"
+                                            className="min-h-11 px-2 text-sm font-semibold text-ink/50 transition hover:text-ink"
                                         >
                                             Remove
                                         </button>
@@ -122,7 +122,7 @@ export default function Index({ items, subtotal }) {
                             {meetsMinimumOrder ? (
                                 <Link
                                     href="/checkout"
-                                    className="inline-flex cursor-pointer rounded-full bg-ink px-6 py-3 text-sm font-bold text-white transition hover:bg-leaf-800"
+                                    className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-bold text-white transition hover:bg-leaf-800 sm:w-auto"
                                 >
                                     Proceed to checkout
                                 </Link>
@@ -130,7 +130,7 @@ export default function Index({ items, subtotal }) {
                                 <button
                                     type="button"
                                     disabled
-                                    className="inline-flex cursor-not-allowed rounded-full bg-ink/35 px-6 py-3 text-sm font-bold text-white"
+                                    className="inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-full bg-ink/35 px-6 py-3 text-sm font-bold text-white sm:w-auto"
                                 >
                                     Proceed to checkout
                                 </button>

@@ -14,6 +14,8 @@ use App\Notifications\OrderPaymentProofSubmittedNotification;
 use App\Notifications\OrderPaymentProofSubmittedSmsNotification;
 use App\Notifications\OrderPlacedAdminNotification;
 use App\Notifications\OrderPlacedAdminSmsNotification;
+use App\Notifications\OrderPlacedCustomerNotification;
+use App\Notifications\OrderPlacedCustomerSmsNotification;
 use App\Support\Cart;
 use App\Support\PhoneNumber;
 use App\Support\ShopSettings;
@@ -83,6 +85,20 @@ test('placing an order emails, texts, and databases the admin', function () {
     Notification::assertSentOnDemand(
         OrderPlacedAdminSmsNotification::class,
         fn (OrderPlacedAdminSmsNotification $notification, array $channels, object $notifiable): bool => $notifiable->routes[MnotifyChannel::class] === PhoneNumber::forSms('0244000111')
+            && $notification->order->is($order)
+            && in_array(MnotifyChannel::class, $channels, true),
+    );
+
+    Notification::assertSentOnDemand(
+        OrderPlacedCustomerNotification::class,
+        fn (OrderPlacedCustomerNotification $notification, array $channels, object $notifiable): bool => $notifiable->routes['mail'] === 'ama@example.com'
+            && $notification->order->is($order)
+            && in_array('mail', $channels, true),
+    );
+
+    Notification::assertSentOnDemand(
+        OrderPlacedCustomerSmsNotification::class,
+        fn (OrderPlacedCustomerSmsNotification $notification, array $channels, object $notifiable): bool => $notifiable->routes[MnotifyChannel::class] === PhoneNumber::forSms('0555000111')
             && $notification->order->is($order)
             && in_array(MnotifyChannel::class, $channels, true),
     );

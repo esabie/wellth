@@ -111,7 +111,7 @@ export default function CartDrawer({ open, onClose }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-ink/50 transition hover:bg-mist hover:text-ink"
+                            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink/50 transition hover:bg-mist hover:text-ink"
                             aria-label="Close cart"
                         >
                             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -178,7 +178,7 @@ export default function CartDrawer({ open, onClose }) {
                                                 <button
                                                     type="button"
                                                     onClick={() => removeItem(item.product.slug)}
-                                                    className="mt-0.5 shrink-0 cursor-pointer text-ink/35 transition hover:text-ink"
+                                                    className="mt-0.5 flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink/35 transition hover:bg-mist hover:text-ink"
                                                     aria-label={`Remove ${item.product.name}`}
                                                 >
                                                     <svg
@@ -207,12 +207,12 @@ export default function CartDrawer({ open, onClose }) {
                                                     onClick={() =>
                                                         updateQuantity(item.product.slug, Math.max(0, item.quantity - 1))
                                                     }
-                                                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-black/10 text-base font-bold text-ink transition hover:bg-mist"
+                                                    className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-black/10 text-base font-bold text-ink transition hover:bg-mist"
                                                     aria-label="Decrease quantity"
                                                 >
                                                     −
                                                 </button>
-                                                <span className="w-6 text-center text-sm font-bold text-ink">
+                                                <span className="w-8 text-center text-sm font-bold text-ink">
                                                     {item.quantity}
                                                 </span>
                                                 <button
@@ -220,7 +220,7 @@ export default function CartDrawer({ open, onClose }) {
                                                     onClick={() =>
                                                         updateQuantity(item.product.slug, Math.min(48, item.quantity + 1))
                                                     }
-                                                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-black/10 text-base font-bold text-ink transition hover:bg-mist"
+                                                    className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-black/10 text-base font-bold text-ink transition hover:bg-mist"
                                                     aria-label="Increase quantity"
                                                 >
                                                     +
@@ -234,12 +234,12 @@ export default function CartDrawer({ open, onClose }) {
                     </div>
 
                     {items.length > 0 && (
-                        <div className="border-t border-black/5 bg-white px-5 py-5 sm:px-6">
+                        <div className="border-t border-black/5 bg-white px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-6">
                             <div className="flex items-center justify-between">
                                 <p className="text-xs font-bold tracking-[0.14em] text-ink/45 uppercase">Subtotal</p>
                                 <p className="font-display text-xl font-extrabold text-ink">{formatMoney(subtotal)}</p>
                             </div>
-                            <p className="mt-2 text-xs text-ink/45">No delivery fee for now · preorder, made fresh.</p>
+                            <p className="mt-2 text-xs text-ink/45">Shipping shared at dispatch · preorder, made fresh.</p>
                             {!meetsMinimumOrder && (
                                 <p className="mt-3 rounded-xl bg-[#f7f4ef] px-3 py-2.5 text-xs leading-relaxed font-semibold text-forest">
                                     Minimum order is {minimumOrderQuantity} shots. Add {remainingForMinimum} more to

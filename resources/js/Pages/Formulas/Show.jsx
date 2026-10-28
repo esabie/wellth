@@ -32,7 +32,7 @@ export default function Show({ formula }) {
         <ShopLayout>
             <Head title={formula.name} />
 
-            <section className="mx-auto max-w-6xl px-4 pb-12 pt-4 sm:px-6 sm:pb-16 sm:pt-5">
+            <section className="mx-auto max-w-6xl px-4 pt-4 pb-28 sm:px-6 sm:pb-16 sm:pt-5">
                 <Link
                     href="/shop"
                     className="text-sm font-medium text-forest/60 transition hover:text-forest"
@@ -149,7 +149,7 @@ export default function Show({ formula }) {
                             </dl>
                         )}
 
-                        <div className="mt-9 border-t border-forest/12 pt-7">
+                        <div className="mt-9 hidden border-t border-forest/12 pt-7 lg:block">
                             <button
                                 type="button"
                                 onClick={addToCart}
@@ -174,12 +174,34 @@ export default function Show({ formula }) {
 
                             <p className="mt-4 max-w-md text-sm leading-relaxed text-ink/55">
                                 Made fresh to order. Allow up to one week. Minimum 10 bottles, mix formulas freely.
-                                Delivery fee will be confirmed once order is ready.
+                                Shipping will be communicated when your order is about to be dispatched.
                             </p>
                         </div>
+
+                        <p className="mt-9 max-w-md border-t border-forest/12 pt-7 text-sm leading-relaxed text-ink/55 lg:hidden">
+                            Made fresh to order. Allow up to one week. Minimum 10 bottles, mix formulas freely.
+                            Shipping will be communicated when your order is about to be dispatched.
+                        </p>
                     </div>
                 </div>
             </section>
+
+            <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-mist/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
+                <div className="mx-auto flex max-w-6xl items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-ink">{formula.name}</p>
+                        <p className="text-sm font-bold text-ink">{formatMoney(formula.price)}</p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={addToCart}
+                        disabled={adding || !formula.product_id}
+                        className="min-h-12 shrink-0 cursor-pointer rounded-full bg-ink px-5 py-3 text-sm font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {adding ? 'Adding…' : 'Add to Cart'}
+                    </button>
+                </div>
+            </div>
         </ShopLayout>
     );
 }

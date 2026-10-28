@@ -5,6 +5,9 @@ namespace App\Actions;
 use App\Enums\OrderStatus;
 use App\Enums\PointsRedeemStatus;
 use App\Models\Order;
+use App\Notifications\Channels\MnotifyChannel;
+use App\Notifications\OrderPlacedCustomerNotification;
+use App\Notifications\OrderPlacedCustomerSmsNotification;
 use App\Support\Cart;
 use App\Support\CheckoutPricing;
 use App\Support\LoyaltyPoints;
@@ -13,7 +16,9 @@ use App\Support\PromoCodes;
 use App\Support\ShopAdminNotifier;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use InvalidArgumentException;
+use Throwable;
 
 class CreateCheckoutOrder
 {
@@ -136,7 +141,59 @@ class CreateCheckoutOrder
         ]);
 
         app(ShopAdminNotifier::class)->orderPlaced($order);
+        $this->notifyCustomer($order);
 
         return $order;
+    }
+
+    private function notifyCustomer(Order $order): void
+    {
+        try {
+            if (filled($order->customer_email)) {
+                Notification::route('mail', $order->customer_email)
+                    ->notify(new OrderPlacedCustomerNotification($order));
+
+                Log::info('checkout.customer_placed_email_queued', [
+                    'order' => $order->uuid,
+                    'email' => $order->customer_email,
+                ]);
+            } else {
+                Log::warning('checkout.customer_placed_email_skipped', [
+                    'order' => $order->uuid,
+                    'reason' => 'missing_customer_email',
+                ]);
+            }
+
+            if (! filled(config('services.mnotify.api_key'))) {
+                Log::warning('checkout.customer_placed_sms_skipped', [
+                    'order' => $order->uuid,
+                    'reason' => 'mnotify_not_configured',
+                ]);
+
+                return;
+            }
+
+            if (blank($order->customer_phone)) {
+                Log::warning('checkout.customer_placed_sms_skipped', [
+                    'order' => $order->uuid,
+                    'reason' => 'missing_customer_phone',
+                ]);
+
+                return;
+            }
+
+            Notification::route(MnotifyChannel::class, PhoneNumber::forSms($order->customer_phone))
+                ->notify(new OrderPlacedCustomerSmsNotification($order));
+
+            Log::info('checkout.customer_placed_sms_queued', [
+                'order' => $order->uuid,
+                'phone' => PhoneNumber::normalize((string) $order->customer_phone),
+            ]);
+        } catch (Throwable $exception) {
+            Log::error('checkout.customer_placed_notify_failed', [
+                'order' => $order->uuid,
+                'error' => $exception->getMessage(),
+            ]);
+        }
     }
 }

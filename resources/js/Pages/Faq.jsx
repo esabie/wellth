@@ -18,7 +18,7 @@ function FaqItem({ faq, index, open, onToggle }) {
                 aria-expanded={open}
                 aria-controls={panelId}
                 onClick={() => onToggle(index)}
-                className="flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
+                className="flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
             >
                 <span className="text-base font-semibold text-ink sm:text-lg">{faq.question}</span>
                 <svg

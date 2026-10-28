@@ -76,7 +76,7 @@ export default function Show({ product, relatedProducts }) {
 
                     <PreorderNotice />
 
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                         <div className="flex items-center gap-2">
                             <button
                                 type="button"
@@ -101,7 +101,7 @@ export default function Show({ product, relatedProducts }) {
                             type="button"
                             onClick={addToCart}
                             disabled={adding}
-                            className="cursor-pointer rounded-full bg-ink px-6 py-3 text-sm font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="min-h-12 w-full cursor-pointer rounded-full bg-ink px-6 py-3 text-sm font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                         >
                             {adding ? 'Adding…' : 'Add to cart'}
                         </button>

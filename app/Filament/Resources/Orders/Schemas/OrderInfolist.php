@@ -53,6 +53,12 @@ class OrderInfolist
                         TextEntry::make('paid_at')
                             ->dateTime()
                             ->placeholder('-'),
+                        TextEntry::make('prepared_at')
+                            ->dateTime()
+                            ->placeholder('-'),
+                        TextEntry::make('shipped_at')
+                            ->dateTime()
+                            ->placeholder('-'),
                         TextEntry::make('created_at')
                             ->dateTime(),
                     ])

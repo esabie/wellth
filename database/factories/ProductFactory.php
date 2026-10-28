@@ -30,6 +30,7 @@ class ProductFactory extends Factory
             'short_description' => fake()->sentence(),
             'description' => fake()->paragraphs(2, true),
             'bottle_size' => null,
+            'pack_units' => 1,
             'taste' => null,
             'ritual' => null,
             'highlights' => null,

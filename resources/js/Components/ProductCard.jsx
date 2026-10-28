@@ -50,12 +50,12 @@ export default function ProductCard({ product }) {
                 </div>
 
                 <div className="flex flex-1 flex-col px-5 pt-4">
-                    <div className="flex items-start justify-between gap-3">
-                        <h3 className="font-display text-lg leading-tight font-bold tracking-tight text-forest">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                        <h3 className="line-clamp-2 font-display text-lg leading-tight font-bold tracking-tight text-forest">
                             {product.name}
                         </h3>
                         {product.bottle_size && (
-                            <span className="mt-1 shrink-0 text-[11px] font-semibold tracking-[0.12em] text-forest/40 uppercase">
+                            <span className="shrink-0 text-[11px] font-semibold tracking-[0.12em] text-forest/40 uppercase">
                                 {product.bottle_size}
                             </span>
                         )}

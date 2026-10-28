@@ -30,8 +30,8 @@ class CategorySeeder extends Seeder
             [
                 'name' => 'Bundles',
                 'slug' => 'bundles',
-                'description' => 'Curated packs for the week — mix shots and juices.',
-                'is_active' => false,
+                'description' => 'Curated shot bouquets — a ready-made mix for the week.',
+                'is_active' => true,
                 'sort_order' => 3,
             ],
         ];

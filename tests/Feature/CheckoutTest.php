@@ -16,6 +16,7 @@ beforeEach(function () {
         'shop.momo_display_number' => '+233 54 536 5434',
         'shop.momo_account_name' => 'Wellth',
         'shop.momo_network' => 'MTN MoMo',
+        'services.mnotify.api_key' => null,
     ]);
 });
 

@@ -51,7 +51,7 @@ class FormulaCatalog
                     ['name' => 'Ginger', 'image' => '/images/ingredients/ginger.jpg'],
                     ['name' => 'Lemon', 'image' => '/images/ingredients/lemon.jpg'],
                     ['name' => 'Cayenne Pepper', 'image' => '/images/ingredients/cayenne.jpg'],
-                    ['name' => 'Water', 'image' => null],
+                    ['name' => 'Coconut Water', 'image' => null],
                 ],
             ],
             'glow-getter' => [

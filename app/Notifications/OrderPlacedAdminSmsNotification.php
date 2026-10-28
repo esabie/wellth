@@ -2,8 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Enums\SmsTemplate;
 use App\Models\Order;
 use App\Notifications\Channels\MnotifyChannel;
+use App\Support\SmsTemplates;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -28,9 +30,12 @@ class OrderPlacedAdminSmsNotification extends Notification implements ShouldQueu
     public function toMnotify(object $notifiable): string
     {
         $order = $this->order;
-        $currency = $order->currency ?: config('shop.currency', 'GHS');
-        $total = number_format((float) $order->total, 2);
 
-        return "New order {$order->uuid} from {$order->customer_name}. Total {$currency} {$total}. Waiting for MoMo proof.";
+        return app(SmsTemplates::class)->render(SmsTemplate::OrderPlacedAdmin, [
+            'order' => $order->uuid,
+            'name' => $order->customer_name,
+            'currency' => $order->currency ?: config('shop.currency', 'GHS'),
+            'total' => number_format((float) $order->total, 2),
+        ]);
     }
 }

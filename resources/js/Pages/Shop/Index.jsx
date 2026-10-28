@@ -28,8 +28,7 @@ export default function Index({ products, categories, filters }) {
                                 Choose your daily shot.
                             </h1>
                             <p className="mt-3 max-w-xl text-base leading-relaxed text-forest/75 sm:text-lg">
-                                Organic wellness shots with bold flavour and clean purpose. Mix formulas freely —
-                                checkout opens at 10 bottles.
+                                Organic wellness shots with bold flavour and clean purpose.
                             </p>
                         </div>
                         <p className="shrink-0 text-sm font-medium text-forest/45">
@@ -37,11 +36,11 @@ export default function Index({ products, categories, filters }) {
                         </p>
                     </div>
 
-                    <div className="mt-8 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="mt-8 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         <button
                             type="button"
                             onClick={() => selectCategory(null)}
-                            className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                            className={`min-h-11 shrink-0 snap-start rounded-full px-4 py-2 text-sm font-semibold transition ${
                                 !filters.category
                                     ? 'bg-ink text-white'
                                     : 'bg-white/70 text-forest/70 ring-1 ring-forest/10 hover:bg-white hover:text-forest'
@@ -54,7 +53,7 @@ export default function Index({ products, categories, filters }) {
                                 key={category.id}
                                 type="button"
                                 onClick={() => selectCategory(category.slug)}
-                                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                                className={`min-h-11 shrink-0 snap-start rounded-full px-4 py-2 text-sm font-semibold transition ${
                                     filters.category === category.slug
                                         ? 'bg-ink text-white'
                                         : 'bg-white/70 text-forest/70 ring-1 ring-forest/10 hover:bg-white hover:text-forest'
@@ -90,14 +89,14 @@ export default function Index({ products, categories, filters }) {
                     )}
 
                     {products.last_page > 1 && (
-                        <div className="mt-12 flex justify-center gap-2">
+                        <div className="mt-12 flex flex-wrap justify-center gap-2">
                             {products.links
                                 .filter((link) => link.url)
                                 .map((link) => (
                                     <Link
                                         key={`${link.label}-${link.url}`}
                                         href={link.url}
-                                        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                                        className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-semibold transition ${
                                             link.active
                                                 ? 'bg-ink text-white'
                                                 : 'bg-white/70 text-forest/70 ring-1 ring-forest/10 hover:bg-white hover:text-forest'

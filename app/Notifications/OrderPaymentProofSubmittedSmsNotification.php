@@ -2,8 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Enums\SmsTemplate;
 use App\Models\Order;
 use App\Notifications\Channels\MnotifyChannel;
+use App\Support\SmsTemplates;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -28,9 +30,12 @@ class OrderPaymentProofSubmittedSmsNotification extends Notification implements 
     public function toMnotify(object $notifiable): string
     {
         $order = $this->order;
-        $currency = $order->currency ?: config('shop.currency', 'GHS');
-        $total = number_format((float) $order->total, 2);
 
-        return "Payment proof uploaded for {$order->uuid} ({$currency} {$total}) by {$order->customer_name}. Review and confirm in admin.";
+        return app(SmsTemplates::class)->render(SmsTemplate::PaymentProofAdmin, [
+            'order' => $order->uuid,
+            'name' => $order->customer_name,
+            'currency' => $order->currency ?: config('shop.currency', 'GHS'),
+            'total' => number_format((float) $order->total, 2),
+        ]);
     }
 }

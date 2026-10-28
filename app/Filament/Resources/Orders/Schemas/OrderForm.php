@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Orders\Schemas;
 
 use App\Enums\OrderStatus;
+use App\Models\Order;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -16,11 +17,23 @@ class OrderForm
         return $schema
             ->components([
                 Section::make('Fulfilment')
+                    ->description('Use Start preparing and Mark shipped on the order view for the happy path. Here you can cancel or fail an order, or add delivery notes.')
                     ->schema([
                         Select::make('status')
-                            ->options(OrderStatus::class)
+                            ->options(fn (?Order $record): array => collect([
+                                $record?->status,
+                                OrderStatus::Cancelled,
+                                OrderStatus::Failed,
+                            ])
+                                ->filter()
+                                ->unique()
+                                ->mapWithKeys(fn (OrderStatus $status): array => [
+                                    $status->value => $status->getLabel(),
+                                ])
+                                ->all())
                             ->required()
-                            ->native(false),
+                            ->native(false)
+                            ->helperText('Preparing and shipped are set from the order view so stock and customer alerts stay in sync.'),
                         Textarea::make('shipping_notes')
                             ->rows(3)
                             ->columnSpanFull(),

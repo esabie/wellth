@@ -8,35 +8,65 @@ function formatMoney(value) {
     }).format(Number(value));
 }
 
+function confirmationCopy(order) {
+    if (order.status === 'awaiting_confirmation') {
+        return {
+            title: 'Payment received',
+            heading: 'Screenshot received.',
+            body: `Thanks, ${order.customer_name}. We're reviewing your MoMo payment proof and will email ${order.customer_email} and text ${order.customer_phone} once it's confirmed. Please allow up to one week after confirmation for preparation and delivery.`,
+        };
+    }
+
+    if (order.status === 'preparing') {
+        return {
+            title: 'Order preparing',
+            heading: "We're preparing your shots.",
+            body: `Your order is in the kitchen, ${order.customer_name}. We'll email and text you again when it's on the way.`,
+        };
+    }
+
+    if (order.status === 'shipped') {
+        return {
+            title: 'Order shipped',
+            heading: 'Your order is on the way.',
+            body: `Your shots have left our kitchen, ${order.customer_name}. They're headed to ${order.shipping_city}.`,
+        };
+    }
+
+    return {
+        title: 'Order confirmed',
+        heading: 'Order confirmed.',
+        body: `We've confirmed your payment, ${order.customer_name}. A confirmation email and SMS are on the way. Shots are made fresh — please allow up to one week for delivery.`,
+    };
+}
+
 export default function Confirmation({ order }) {
-    const awaitingConfirmation = order.status === 'awaiting_confirmation';
+    const copy = confirmationCopy(order);
 
     return (
         <ShopLayout>
-            <Head title={awaitingConfirmation ? 'Payment received' : 'Order confirmed'} />
+            <Head title={copy.title} />
 
             <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
                 <p className="text-xs font-bold tracking-[0.18em] text-forest/50 uppercase">Thank you</p>
                 <h1 className="mt-3 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-                    {awaitingConfirmation ? 'Screenshot received.' : 'Order confirmed.'}
+                    {copy.heading}
                 </h1>
-                <p className="mt-3 max-w-xl text-ink/65">
-                    {awaitingConfirmation
-                        ? `Thanks, ${order.customer_name}. We're reviewing your MoMo payment proof and will email ${order.customer_email} and text ${order.customer_phone} once it's confirmed. Please allow up to one week after confirmation for preparation and delivery.`
-                        : `We've confirmed your payment, ${order.customer_name}. A confirmation email and SMS are on the way. Shots are made fresh — please allow up to one week for delivery.`}
-                </p>
+                <p className="mt-3 max-w-xl text-ink/65">{copy.body}</p>
 
                 <div className="mt-10 rounded-[1.5rem] bg-white p-6 ring-1 ring-black/5 sm:p-8">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <p className="text-xs font-bold tracking-wide text-ink/45 uppercase">Order number</p>
-                            <p className="mt-1 font-mono text-base font-semibold tracking-wide text-ink">
+                            <p className="mt-1 font-mono text-base font-semibold tracking-wide break-all text-ink">
                                 {order.uuid}
                             </p>
                             {order.payment_reference && order.payment_reference !== order.uuid && (
                                 <p className="mt-2 text-xs text-ink/50">
                                     Payment reference:{' '}
-                                    <span className="font-mono font-semibold text-ink">{order.payment_reference}</span>
+                                    <span className="font-mono font-semibold break-all text-ink">
+                                        {order.payment_reference}
+                                    </span>
                                 </p>
                             )}
                         </div>

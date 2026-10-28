@@ -40,6 +40,9 @@ use Illuminate\Support\Str;
     'payment_proof_path',
     'payment_submitted_at',
     'paid_at',
+    'prepared_at',
+    'shipped_at',
+    'stock_decremented_at',
 ])]
 class Order extends Model
 {
@@ -104,6 +107,9 @@ class Order extends Model
             'total' => 'decimal:2',
             'payment_submitted_at' => 'datetime',
             'paid_at' => 'datetime',
+            'prepared_at' => 'datetime',
+            'shipped_at' => 'datetime',
+            'stock_decremented_at' => 'datetime',
         ];
     }
 

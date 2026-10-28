@@ -62,9 +62,9 @@ export default function Payment({ order, momo }) {
                                 <dt className="text-ink/55">Account name</dt>
                                 <dd className="font-semibold text-ink">{momo.account_name}</dd>
                             </div>
-                            <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-2">
                                 <dt className="text-ink/55">MoMo number</dt>
-                                <dd className="font-display text-2xl font-extrabold tracking-tight text-ink">
+                                <dd className="font-display text-2xl font-extrabold tracking-tight break-all text-ink">
                                     {momo.display_number}
                                 </dd>
                             </div>
@@ -78,7 +78,7 @@ export default function Payment({ order, momo }) {
                                 <p className="text-[11px] font-bold tracking-[0.14em] text-forest/55 uppercase">
                                     Use this as your MoMo reference / name
                                 </p>
-                                <p className="mt-1 font-mono text-lg font-bold tracking-wide text-forest">
+                                <p className="mt-1 font-mono text-lg font-bold tracking-wide break-all text-forest">
                                     {order.payment_reference}
                                 </p>
                             </div>
@@ -114,10 +114,12 @@ export default function Payment({ order, momo }) {
                                             onChange={(event) =>
                                                 setFileName(event.target.files?.[0]?.name ?? '')
                                             }
-                                            className="mt-1.5 block w-full text-sm text-ink file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:file:bg-leaf-800"
+                                            className="mt-1.5 block w-full text-sm text-ink file:mb-2 file:mr-0 file:block file:w-full file:cursor-pointer file:rounded-full file:border-0 file:bg-ink file:px-4 file:py-3 file:text-sm file:font-bold file:text-white hover:file:bg-leaf-800 sm:file:mb-0 sm:file:mr-4 sm:file:inline-block sm:file:w-auto"
                                         />
                                         {fileName && (
-                                            <p className="mt-2 text-xs font-semibold text-ink/55">Selected: {fileName}</p>
+                                            <p className="mt-2 break-all text-xs font-semibold text-ink/55">
+                                                Selected: {fileName}
+                                            </p>
                                         )}
                                         <FieldError message={formErrors.payment_proof} />
                                     </label>
@@ -136,7 +138,9 @@ export default function Payment({ order, momo }) {
 
                     <div className="rounded-2xl border border-black/8 bg-white p-5 sm:p-6">
                         <p className="text-xs font-bold tracking-wide text-ink/45 uppercase">Order number</p>
-                        <p className="mt-1 font-mono text-base font-semibold tracking-wide text-ink">{order.uuid}</p>
+                        <p className="mt-1 font-mono text-base font-semibold tracking-wide break-all text-ink">
+                            {order.uuid}
+                        </p>
                         <ul className="mt-4 divide-y divide-black/5 border-t border-black/5">
                             {order.items.map((item) => (
                                 <li

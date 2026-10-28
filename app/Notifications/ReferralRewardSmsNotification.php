@@ -2,8 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Enums\SmsTemplate;
 use App\Models\Order;
 use App\Notifications\Channels\MnotifyChannel;
+use App\Support\SmsTemplates;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -31,6 +33,10 @@ class ReferralRewardSmsNotification extends Notification implements ShouldQueue
 
     public function toMnotify(object $notifiable): string
     {
-        return "Someone used your code {$this->promoCode}. You earned {$this->pointsEarned} points. Your balance is now {$this->balance} points. Thanks for sharing!";
+        return app(SmsTemplates::class)->render(SmsTemplate::ReferralReward, [
+            'promo_code' => $this->promoCode,
+            'points' => $this->pointsEarned,
+            'balance' => $this->balance,
+        ]);
     }
 }

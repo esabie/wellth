@@ -42,7 +42,9 @@ class Cart
 
     public function count(): int
     {
-        return collect($this->items())->sum('quantity');
+        return (int) $this->detailedItems()->sum(
+            fn (array $item): int => $item['quantity'] * max(1, (int) ($item['product']->pack_units ?? 1)),
+        );
     }
 
     public function minimumOrderQuantity(): int

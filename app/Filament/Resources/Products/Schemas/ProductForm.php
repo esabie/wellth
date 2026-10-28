@@ -64,6 +64,14 @@ class ProductForm
                         TextInput::make('bottle_size')
                             ->maxLength(40)
                             ->placeholder('e.g. 60ml'),
+                        TextInput::make('pack_units')
+                            ->label('Bottles per pack')
+                            ->helperText('Used for the minimum order count. Single shots stay at 1; a 10-bottle bouquet is 10.')
+                            ->numeric()
+                            ->integer()
+                            ->minValue(1)
+                            ->default(1)
+                            ->required(),
                         Toggle::make('is_active')
                             ->default(true)
                             ->required(),

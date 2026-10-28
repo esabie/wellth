@@ -18,7 +18,7 @@ function FieldError({ message }) {
 }
 
 const fieldClassName =
-    'mt-1.5 w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm text-ink outline-none transition placeholder:text-ink/35 focus:border-forest/40';
+    'mt-1.5 w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-base text-ink outline-none transition placeholder:text-ink/35 focus:border-forest/40 sm:text-sm';
 
 export default function Show({
     items,
@@ -385,7 +385,7 @@ export default function Show({
                                             <span className="font-semibold text-ink">
                                                 {Number(shipping_amount) > 0
                                                     ? formatMoney(shipping_amount)
-                                                    : 'Will be confirmed once item is ready'}
+                                                    : 'Shared at dispatch'}
                                             </span>
                                         </div>
                                         {hasLoyaltyDiscount && (
@@ -448,7 +448,7 @@ export default function Show({
                                                     type="button"
                                                     onClick={points_redeeming ? removePoints : applyPoints}
                                                     disabled={togglingPoints}
-                                                    className="cursor-pointer shrink-0 rounded-xl border border-black/10 px-3 py-2 text-xs font-bold tracking-wide text-ink uppercase transition hover:bg-mist/60 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    className="min-h-11 cursor-pointer shrink-0 rounded-xl border border-black/10 px-4 py-2.5 text-sm font-bold tracking-wide text-ink uppercase transition hover:bg-mist/60 disabled:cursor-not-allowed disabled:opacity-50"
                                                 >
                                                     {togglingPoints ? '…' : points_redeeming ? 'Remove' : 'Use points'}
                                                 </button>
@@ -471,13 +471,13 @@ export default function Show({
                                                 <button
                                                     type="button"
                                                     onClick={removePromo}
-                                                    className="cursor-pointer text-xs font-bold tracking-wide text-ink/50 uppercase transition hover:text-ink"
+                                                    className="min-h-11 cursor-pointer px-2 text-sm font-bold tracking-wide text-ink/50 uppercase transition hover:text-ink"
                                                 >
                                                     Remove
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div className="mt-2 flex gap-2">
+                                            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                                                 <input
                                                     type="text"
                                                     value={promoInput}
@@ -488,14 +488,14 @@ export default function Show({
                                                         }
                                                     }}
                                                     placeholder="ENTER PROMO CODE"
-                                                    className="min-w-0 flex-1 rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm tracking-wide text-ink uppercase outline-none transition placeholder:text-ink/35 focus:border-forest/40"
+                                                    className="min-h-11 min-w-0 flex-1 rounded-xl border border-black/10 bg-white px-4 py-2.5 text-base tracking-wide text-ink uppercase outline-none transition placeholder:text-ink/35 focus:border-forest/40 sm:text-sm"
                                                     autoComplete="off"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={applyPromo}
                                                     disabled={applyingPromo || !promoInput.trim()}
-                                                    className="cursor-pointer rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    className="min-h-11 cursor-pointer rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-50"
                                                 >
                                                     {applyingPromo ? '…' : 'Apply'}
                                                 </button>
