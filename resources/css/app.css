@@ -1,0 +1,67 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../js/**/*.{js,jsx}';
+@source '../views/**/*.blade.php';
+
+@theme {
+    --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Fraunces', ui-serif, Georgia, serif;
+
+    --color-forest: #1f3d2a;
+    --color-punch: #e85d2a;
+
+    --color-leaf-50: #f3f8f1;
+    --color-leaf-100: #e4f0df;
+    --color-leaf-200: #c7e0bd;
+    --color-leaf-300: #9ec894;
+    --color-leaf-400: #6fa966;
+    --color-leaf-500: #4a8a42;
+    --color-leaf-600: #376e33;
+    --color-leaf-700: #2c572a;
+    --color-leaf-800: #254625;
+    --color-leaf-900: #1f3a20;
+
+    --color-citrus-400: #f0b429;
+    --color-citrus-500: #e09a12;
+    --color-ink: #1a1a1a;
+    --color-stone: #f4f0ea;
+    --color-mist: #f7f4ef;
+}
+
+@layer base {
+    body {
+        @apply bg-mist text-ink font-sans antialiased;
+    }
+}
+
+@layer components {
+    .cart-drawer-backdrop {
+        transition: opacity 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cart-drawer-panel {
+        transform: translate3d(100%, 0, 0);
+        transition: transform 680ms cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: transform;
+    }
+
+    .cart-drawer-panel.is-open {
+        transform: translate3d(0, 0, 0);
+    }
+
+    .cart-drawer-content {
+        opacity: 0;
+        transform: translate3d(18px, 0, 0);
+        transition:
+            opacity 480ms cubic-bezier(0.22, 1, 0.36, 1) 90ms,
+            transform 560ms cubic-bezier(0.16, 1, 0.3, 1) 70ms;
+    }
+
+    .cart-drawer-panel.is-open .cart-drawer-content {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
