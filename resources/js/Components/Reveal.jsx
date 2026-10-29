@@ -6,7 +6,7 @@ export default function Reveal({
     className = '',
     variant = 'rise',
     delay = 0,
-    once = false,
+    once = true,
     ...props
 }) {
     const ref = useRef(null);

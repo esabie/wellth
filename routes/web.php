@@ -16,26 +16,30 @@ Route::get('/shop/{product}', [ProductController::class, 'show'])->name('shop.sh
 Route::redirect('/formulas/{formula}', '/shop/{formula}', 301)->name('formulas.show');
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
-Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
-Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart.destroy');
+Route::middleware('throttle:shop-cart')->group(function (): void {
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
+    Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart.destroy');
+});
 
 Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout', [CheckoutController::class, 'store'])
+    ->middleware('throttle:shop-checkout')
+    ->name('checkout.store');
 Route::post('/checkout/loyalty-preview', [CheckoutController::class, 'previewLoyalty'])
-    ->middleware('throttle:30,1')
+    ->middleware('throttle:shop-loyalty')
     ->name('checkout.loyalty.preview');
-Route::post('/checkout/promo', [CheckoutController::class, 'applyPromo'])
-    ->middleware('throttle:20,1')
-    ->name('checkout.promo.apply');
-Route::delete('/checkout/promo', [CheckoutController::class, 'removePromo'])->name('checkout.promo.remove');
-Route::post('/checkout/points', [CheckoutController::class, 'applyPoints'])
-    ->middleware('throttle:20,1')
-    ->name('checkout.points.apply');
-Route::delete('/checkout/points', [CheckoutController::class, 'removePoints'])->name('checkout.points.remove');
+Route::middleware('throttle:shop-promo')->group(function (): void {
+    Route::post('/checkout/promo', [CheckoutController::class, 'applyPromo'])->name('checkout.promo.apply');
+    Route::delete('/checkout/promo', [CheckoutController::class, 'removePromo'])->name('checkout.promo.remove');
+});
+Route::middleware('throttle:shop-points')->group(function (): void {
+    Route::post('/checkout/points', [CheckoutController::class, 'applyPoints'])->name('checkout.points.apply');
+    Route::delete('/checkout/points', [CheckoutController::class, 'removePoints'])->name('checkout.points.remove');
+});
 Route::get('/checkout/{order}/pay', [CheckoutController::class, 'payment'])->name('checkout.payment');
 Route::post('/checkout/{order}/pay', [CheckoutController::class, 'storePaymentProof'])
-    ->middleware('throttle:10,1')
+    ->middleware('throttle:shop-payment')
     ->name('checkout.payment.store');
 Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');

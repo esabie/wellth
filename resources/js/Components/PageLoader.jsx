@@ -62,8 +62,11 @@ export default function PageLoader() {
             }, wait);
         };
 
+        const shouldIgnore = (visit) =>
+            Boolean(visit?.prefetch || visit?.async || visit?.showProgress === false);
+
         const onStart = (event) => {
-            if (event.detail.visit.prefetch) {
+            if (shouldIgnore(event.detail.visit)) {
                 return;
             }
 
@@ -77,7 +80,7 @@ export default function PageLoader() {
         };
 
         const onFinish = (event) => {
-            if (event.detail.visit.prefetch) {
+            if (shouldIgnore(event.detail.visit)) {
                 return;
             }
 

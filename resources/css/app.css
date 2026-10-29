@@ -95,21 +95,28 @@
     }
 
     .reveal-drama {
-        transform: translate3d(0, 3.5rem, 0) scale(0.985);
-        filter: blur(2px);
+        transform: translate3d(0, 2rem, 0) scale(0.99);
     }
 
     .reveal-card {
-        transform: translate3d(0, 3rem, 0) scale(0.94);
-        filter: blur(1px);
+        transform: translate3d(0, 1.5rem, 0) scale(0.98);
     }
 
     .reveal-slide-left {
-        transform: translate3d(-2.5rem, 1.5rem, 0);
+        transform: translate3d(-1.25rem, 0.75rem, 0);
     }
 
     .reveal-slide-right {
-        transform: translate3d(2.5rem, 1.5rem, 0);
+        transform: translate3d(1.25rem, 0.75rem, 0);
+    }
+
+    @media (max-width: 639px) {
+        .reveal-drama,
+        .reveal-card,
+        .reveal-slide-left,
+        .reveal-slide-right {
+            transform: translate3d(0, 1rem, 0);
+        }
     }
 
     .reveal.is-visible {

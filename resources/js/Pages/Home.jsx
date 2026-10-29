@@ -14,8 +14,8 @@ export default function Home({ formulas, bouquet }) {
             <section className="relative isolate min-h-[92vh] overflow-hidden bg-[#f4efe7]">
                 <HeroSlider />
 
-                <div className="relative mx-auto flex min-h-[92vh] max-w-6xl items-end px-4 pb-16 pt-32 sm:items-center sm:px-6 sm:pb-20 lg:items-center">
-                    <div className="hero-copy max-w-lg space-y-6 lg:max-w-xl">
+                <div className="relative mx-auto flex min-h-[92vh] max-w-6xl items-end px-4 pb-24 pt-28 sm:items-center sm:px-6 sm:pb-20 sm:pt-32 lg:items-center">
+                    <div className="hero-copy max-w-lg space-y-5 sm:space-y-6 lg:max-w-xl">
                         <p className="text-[0.7rem] font-bold tracking-[0.28em] text-forest/55 uppercase">
                             Wellth
                         </p>

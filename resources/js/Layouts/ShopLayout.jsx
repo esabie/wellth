@@ -26,7 +26,7 @@ export default function ShopLayout({ children, overlayHeader = false }) {
         if (flash?.open_cart) {
             setCartOpen(true);
         }
-    }, [flash?.open_cart, cartCount]);
+    }, [flash?.open_cart]);
 
     useEffect(() => {
         if (!menuOpen) {

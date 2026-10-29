@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Responses\FilamentLoginResponse;
+use App\Support\ShopRateLimits;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse as LoginResponseContract;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        ShopRateLimits::register();
     }
 }

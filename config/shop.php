@@ -92,4 +92,22 @@ return [
     */
     'cart_ttl_minutes' => (int) env('SHOP_CART_TTL_MINUTES', 20),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Shopper rate limits (requests per minute)
+    |--------------------------------------------------------------------------
+    |
+    | Keyed by IP address. Cart stays high enough for quantity changes.
+    | Checkout writes stay tight.
+    |
+    */
+    'rate_limits' => [
+        'cart' => 120,
+        'checkout' => 8,
+        'promo' => 20,
+        'loyalty' => 30,
+        'points' => 20,
+        'payment' => 10,
+    ],
+
 ];

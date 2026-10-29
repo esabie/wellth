@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Session;
  *         slug: string,
  *         price: mixed,
  *         image: string|null,
- *         short_description: string|null
+ *         short_description: string|null,
+ *         pack_units: int
  *     },
  *     quantity: int,
  *     line_total: string
@@ -184,6 +185,7 @@ class Cart
                             'price' => $product->price,
                             'image' => $product->imageUrl(),
                             'short_description' => $product->short_description,
+                            'pack_units' => max(1, (int) ($product->pack_units ?? 1)),
                         ],
                         'quantity' => $item['quantity'],
                         'line_total' => $item['line_total'],

@@ -37,70 +37,42 @@ export default function Show({ formula }) {
                     ← Formulas
                 </Link>
 
-                <div className="mt-6 grid items-start gap-10 lg:grid-cols-12 lg:gap-12">
-                    <div className="lg:col-span-6">
+                <div className="mt-6 grid items-start gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-8">
+                    <div className="order-1 lg:col-span-6 lg:row-start-1">
                         <img
                             src={formula.image}
                             alt={formula.name}
                             className="aspect-[4/5] w-full rounded-2xl object-cover sm:aspect-square"
                         />
-
-                        {formula.ingredients?.length > 0 && (
-                            <div className="mt-8">
-                                <p className="text-[11px] font-bold tracking-[0.18em] text-forest/45 uppercase">
-                                    What&apos;s inside
-                                </p>
-                                <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4">
-                                    {formula.ingredients.map((ingredient) => (
-                                        <figure key={ingredient.name}>
-                                            <div className="aspect-square overflow-hidden rounded-xl bg-[#ebe6dc]">
-                                                {ingredient.image ? (
-                                                    <img
-                                                        src={ingredient.image}
-                                                        alt={ingredient.name}
-                                                        className="h-full w-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="flex h-full items-center justify-center px-2 text-center text-xs font-medium text-ink/40">
-                                                        {ingredient.name}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <figcaption className="mt-2 text-center text-xs font-medium text-forest/80">
-                                                {ingredient.name}
-                                            </figcaption>
-                                        </figure>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
 
-                    <div className="lg:col-span-6 lg:pt-2">
-                        <h1 className="font-serif text-4xl leading-[1.05] font-bold tracking-tight text-forest sm:text-5xl">
-                            {formula.name}
-                        </h1>
+                    <div className="order-2 space-y-7 lg:col-span-6 lg:row-span-2 lg:row-start-1 lg:pt-2">
+                        <div>
+                            <h1 className="font-serif text-4xl leading-[1.05] font-bold tracking-tight text-forest sm:text-5xl">
+                                {formula.name}
+                            </h1>
 
-                        <p className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                            <span className="font-display text-2xl font-extrabold tracking-tight text-ink">
-                                {formatMoney(formula.price)}
-                            </span>
-                            <span className="text-sm text-ink/50">
-                                per bottle{formula.bottle_size ? ` · ${formula.bottle_size}` : ''}
-                            </span>
-                        </p>
+                            <p className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                                <span className="font-display text-2xl font-extrabold tracking-tight text-ink">
+                                    {formatMoney(formula.price)}
+                                </span>
+                                <span className="text-sm text-ink/50">
+                                    per bottle{formula.bottle_size ? ` · ${formula.bottle_size}` : ''}
+                                </span>
+                            </p>
 
-                        <div className="mt-7 max-w-xl space-y-3">
-                            <p className="text-lg leading-snug font-medium text-forest">
-                                {formula.blurb}
-                            </p>
-                            <p className="text-[15px] leading-relaxed text-ink/65">
-                                {formula.description}
-                            </p>
+                            <div className="mt-7 max-w-xl space-y-3">
+                                <p className="text-lg leading-snug font-medium text-forest">
+                                    {formula.blurb}
+                                </p>
+                                <p className="text-[15px] leading-relaxed text-ink/65">
+                                    {formula.description}
+                                </p>
+                            </div>
                         </div>
 
                         {formula.highlights?.length > 0 && (
-                            <div className="mt-9 border-t border-forest/12 pt-7">
+                            <div className="border-t border-forest/12 pt-7">
                                 <h2 className="font-serif text-xl font-bold text-forest">
                                     Why you&apos;ll love it
                                 </h2>
@@ -122,7 +94,7 @@ export default function Show({ formula }) {
                         )}
 
                         {(formula.taste || formula.ritual) && (
-                            <dl className="mt-8 grid gap-6 border-t border-forest/12 pt-7 sm:grid-cols-2">
+                            <dl className="grid gap-6 border-t border-forest/12 pt-7 sm:grid-cols-2">
                                 {formula.taste && (
                                     <div>
                                         <dt className="text-[11px] font-bold tracking-[0.16em] text-forest/45 uppercase">
@@ -146,7 +118,7 @@ export default function Show({ formula }) {
                             </dl>
                         )}
 
-                        <div className="mt-9 hidden border-t border-forest/12 pt-7 lg:block">
+                        <div className="hidden border-t border-forest/12 pt-7 lg:block">
                             <button
                                 type="button"
                                 onClick={addToCart}
@@ -175,11 +147,41 @@ export default function Show({ formula }) {
                             </p>
                         </div>
 
-                        <p className="mt-9 max-w-md border-t border-forest/12 pt-7 text-sm leading-relaxed text-ink/55 lg:hidden">
+                        <p className="border-t border-forest/12 pt-7 text-sm leading-relaxed text-ink/55 lg:hidden">
                             Made fresh to order. Allow up to one week. Minimum 10 bottles, mix formulas freely.
                             Shipping will be communicated when your order is about to be dispatched.
                         </p>
                     </div>
+
+                    {formula.ingredients?.length > 0 && (
+                        <div className="order-3 lg:col-span-6 lg:row-start-2">
+                            <p className="text-[11px] font-bold tracking-[0.18em] text-forest/45 uppercase">
+                                What&apos;s inside
+                            </p>
+                            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4">
+                                {formula.ingredients.map((ingredient) => (
+                                    <figure key={ingredient.name}>
+                                        <div className="aspect-square overflow-hidden rounded-xl bg-[#ebe6dc]">
+                                            {ingredient.image ? (
+                                                <img
+                                                    src={ingredient.image}
+                                                    alt={ingredient.name}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full items-center justify-center px-2 text-center text-xs font-medium text-ink/40">
+                                                    {ingredient.name}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <figcaption className="mt-2 text-center text-xs font-medium text-forest/80">
+                                            {ingredient.name}
+                                        </figcaption>
+                                    </figure>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </section>
 

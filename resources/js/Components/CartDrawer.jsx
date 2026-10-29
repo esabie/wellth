@@ -1,6 +1,12 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useId, useState } from 'react';
-import { cartMutationOptions } from '../lib/cartVisit';
+import { useEffect, useId, useRef, useState } from 'react';
+import {
+    cartMutationOptions,
+    cartWithQuantity,
+    emptyCartSummary,
+    syncCartQuantity,
+    syncCartRemove,
+} from '../lib/cartVisit';
 
 function formatMoney(value) {
     return new Intl.NumberFormat('en-GH', {
@@ -10,16 +16,21 @@ function formatMoney(value) {
 }
 
 export default function CartDrawer({ open, onClose }) {
-    const { cart } = usePage().props;
-    const items = cart?.items ?? [];
-    const count = cart?.count ?? 0;
-    const subtotal = cart?.subtotal ?? '0.00';
-    const minimumOrderQuantity = cart?.minimum_order_quantity ?? 10;
-    const meetsMinimumOrder = cart?.meets_minimum_order ?? false;
-    const remainingForMinimum = cart?.remaining_for_minimum_order ?? minimumOrderQuantity;
+    const { cart: serverCart } = usePage().props;
+    const [cart, setCart] = useState(serverCart);
+    const dirtyRef = useRef(false);
+    const syncEpochRef = useRef(0);
     const titleId = useId();
     const [mounted, setMounted] = useState(open);
     const [entered, setEntered] = useState(false);
+
+    useEffect(() => {
+        if (dirtyRef.current) {
+            return;
+        }
+
+        setCart(serverCart);
+    }, [serverCart]);
 
     useEffect(() => {
         if (open) {
@@ -54,16 +65,52 @@ export default function CartDrawer({ open, onClose }) {
         return () => window.clearTimeout(timeout);
     }, [open, onClose]);
 
+    const items = cart?.items ?? [];
+    const count = cart?.count ?? 0;
+    const subtotal = cart?.subtotal ?? '0.00';
+    const minimumOrderQuantity = cart?.minimum_order_quantity ?? 10;
+    const meetsMinimumOrder = cart?.meets_minimum_order ?? false;
+    const remainingForMinimum = cart?.remaining_for_minimum_order ?? minimumOrderQuantity;
+
+    const markSynced = (epoch) => {
+        if (epoch === syncEpochRef.current) {
+            dirtyRef.current = false;
+        }
+    };
+
     const updateQuantity = (slug, quantity) => {
-        router.patch(`/cart/${slug}`, { quantity }, cartMutationOptions);
+        dirtyRef.current = true;
+        const epoch = ++syncEpochRef.current;
+        setCart((current) => cartWithQuantity(current, slug, quantity));
+        syncCartQuantity(router, slug, quantity, {
+            ...cartMutationOptions,
+            onFinish: () => markSynced(epoch),
+        });
     };
 
     const removeItem = (slug) => {
-        router.delete(`/cart/${slug}`, cartMutationOptions);
+        dirtyRef.current = true;
+        const epoch = ++syncEpochRef.current;
+        setCart((current) => cartWithQuantity(current, slug, 0));
+        syncCartRemove(router, slug, {
+            ...cartMutationOptions,
+            onFinish: () => markSynced(epoch),
+        });
     };
 
     const clearCart = () => {
-        router.delete('/cart', cartMutationOptions);
+        dirtyRef.current = true;
+        const epoch = ++syncEpochRef.current;
+        setCart((current) => emptyCartSummary(current));
+        router.cancelAll({ async: true });
+        router
+            .optimistic((props) => ({
+                cart: emptyCartSummary(props.cart),
+            }))
+            .delete('/cart', {
+                ...cartMutationOptions,
+                onFinish: () => markSynced(epoch),
+            });
     };
 
     if (!mounted) {
