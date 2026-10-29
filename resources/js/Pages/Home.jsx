@@ -11,11 +11,11 @@ export default function Home({ formulas, bouquet }) {
         <ShopLayout overlayHeader>
             <Head title="Organic wellness shots" />
 
-            <section className="relative isolate min-h-[92vh] overflow-hidden bg-[#f4efe7]">
+            <section className="relative isolate min-h-[68vh] overflow-hidden bg-[#f4efe7] sm:min-h-[92vh]">
                 <HeroSlider />
 
-                <div className="relative mx-auto flex min-h-[92vh] max-w-6xl items-end px-4 pb-24 pt-28 sm:items-center sm:px-6 sm:pb-20 sm:pt-32 lg:items-center">
-                    <div className="hero-copy max-w-lg space-y-5 sm:space-y-6 lg:max-w-xl">
+                <div className="relative mx-auto flex min-h-[68vh] max-w-6xl items-end px-4 pb-16 pt-24 sm:min-h-[92vh] sm:items-center sm:px-6 sm:pb-20 sm:pt-32 lg:items-center">
+                    <div className="hero-copy w-full max-w-lg space-y-5 sm:space-y-6 lg:max-w-xl">
                         <p className="text-[0.7rem] font-bold tracking-[0.28em] text-forest/55 uppercase">
                             Wellth
                         </p>
@@ -25,7 +25,7 @@ export default function Home({ formulas, bouquet }) {
                         <p className="max-w-md text-base leading-relaxed text-forest/75 sm:text-lg">
                             Organic wellness shots with bold flavor and clean ingredients, made for your daily ritual.
                         </p>
-                        <div className="flex flex-wrap items-center gap-3 pt-1">
+                        <div className="flex w-full flex-wrap items-center justify-center gap-3 pt-1 sm:justify-start">
                             <Link
                                 href="/shop"
                                 className="rounded-full bg-ink px-6 py-3 text-sm font-bold text-white transition hover:bg-leaf-800"

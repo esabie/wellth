@@ -89,8 +89,8 @@ export default function HeroSlider() {
             />
             <div aria-hidden="true" className="absolute inset-y-0 left-0 hidden w-[48%] bg-[#f4efe7]/35 lg:block" />
 
-            <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center sm:bottom-8 lg:justify-end lg:pr-10">
-                <div className="flex items-center gap-0.5 rounded-full bg-white/75 px-1.5 py-1 backdrop-blur-sm ring-1 ring-forest/10 sm:gap-1 sm:px-2.5 sm:py-1.5">
+            <div className="absolute inset-x-0 bottom-3 z-10 flex justify-center sm:bottom-8 lg:justify-end lg:pr-10">
+                <div className="flex items-center rounded-full bg-white/75 px-1 py-0.5 backdrop-blur-sm ring-1 ring-forest/10 sm:gap-1 sm:px-2.5 sm:py-1.5">
                     {SLIDES.map((slide, slideIndex) => {
                         const active = slideIndex === index;
 
@@ -101,11 +101,11 @@ export default function HeroSlider() {
                                 aria-label={`Show slide ${slideIndex + 1}`}
                                 aria-current={active ? 'true' : undefined}
                                 onClick={() => goTo(slideIndex)}
-                                className="flex h-8 w-8 items-center justify-center sm:h-9 sm:w-9"
+                                className="flex h-6 w-6 items-center justify-center sm:h-9 sm:w-9"
                             >
                                 <span
-                                    className={`block h-1.5 rounded-full transition-all duration-500 sm:h-2 ${
-                                        active ? 'w-4 bg-forest sm:w-5' : 'w-1.5 bg-forest/30 sm:w-2'
+                                    className={`block h-1 rounded-full transition-all duration-500 sm:h-2 ${
+                                        active ? 'w-3 bg-forest sm:w-5' : 'w-1 bg-forest/30 sm:w-2'
                                     }`}
                                 />
                             </button>

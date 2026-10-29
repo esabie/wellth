@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCartItemRequest;
 use App\Http\Requests\UpdateCartItemRequest;
 use App\Models\Product;
 use App\Support\Cart;
+use App\Support\StorefrontVisitLog;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,7 +39,13 @@ class CartController extends Controller
         $validated = $request->validated();
         $product = Product::query()->findOrFail($validated['product_id']);
 
-        $cart->add($product, (int) ($validated['quantity'] ?? 1));
+        $quantity = (int) ($validated['quantity'] ?? 1);
+        $cart->add($product, $quantity);
+
+        app(StorefrontVisitLog::class)->note(
+            $request,
+            "Visitor added {$quantity} × {$product->name} to the cart.",
+        );
 
         return redirect()
             ->back()

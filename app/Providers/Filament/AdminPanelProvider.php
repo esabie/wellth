@@ -28,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
+            ->profile(isSimple: false)
             ->homeUrl(fn (): string => Dashboard::getUrl())
             ->databaseNotifications(livewireComponent: DatabaseNotifications::class)
             ->colors([

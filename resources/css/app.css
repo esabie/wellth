@@ -53,12 +53,22 @@
 
 @layer components {
     .hero-slide-image {
-        transform: scale(1.03);
+        transform: none;
         transition: transform 6.5s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .hero-slide-image.is-active {
-        transform: scale(1.08);
+        transform: scale(1.02);
+    }
+
+    @media (min-width: 640px) {
+        .hero-slide-image {
+            transform: scale(1.03);
+        }
+
+        .hero-slide-image.is-active {
+            transform: scale(1.08);
+        }
     }
 
     .hero-copy {
