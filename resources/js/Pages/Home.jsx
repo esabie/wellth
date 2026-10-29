@@ -137,7 +137,7 @@ export default function Home({ formulas, bouquet }) {
                     {bouquet && (
                         <Reveal variant="slide-right" delay={160}>
                             <div className="rounded-[2rem] bg-white/70 p-5 ring-1 ring-black/5 sm:p-8">
-                                <p className="font-display text-2xl font-extrabold text-ink">one box. five daily zings.</p>
+                                <p className="font-display text-2xl font-extrabold text-ink">The whole lineup, one box.</p>
                                 <p className="mt-2 text-ink/65">
                                     {bouquet.blurb || 'The Wellth bouquet — a ready-made mixed box. No building or choosing required.'}
                                 </p>
