@@ -26,7 +26,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('hq')
             ->login(Login::class)
             ->profile(isSimple: false)
             ->homeUrl(fn (): string => Dashboard::getUrl())

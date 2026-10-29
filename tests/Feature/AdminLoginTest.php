@@ -16,7 +16,7 @@ test('admins are redirected to the dashboard after login', function () {
     ]);
 
     // Simulate a prior intended URL that should be ignored.
-    session()->put('url.intended', url('/admin/orders'));
+    session()->put('url.intended', url('/hq/orders'));
 
     Livewire::test(Login::class)
         ->fillForm([
@@ -26,6 +26,11 @@ test('admins are redirected to the dashboard after login', function () {
         ->call('authenticate')
         ->assertHasNoFormErrors()
         ->assertRedirect(Dashboard::getUrl());
+});
+
+test('the old admin address opens the home page', function () {
+    $this->get('/admin')->assertRedirect(route('home'));
+    $this->get('/admin/login')->assertRedirect(route('home'));
 });
 
 test('already authenticated admins visiting login go to the dashboard', function () {
