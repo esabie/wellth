@@ -166,8 +166,8 @@ export default function Show({
                                         You are checking out as a guest
                                     </p>
                                     <p className="mt-2 text-sm leading-relaxed text-ink/70">
-                                        No account needed. We&apos;ll email and text your order confirmation and prepare your
-                                        shots fresh. Please allow up to one week for delivery.
+                                        No account needed. We&apos;ll text your order updates and prepare your shots fresh.
+                                        Please allow up to one week for delivery.
                                     </p>
                                 </div>
 
@@ -189,20 +189,7 @@ export default function Show({
                                             />
                                             <FieldError message={formErrors.customer_name} />
                                         </label>
-                                        <label className="block">
-                                            <span className="text-xs font-bold tracking-wide text-ink/50 uppercase">
-                                                Email
-                                            </span>
-                                            <input
-                                                type="email"
-                                                name="customer_email"
-                                                required
-                                                autoComplete="email"
-                                                className={fieldClassName}
-                                            />
-                                            <FieldError message={formErrors.customer_email} />
-                                        </label>
-                                        <label className="block">
+                                        <label className="block sm:col-span-2">
                                             <span className="text-xs font-bold tracking-wide text-ink/50 uppercase">
                                                 Phone
                                             </span>

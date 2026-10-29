@@ -25,7 +25,7 @@ class CreateCheckoutOrder
     /**
      * @param  array{
      *     customer_name: string,
-     *     customer_email: string,
+     *     customer_email?: string|null,
      *     customer_phone: string,
      *     shipping_line1: string,
      *     shipping_line2?: string|null,
@@ -88,7 +88,7 @@ class CreateCheckoutOrder
             $order = Order::query()->create([
                 'status' => OrderStatus::Pending,
                 'customer_name' => $customer['customer_name'],
-                'customer_email' => $customer['customer_email'],
+                'customer_email' => filled($customer['customer_email'] ?? null) ? $customer['customer_email'] : null,
                 'customer_phone' => $customer['customer_phone'],
                 'customer_phone_normalized' => PhoneNumber::normalize($customer['customer_phone']),
                 'shipping_line1' => $customer['shipping_line1'],
@@ -156,11 +156,6 @@ class CreateCheckoutOrder
                 Log::info('checkout.customer_placed_email_queued', [
                     'order' => $order->uuid,
                     'email' => $order->customer_email,
-                ]);
-            } else {
-                Log::warning('checkout.customer_placed_email_skipped', [
-                    'order' => $order->uuid,
-                    'reason' => 'missing_customer_email',
                 ]);
             }
 

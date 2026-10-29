@@ -82,13 +82,15 @@ class CompletePaidOrder
 
     private function sendPaidNotifications(Order $order): void
     {
-        Notification::route('mail', $order->customer_email)
-            ->notify(new OrderPaidCustomerNotification($order));
+        if (filled($order->customer_email)) {
+            Notification::route('mail', $order->customer_email)
+                ->notify(new OrderPaidCustomerNotification($order));
 
-        Log::info('checkout.customer_paid_email_queued', [
-            'order' => $order->uuid,
-            'email' => $order->customer_email,
-        ]);
+            Log::info('checkout.customer_paid_email_queued', [
+                'order' => $order->uuid,
+                'email' => $order->customer_email,
+            ]);
+        }
 
         $this->sendCustomerSmsConfirmation($order);
 

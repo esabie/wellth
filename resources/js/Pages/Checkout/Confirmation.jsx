@@ -13,7 +13,7 @@ function confirmationCopy(order) {
         return {
             title: 'Payment received',
             heading: 'Screenshot received.',
-            body: `Thanks, ${order.customer_name}. We're reviewing your MoMo payment proof and will email ${order.customer_email} and text ${order.customer_phone} once it's confirmed. Please allow up to one week after confirmation for preparation and delivery.`,
+            body: `Thanks, ${order.customer_name}. We're reviewing your MoMo payment proof and will text ${order.customer_phone} once it's confirmed. Please allow up to one week after confirmation for preparation and delivery.`,
         };
     }
 
@@ -21,7 +21,7 @@ function confirmationCopy(order) {
         return {
             title: 'Order preparing',
             heading: "We're preparing your shots.",
-            body: `Your order is in the kitchen, ${order.customer_name}. We'll email and text you again when it's on the way.`,
+            body: `Your order is in the kitchen, ${order.customer_name}. We'll text you again when it's on the way.`,
         };
     }
 
@@ -36,7 +36,7 @@ function confirmationCopy(order) {
     return {
         title: 'Order confirmed',
         heading: 'Order confirmed.',
-        body: `We've confirmed your payment, ${order.customer_name}. A confirmation email and SMS are on the way. Shots are made fresh — please allow up to one week for delivery.`,
+        body: `We've confirmed your payment, ${order.customer_name}. A confirmation text is on the way. Shots are made fresh — please allow up to one week for delivery.`,
     };
 }
 

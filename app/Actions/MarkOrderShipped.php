@@ -74,13 +74,15 @@ class MarkOrderShipped
 
     private function notifyCustomer(Order $order): void
     {
-        Notification::route('mail', $order->customer_email)
-            ->notify(new OrderShippedCustomerNotification($order));
+        if (filled($order->customer_email)) {
+            Notification::route('mail', $order->customer_email)
+                ->notify(new OrderShippedCustomerNotification($order));
 
-        Log::info('fulfilment.customer_shipped_email_queued', [
-            'order' => $order->uuid,
-            'email' => $order->customer_email,
-        ]);
+            Log::info('fulfilment.customer_shipped_email_queued', [
+                'order' => $order->uuid,
+                'email' => $order->customer_email,
+            ]);
+        }
 
         if (! filled(config('services.mnotify.api_key'))) {
             Log::warning('fulfilment.customer_shipped_sms_skipped', [

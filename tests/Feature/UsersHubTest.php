@@ -71,7 +71,35 @@ test('admins can list unique customers from orders', function () {
         ->assertOk()
         ->assertSee('Ama Mensah')
         ->assertSee('0244111222')
+        ->assertSee('Paid customers')
         ->assertCountTableRecords(1);
+});
+
+test('paid customers are shoppers with a confirmed payment', function () {
+    Order::factory()->paid()->create([
+        'customer_name' => 'Ama Mensah',
+        'customer_phone' => '0244111222',
+        'customer_phone_normalized' => PhoneNumber::normalize('0244111222'),
+    ]);
+    Order::factory()->shipped()->create([
+        'customer_name' => 'Efua Boateng',
+        'customer_phone' => '0555121212',
+        'customer_phone_normalized' => PhoneNumber::normalize('0555121212'),
+    ]);
+    Order::factory()->create([
+        'customer_name' => 'Kojo Asante',
+        'customer_phone' => '0200000111',
+        'customer_phone_normalized' => PhoneNumber::normalize('0200000111'),
+    ]);
+
+    Livewire::test(ListCustomers::class)
+        ->assertOk()
+        ->assertCountTableRecords(3)
+        ->set('customerList', 'paid')
+        ->assertCountTableRecords(2)
+        ->assertSee('Ama Mensah')
+        ->assertSee('Efua Boateng')
+        ->assertDontSee('Kojo Asante');
 });
 
 test('admins can list unique referrers from promo codes', function () {

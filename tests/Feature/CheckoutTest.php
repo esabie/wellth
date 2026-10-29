@@ -74,7 +74,6 @@ test('checkout creates a pending order and redirects to momo payment instruction
 
     $response = $this->post(route('checkout.store'), [
         'customer_name' => 'Ama Mensah',
-        'customer_email' => 'ama@example.com',
         'customer_phone' => '0244111222',
         'shipping_line1' => '12 Liberation Road',
         'shipping_city' => 'Accra',
@@ -85,7 +84,7 @@ test('checkout creates a pending order and redirects to momo payment instruction
 
     expect($order)->not->toBeNull()
         ->and($order->status)->toBe(OrderStatus::Pending)
-        ->and($order->customer_email)->toBe('ama@example.com')
+        ->and($order->customer_email)->toBeNull()
         ->and($order->total)->toBe('200.00')
         ->and($order->shipping_amount)->toBe('0.00')
         ->and($order->items)->toHaveCount(1)
@@ -105,7 +104,6 @@ test('checkout store rejects carts below the minimum order quantity', function (
 
     $this->post(route('checkout.store'), [
         'customer_name' => 'Ama Mensah',
-        'customer_email' => 'ama@example.com',
         'customer_phone' => '0244111222',
         'shipping_line1' => '12 Liberation Road',
         'shipping_city' => 'Accra',
@@ -126,7 +124,6 @@ test('checkout validates required customer fields', function () {
         ->assertRedirect(route('checkout.create'))
         ->assertSessionHasErrors([
             'customer_name',
-            'customer_email',
             'customer_phone',
             'shipping_line1',
             'shipping_city',

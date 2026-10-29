@@ -119,12 +119,14 @@ class StartPreparingOrder
 
     private function notifyCustomer(Order $order): void
     {
-        Notification::route('mail', $order->customer_email)
-            ->notify(new OrderPreparingCustomerNotification($order));
+        if (filled($order->customer_email)) {
+            Notification::route('mail', $order->customer_email)
+                ->notify(new OrderPreparingCustomerNotification($order));
 
-        Log::info('fulfilment.customer_preparing_email_queued', [
-            'order' => $order->uuid,
-            'email' => $order->customer_email,
-        ]);
+            Log::info('fulfilment.customer_preparing_email_queued', [
+                'order' => $order->uuid,
+                'email' => $order->customer_email,
+            ]);
+        }
     }
 }

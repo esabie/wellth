@@ -91,7 +91,7 @@ export default function Payment({ order, momo }) {
                         </h2>
                         <p className="mt-2 text-sm text-ink/60">
                             After you send the money, upload a clear screenshot of the MoMo confirmation. We&apos;ll
-                            verify it and email and text you once the order is confirmed.
+                            verify it and text you once the order is confirmed.
                         </p>
 
                         <Form

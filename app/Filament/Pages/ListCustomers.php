@@ -7,6 +7,8 @@ use App\Support\ShopPeople;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\EmbeddedTable;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
@@ -14,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListCustomers extends Page implements HasTable
 {
@@ -29,7 +32,9 @@ class ListCustomers extends Page implements HasTable
 
     protected static ?string $slug = 'users/customers';
 
-    protected ?string $subheading = 'Unique shoppers pulled from checkout orders.';
+    protected ?string $subheading = 'Everyone who has ordered, and those who have successfully paid.';
+
+    public string $customerList = 'customers';
 
     protected Width|string|null $maxContentWidth = Width::FiveExtraLarge;
 
@@ -48,10 +53,18 @@ class ListCustomers extends Page implements HasTable
         ];
     }
 
+    public function updatedCustomerList(): void
+    {
+        $this->resetPage();
+        $this->flushCachedTableRecords();
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(app(ShopPeople::class)->customersQuery())
+            ->query(fn (): Builder => $this->customerList === 'paid'
+                ? app(ShopPeople::class)->paidCustomersQuery()
+                : app(ShopPeople::class)->customersQuery())
             ->columns([
                 TextColumn::make('customer_name')
                     ->label('Name')
@@ -88,8 +101,10 @@ class ListCustomers extends Page implements HasTable
                 'tableSearch' => $record->customer_phone_normalized,
             ]))
             ->paginated([10, 25, 50])
-            ->emptyStateHeading('No customers yet')
-            ->emptyStateDescription('Customers appear here after the first checkout order.')
+            ->emptyStateHeading(fn (): string => $this->customerList === 'paid' ? 'No paid customers yet' : 'No customers yet')
+            ->emptyStateDescription(fn (): string => $this->customerList === 'paid'
+                ? 'Customers appear here after a payment is confirmed.'
+                : 'Customers appear here after the first checkout order.')
             ->emptyStateIcon(Heroicon::OutlinedShoppingBag);
     }
 
@@ -97,6 +112,18 @@ class ListCustomers extends Page implements HasTable
     {
         return $schema
             ->components([
+                Tabs::make()
+                    ->livewireProperty('customerList')
+                    ->contained(false)
+                    ->tabPanels(false)
+                    ->tabs([
+                        'customers' => Tab::make('Customers')
+                            ->icon(Heroicon::OutlinedShoppingBag)
+                            ->badge(fn (): int => app(ShopPeople::class)->customerCount()),
+                        'paid' => Tab::make('Paid customers')
+                            ->icon(Heroicon::OutlinedBanknotes)
+                            ->badge(fn (): int => app(ShopPeople::class)->paidCustomerCount()),
+                    ]),
                 EmbeddedTable::make(),
             ]);
     }

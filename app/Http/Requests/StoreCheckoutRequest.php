@@ -18,7 +18,6 @@ class StoreCheckoutRequest extends FormRequest
     {
         return [
             'customer_name' => ['required', 'string', 'max:120'],
-            'customer_email' => ['required', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:30'],
             'shipping_line1' => ['required', 'string', 'max:255'],
             'shipping_line2' => ['nullable', 'string', 'max:255'],

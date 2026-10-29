@@ -83,7 +83,6 @@ test('full buy path awards buyer and referrer points after momo proof and admin 
 
     $this->post(route('checkout.store'), [
         'customer_name' => 'Kofi Buyer',
-        'customer_email' => 'kofi@example.com',
         'customer_phone' => $buyerPhone,
         'shipping_line1' => '12 Liberation Road',
         'shipping_city' => 'Accra',
@@ -135,7 +134,7 @@ test('full buy path awards buyer and referrer points after momo proof and admin 
         ->and($referrerWallet->customerName())->toBe('Ama Referrer')
         ->and($referrerWallet->transactions()->where('type', LoyaltyPointTransactionType::ReferralEarn)->count())->toBe(1);
 
-    Notification::assertSentOnDemand(OrderPaidCustomerNotification::class);
+    Notification::assertSentOnDemandTimes(OrderPaidCustomerNotification::class, 0);
     Notification::assertSentOnDemand(OrderPaidCustomerSmsNotification::class);
     Notification::assertSentOnDemand(ReferralRewardSmsNotification::class);
 });
