@@ -11,10 +11,10 @@ export default function Home({ formulas, bouquet }) {
         <ShopLayout overlayHeader>
             <Head title="Organic wellness shots" />
 
-            <section className="relative isolate min-h-[68vh] overflow-hidden bg-[#f4efe7] sm:min-h-[92vh]">
+            <section className="relative isolate min-h-dvh overflow-hidden bg-[#f4efe7] sm:min-h-[92vh]">
                 <HeroSlider />
 
-                <div className="relative mx-auto flex min-h-[68vh] max-w-6xl items-end px-4 pb-16 pt-24 sm:min-h-[92vh] sm:items-center sm:px-6 sm:pb-20 sm:pt-32 lg:items-center">
+                <div className="relative mx-auto flex min-h-dvh max-w-6xl items-end px-4 pb-20 pt-24 sm:min-h-[92vh] sm:items-center sm:px-6 sm:pb-20 sm:pt-32 lg:items-center">
                     <div className="hero-copy w-full max-w-lg space-y-5 sm:space-y-6 lg:max-w-xl">
                         <p className="text-[0.7rem] font-bold tracking-[0.28em] text-forest/55 uppercase">
                             Wellth
