@@ -48,6 +48,7 @@ class MnotifyClient
             Log::error('mnotify.send_failed', [
                 'recipients' => $recipients,
                 'sender' => $sender,
+                'body' => $message,
                 'message_length' => strlen($message),
                 'error' => $exception->getMessage(),
             ]);
@@ -59,6 +60,8 @@ class MnotifyClient
             Log::error('mnotify.send_rejected', [
                 'recipients' => $recipients,
                 'sender' => $sender,
+                'body' => $message,
+                'message_length' => strlen($message),
                 'status' => $body['status'] ?? null,
                 'code' => $body['code'] ?? null,
                 'message' => $body['message'] ?? null,
@@ -70,9 +73,10 @@ class MnotifyClient
         Log::info('mnotify.send_succeeded', [
             'recipients' => $recipients,
             'sender' => $sender,
+            'body' => $message,
+            'message_length' => strlen($message),
             'code' => $body['code'] ?? null,
             'campaign_id' => $body['summary']['_id'] ?? null,
-            'message_length' => strlen($message),
         ]);
 
         return [

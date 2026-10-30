@@ -10,6 +10,8 @@ use App\Support\MnotifyClient;
 use App\Support\PhoneNumber;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
+use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 
@@ -66,6 +68,7 @@ test('completing a paid order skips sms when mnotify is not configured', functio
 
 test('mnotify client posts quick sms with the configured sender and key', function () {
     Http::preventStrayRequests();
+    Event::fake([MessageLogged::class]);
 
     config([
         'services.mnotify.api_key' => 'test-mnotify-key',
@@ -97,6 +100,13 @@ test('mnotify client posts quick sms with the configured sender and key', functi
             && $request['message'] === 'Payment confirmed'
             && $request['is_schedule'] === false;
     });
+
+    Event::assertDispatched(
+        MessageLogged::class,
+        fn (MessageLogged $event): bool => $event->level === 'info'
+            && $event->message === 'mnotify.send_succeeded'
+            && ($event->context['body'] ?? null) === 'Payment confirmed',
+    );
 });
 
 test('customer sms notification message includes order number and total', function () {

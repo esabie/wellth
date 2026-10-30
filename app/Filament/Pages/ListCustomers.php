@@ -80,6 +80,7 @@ class ListCustomers extends Page implements HasTable
                     ->label('Email')
                     ->searchable()
                     ->toggleable()
+                    ->visibleFrom('lg')
                     ->placeholder('—'),
                 TextColumn::make('orders_count')
                     ->label('Orders')
@@ -94,7 +95,8 @@ class ListCustomers extends Page implements HasTable
                 TextColumn::make('last_ordered_at')
                     ->label('Last order')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('md'),
             ])
             ->defaultSort('last_ordered_at', 'desc')
             ->recordUrl(fn ($record): string => OrderResource::getUrl('index', [

@@ -143,6 +143,31 @@ test('admins can confirm momo payment from filament', function () {
     Notification::assertSentOnDemand(OrderPaidCustomerNotification::class);
 });
 
+test('admins can confirm cash payment on a pending order without momo proof', function () {
+    Notification::fake();
+
+    $this->actingAs(User::factory()->create());
+
+    $order = Order::factory()->create([
+        'status' => OrderStatus::Pending,
+        'customer_email' => 'ama@example.com',
+        'payment_proof_path' => null,
+        'payment_submitted_at' => null,
+    ]);
+
+    OrderItem::factory()->create(['order_id' => $order->id]);
+
+    Livewire::test(ViewOrder::class, ['record' => $order->getRouteKey()])
+        ->assertActionVisible('confirmPayment')
+        ->callAction('confirmPayment')
+        ->assertHasNoActionErrors();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Paid)
+        ->and($order->fresh()->paid_at)->not->toBeNull();
+
+    Notification::assertSentOnDemand(OrderPaidCustomerNotification::class);
+});
+
 test('paid confirmation page still renders order details', function () {
     $order = Order::factory()->paid()->create([
         'customer_name' => 'Ama Mensah',

@@ -30,7 +30,8 @@ class LatestOrders extends TableWidget
                 TextColumn::make('uuid')
                     ->label('Order')
                     ->copyable()
-                    ->limit(13),
+                    ->limit(13)
+                    ->visibleFrom('md'),
                 TextColumn::make('status')
                     ->badge(),
                 TextColumn::make('customer_name')
@@ -41,7 +42,8 @@ class LatestOrders extends TableWidget
                 TextColumn::make('created_at')
                     ->label('Placed')
                     ->since()
-                    ->dateTimeTooltip(),
+                    ->dateTimeTooltip()
+                    ->visibleFrom('lg'),
             ])
             ->recordActions([
                 ViewAction::make()

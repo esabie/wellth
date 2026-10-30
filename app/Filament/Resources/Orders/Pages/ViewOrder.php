@@ -24,9 +24,11 @@ class ViewOrder extends ViewRecord
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->requiresConfirmation()
-                ->modalHeading('Confirm MoMo payment?')
-                ->modalDescription('Mark this order as paid after verifying the Mobile Money transfer. The customer will receive a confirmation email and SMS.')
-                ->visible(fn (): bool => $this->record->status === OrderStatus::AwaitingConfirmation)
+                ->modalHeading('Confirm payment received?')
+                ->modalDescription(fn (): string => $this->record->status === OrderStatus::Pending
+                    ? 'Use this for cash or other offline payment. The order will be marked paid and the customer will get a confirmation email and SMS.'
+                    : 'Mark this order as paid after verifying the Mobile Money transfer. The customer will receive a confirmation email and SMS.')
+                ->visible(fn (): bool => $this->record->canConfirmPayment())
                 ->action(function (CompletePaidOrder $completePaidOrder): void {
                     $completePaidOrder->handle($this->record);
 

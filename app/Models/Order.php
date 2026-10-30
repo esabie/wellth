@@ -137,12 +137,17 @@ class Order extends Model
         return $this->status === OrderStatus::AwaitingConfirmation;
     }
 
-    public function canAcceptPaymentProof(): bool
+    public function canConfirmPayment(): bool
     {
         return in_array($this->status, [
             OrderStatus::Pending,
             OrderStatus::AwaitingConfirmation,
         ], true);
+    }
+
+    public function canAcceptPaymentProof(): bool
+    {
+        return $this->canConfirmPayment();
     }
 
     public function paymentReference(): string
