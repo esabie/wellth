@@ -21,9 +21,21 @@ test('admins can list orders in filament', function () {
         'customer_name' => 'Ama Mensah',
     ]);
 
+    OrderItem::factory()->create([
+        'order_id' => $order->id,
+        'quantity' => 7,
+    ]);
+
+    OrderItem::factory()->create([
+        'order_id' => $order->id,
+        'quantity' => 5,
+    ]);
+
     Livewire::test(ListOrders::class)
         ->assertOk()
-        ->assertCanSeeTableRecords([$order]);
+        ->assertCanSeeTableRecords([$order])
+        ->assertTableColumnExists('items_sum_quantity')
+        ->assertTableColumnStateSet('items_sum_quantity', 12, $order);
 });
 
 test('admins can view an order and its line items', function () {

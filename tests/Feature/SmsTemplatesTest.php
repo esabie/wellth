@@ -21,7 +21,7 @@ test('sms templates fall back to defaults before anything is saved', function ()
         ->toBe(SmsTemplate::OrderPlacedCustomer->defaultMessage());
 });
 
-test('order placed customer sms includes order number and total', function () {
+test('order placed customer sms includes the payment page link', function () {
     $order = Order::factory()->create([
         'uuid' => 'WLPLACE001',
         'customer_name' => 'Ama Mensah',
@@ -34,7 +34,7 @@ test('order placed customer sms includes order number and total', function () {
     );
 
     expect($message)
-        ->toBe('Hi Ama, we received your Wellth order WLPLACE001 (GHS 200.00). Complete MoMo payment and upload your screenshot to confirm.');
+        ->toBe('Hi Ama, your Wellth order WLPLACE001 (GHS 200) is awaiting MoMo payment. Pay and upload your screenshot to confirm: '.route('checkout.payment', $order));
 });
 
 test('sms templates render placeholders for customer payment confirmation', function () {
@@ -51,6 +51,25 @@ test('sms templates render placeholders for customer payment confirmation', func
 
     expect($message)
         ->toBe("Hi Kwamz, Your payment for order WLK7M2P9QX (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!");
+});
+
+test('a saved order placed template still includes the payment page link', function () {
+    app(SmsTemplates::class)->put([
+        SmsTemplate::OrderPlacedCustomer->value => 'Hi {first_name}, we received your Wellth order {order} ({currency} {total}). Complete MoMo payment and upload your screenshot to confirm.',
+    ]);
+
+    $order = Order::factory()->create([
+        'uuid' => 'WLSAVED001',
+        'customer_name' => 'Ama Mensah',
+        'total' => '200.00',
+        'currency' => 'GHS',
+    ]);
+
+    $message = (new OrderPlacedCustomerSmsNotification($order))->toMnotify(
+        Notification::route(MnotifyChannel::class, '0244111222'),
+    );
+
+    expect($message)->toBe('Hi Ama, we received your Wellth order WLSAVED001 (GHS 200). Complete MoMo payment and upload your screenshot to confirm. '.route('checkout.payment', $order));
 });
 
 test('custom sms templates are used when rendering notifications', function () {

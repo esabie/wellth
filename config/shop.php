@@ -35,6 +35,13 @@ return [
     'admin_notification_phone' => env('SHOP_ADMIN_NOTIFICATION_PHONE'),
 
     /*
+    | Extra numbers for the payment-proof SMS, in addition to the alert phone.
+    */
+    'payment_proof_admin_phones' => [
+        '0201854694',
+    ],
+
+    /*
     |--------------------------------------------------------------------------
     | Manual Mobile Money payment
     |--------------------------------------------------------------------------

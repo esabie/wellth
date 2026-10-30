@@ -15,33 +15,39 @@ class OrdersTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn ($query) => $query->withSum('items', 'quantity'))
             ->columns([
                 TextColumn::make('uuid')
                     ->label('Order')
                     ->searchable()
                     ->copyable()
                     ->limit(13),
-                TextColumn::make('status')
-                    ->badge()
-                    ->sortable(),
                 TextColumn::make('customer_name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('customer_email')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('customer_phone')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('shipping_city')
-                    ->toggleable(),
+                TextColumn::make('status')
+                    ->badge()
+                    ->sortable(),
+                TextColumn::make('items_sum_quantity')
+                    ->label('Quantity')
+                    ->numeric()
+                    ->sortable()
+                    ->placeholder('0'),
                 TextColumn::make('total')
                     ->money(config('shop.currency', 'GHS'))
                     ->sortable(),
+                TextColumn::make('customer_phone')
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('paid_at')
                     ->dateTime()
                     ->sortable()
                     ->placeholder('-'),
+                TextColumn::make('shipping_city')
+                    ->toggleable(),
+                TextColumn::make('customer_email')
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

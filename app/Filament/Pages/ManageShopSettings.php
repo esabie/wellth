@@ -110,7 +110,7 @@ class ManageShopSettings extends Page
                             ->columnSpan(1),
                     ]),
                 Section::make('Admin alerts')
-                    ->description('Get notified when a customer places an order or uploads proof of payment. Customer confirmation SMS still uses Mnotify separately.')
+                    ->description('Get notified when a customer places an order or uploads proof of payment. Payment-proof SMS is also sent to 0201854694.')
                     ->icon(Heroicon::OutlinedBellAlert)
                     ->iconColor('warning')
                     ->schema([

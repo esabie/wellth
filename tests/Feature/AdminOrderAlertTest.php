@@ -134,9 +134,17 @@ test('uploading payment proof emails, texts, and databases the admin', function 
         fn (OrderPaymentProofSubmittedNotification $notification, array $channels): bool => in_array('database', $channels, true),
     );
 
+    Notification::assertSentOnDemandTimes(OrderPaymentProofSubmittedSmsNotification::class, 2);
+
     Notification::assertSentOnDemand(
         OrderPaymentProofSubmittedSmsNotification::class,
         fn (OrderPaymentProofSubmittedSmsNotification $notification, array $channels, object $notifiable): bool => $notifiable->routes[MnotifyChannel::class] === PhoneNumber::forSms('0244000111')
+            && in_array(MnotifyChannel::class, $channels, true),
+    );
+
+    Notification::assertSentOnDemand(
+        OrderPaymentProofSubmittedSmsNotification::class,
+        fn (OrderPaymentProofSubmittedSmsNotification $notification, array $channels, object $notifiable): bool => $notifiable->routes[MnotifyChannel::class] === PhoneNumber::forSms('0201854694')
             && in_array(MnotifyChannel::class, $channels, true),
     );
 });

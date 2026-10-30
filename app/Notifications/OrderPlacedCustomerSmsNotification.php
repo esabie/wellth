@@ -31,12 +31,21 @@ class OrderPlacedCustomerSmsNotification extends Notification implements ShouldQ
     {
         $order = $this->order;
         $firstName = str($order->customer_name)->trim()->before(' ')->toString() ?: 'there';
+        $paymentUrl = route('checkout.payment', $order);
+        $total = (float) $order->total;
 
-        return app(SmsTemplates::class)->render(SmsTemplate::OrderPlacedCustomer, [
+        $message = app(SmsTemplates::class)->render(SmsTemplate::OrderPlacedCustomer, [
             'first_name' => $firstName,
             'order' => $order->uuid,
             'currency' => $order->currency ?: config('shop.currency', 'GHS'),
-            'total' => number_format((float) $order->total, 2),
+            'total' => fmod($total, 1.0) === 0.0 ? number_format($total, 0) : number_format($total, 2),
+            'payment_url' => $paymentUrl,
         ]);
+
+        if (! str_contains($message, $paymentUrl)) {
+            $message = trim($message.' '.$paymentUrl);
+        }
+
+        return $message;
     }
 }

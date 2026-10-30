@@ -47,7 +47,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
     {
         return match ($this) {
             self::OrderPlacedAdmin => 'New order {order} from {name}. Total {currency} {total}. Waiting for MoMo proof.',
-            self::OrderPlacedCustomer => 'Hi {first_name}, we received your Wellth order {order} ({currency} {total}). Complete MoMo payment and upload your screenshot to confirm.',
+            self::OrderPlacedCustomer => 'Hi {first_name}, your Wellth order {order} ({currency} {total}) is awaiting MoMo payment. Pay and upload your screenshot to confirm: {payment_url}',
             self::PaymentProofAdmin => 'Payment proof uploaded for {order} ({currency} {total}) by {name}. Review and confirm in admin.',
             self::OrderPaidCustomer => "Hi {first_name}, Your payment for order {order} ({currency} {total}) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!",
             self::OrderShippedCustomer => 'Hi {first_name}, your Wellth order {order} is on the way{city_suffix}. Thanks for choosing us!',
@@ -62,7 +62,8 @@ enum SmsTemplate: string implements HasDescription, HasLabel
     {
         return match ($this) {
             self::OrderPlacedAdmin, self::PaymentProofAdmin => ['{order}', '{name}', '{currency}', '{total}'],
-            self::OrderPlacedCustomer, self::OrderPaidCustomer => ['{first_name}', '{order}', '{currency}', '{total}'],
+            self::OrderPlacedCustomer => ['{first_name}', '{order}', '{currency}', '{total}', '{payment_url}'],
+            self::OrderPaidCustomer => ['{first_name}', '{order}', '{currency}', '{total}'],
             self::OrderShippedCustomer => ['{first_name}', '{order}', '{city_suffix}'],
             self::ReferralReward => ['{promo_code}', '{points}', '{balance}'],
         };

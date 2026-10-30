@@ -28,7 +28,15 @@ class ShopAdminNotifier
     {
         $this->mail('payment_proof', $order, new OrderPaymentProofSubmittedNotification($order));
         $this->database('payment_proof', $order, new OrderPaymentProofSubmittedNotification($order));
-        $this->sms('payment_proof', $order, new OrderPaymentProofSubmittedSmsNotification($order));
+
+        foreach ($this->paymentProofPhones() as $phone) {
+            $this->sms(
+                'payment_proof',
+                $order,
+                new OrderPaymentProofSubmittedSmsNotification($order),
+                $phone,
+            );
+        }
     }
 
     public function orderPaid(Order $order): void
@@ -83,7 +91,32 @@ class ShopAdminNotifier
         ]);
     }
 
-    private function sms(string $event, Order $order, object $notification): void
+    /**
+     * @return list<string>
+     */
+    private function paymentProofPhones(): array
+    {
+        $phones = [];
+        $configured = $this->settings->adminNotificationPhone();
+
+        if (filled($configured)) {
+            $phones[PhoneNumber::normalize($configured)] = $configured;
+        }
+
+        foreach (config('shop.payment_proof_admin_phones', []) as $phone) {
+            $phone = trim((string) $phone);
+
+            if ($phone === '') {
+                continue;
+            }
+
+            $phones[PhoneNumber::normalize($phone)] = $phone;
+        }
+
+        return array_values($phones);
+    }
+
+    private function sms(string $event, Order $order, object $notification, ?string $phone = null): void
     {
         if (! filled(config('services.mnotify.api_key'))) {
             Log::warning('admin.alert_sms_skipped', [
@@ -95,7 +128,7 @@ class ShopAdminNotifier
             return;
         }
 
-        $phone = $this->settings->adminNotificationPhone();
+        $phone ??= $this->settings->adminNotificationPhone();
 
         if (blank($phone)) {
             Log::warning('admin.alert_sms_skipped', [
