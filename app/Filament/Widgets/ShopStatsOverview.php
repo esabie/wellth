@@ -8,6 +8,7 @@ use App\Filament\Resources\Orders\OrderResource;
 use App\Models\LoyaltyWallet;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Support\PackingReport;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use Filament\Widgets\StatsOverviewWidget;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Number;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ShopStatsOverview extends StatsOverviewWidget
 {
@@ -35,6 +37,18 @@ class ShopStatsOverview extends StatsOverviewWidget
 
         $this->period = $period;
         $this->cachedStats = null;
+    }
+
+    public function downloadPackingReport(PackingReport $report): StreamedResponse
+    {
+        $csv = $report->csv($this->paidOrders());
+        $filename = 'wellth-packing-'.$this->period.'-'.now()->toDateString().'.csv';
+
+        return response()->streamDownload(function () use ($csv): void {
+            echo $csv;
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function getSectionContentComponent(): Component
@@ -181,6 +195,6 @@ class ShopStatsOverview extends StatsOverviewWidget
         }
     }
 </style>
-HTML.'<div role="group" aria-label="Sales period" class="sales-period" style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:0.5rem;">'.$buttons.'</div>');
+HTML.'<div role="group" aria-label="Sales period" class="sales-period" style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:0.5rem;">'.$buttons.'<button type="button" wire:click="downloadPackingReport" class="fi-btn fi-outlined fi-size-sm" style="white-space:nowrap;">Packing list</button></div>');
     }
 }

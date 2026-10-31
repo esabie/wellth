@@ -8,6 +8,7 @@ use App\Models\LoyaltyWallet;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use App\Support\PackingReport;
 use App\Support\PhoneNumber;
 use Filament\Pages\Dashboard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -149,6 +150,73 @@ test('paid revenue and products purchased follow the same period', function () {
         ->assertSee('Paid this month')
         ->assertSee('230.00')
         ->assertSee('66');
+});
+
+test('the packing list download breaks paid orders down by formula', function () {
+    $this->travelTo(Carbon::parse('2026-10-14 15:00:00'));
+
+    $paid = Order::factory()->paid()->create([
+        'uuid' => 'WLPACK001',
+        'customer_name' => 'Ama Mensah',
+        'customer_phone' => '0244111222',
+        'shipping_city' => 'Accra',
+        'paid_at' => now(),
+    ]);
+    OrderItem::factory()->create([
+        'order_id' => $paid->id,
+        'product_name' => 'Ginja',
+        'product_slug' => 'ginja',
+        'quantity' => 4,
+    ]);
+    OrderItem::factory()->create([
+        'order_id' => $paid->id,
+        'product_name' => 'Wellth Bouquet',
+        'product_slug' => PackingReport::BOUQUET_SLUG,
+        'quantity' => 1,
+    ]);
+
+    $pending = Order::factory()->create([
+        'status' => OrderStatus::Pending,
+        'customer_name' => 'Kojo Asante',
+    ]);
+    OrderItem::factory()->create([
+        'order_id' => $pending->id,
+        'product_name' => 'Ruby Rush',
+        'product_slug' => 'ruby-rush',
+        'quantity' => 9,
+    ]);
+
+    $earlierThisMonth = Order::factory()->paid()->create([
+        'uuid' => 'WLPACK002',
+        'customer_name' => 'Efua Boateng',
+        'paid_at' => now()->startOfMonth(),
+    ]);
+    OrderItem::factory()->create([
+        'order_id' => $earlierThisMonth->id,
+        'product_name' => 'Belly Reset',
+        'product_slug' => 'belly-reset',
+        'quantity' => 8,
+    ]);
+
+    $component = Livewire::test(ShopStatsOverview::class)
+        ->assertSee('Packing list')
+        ->assertDontSee('By formula');
+
+    $response = $component->instance()->downloadPackingReport(app(PackingReport::class));
+
+    ob_start();
+    $response->sendContent();
+    $csv = ob_get_clean();
+
+    expect($response->headers->get('content-disposition'))
+        ->toContain('wellth-packing-week-2026-10-14.csv')
+        ->and($csv)->toContain('WLPACK001')
+        ->and($csv)->toContain('Ama Mensah')
+        ->and($csv)->toContain('4 × Ginja')
+        ->and($csv)->toContain('2 × Ginja, 2 × Glow Getter, 2 × Ruby Rush, 2 × Crave Control, 2 × Belly Reset')
+        ->and($csv)->toContain('Ginja,6')
+        ->and($csv)->not->toContain('Kojo Asante')
+        ->and($csv)->not->toContain('WLPACK002');
 });
 
 test('orders chart and latest orders widgets render', function () {
