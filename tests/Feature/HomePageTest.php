@@ -29,6 +29,7 @@ test('home page shows the wellth bouquet when the pack is active', function () {
             ->has('formulas', 5)
             ->where('bouquet.name', 'Wellth Bouquet')
             ->where('bouquet.slug', 'weekly-shot-pack')
-            ->has('bouquet.contents', 5)
+            ->has('bouquet.contents', 6)
+            ->where('bouquet.contents.5', '2 × ABC')
         );
 });

@@ -39,6 +39,7 @@ class HomeController extends Controller
                     '2 × Ruby Rush',
                     '2 × Crave Control',
                     '2 × Belly Reset',
+                    '2 × ABC',
                 ],
             ],
         ]);

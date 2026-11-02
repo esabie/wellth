@@ -21,6 +21,7 @@ class PackingReport
         'Ruby Rush' => 2,
         'Crave Control' => 2,
         'Belly Reset' => 2,
+        'ABC' => 2,
     ];
 
     /**
