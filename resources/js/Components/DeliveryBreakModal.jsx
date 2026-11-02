@@ -95,7 +95,7 @@ export default function DeliveryBreakModal({ open, onCancel, onContinue }) {
                 className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-[0_24px_80px_-24px_rgba(26,26,26,0.45)] sm:p-8"
             >
                 <p className="text-[11px] font-bold tracking-[0.16em] text-forest/55 uppercase">
-                    Delivery
+                    WELLTH FOODS
                 </p>
                 <h2 id={titleId} className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">
                     Delivery Notice
