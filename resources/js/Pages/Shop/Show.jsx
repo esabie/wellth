@@ -1,5 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
 import PreorderNotice from '../../Components/PreorderNotice';
 import ProductCard from '../../Components/ProductCard';
 import ShopLayout from '../../Layouts/ShopLayout';
@@ -17,13 +18,15 @@ export default function Show({ product, relatedProducts }) {
     const [adding, setAdding] = useState(false);
     const { flash } = usePage().props;
 
-    const addToCart = () => {
+    const submit = () => {
         setAdding(true);
         router.post('/cart', { product_id: product.id, quantity }, {
             ...cartMutationOptions,
             onFinish: () => setAdding(false),
         });
     };
+
+    const { requestAdd, modal } = useDeliveryBreak(submit);
 
     return (
         <ShopLayout>
@@ -96,7 +99,7 @@ export default function Show({ product, relatedProducts }) {
 
                         <button
                             type="button"
-                            onClick={addToCart}
+                            onClick={requestAdd}
                             disabled={adding}
                             className="min-h-12 w-full cursor-pointer rounded-full bg-ink px-6 py-3 text-sm font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                         >
@@ -116,6 +119,8 @@ export default function Show({ product, relatedProducts }) {
                     )}
                 </div>
             </section>
+
+            {modal}
 
             {relatedProducts.length > 0 && (
                 <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">

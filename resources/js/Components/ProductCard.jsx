@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useDeliveryBreak } from './DeliveryBreakModal';
 import { cartMutationOptions } from '../lib/cartVisit';
 
 function formatMoney(value) {
@@ -12,10 +13,7 @@ function formatMoney(value) {
 export default function ProductCard({ product }) {
     const [adding, setAdding] = useState(false);
 
-    const addToCart = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
+    const submit = () => {
         if (!product.id || adding) {
             return;
         }
@@ -25,6 +23,14 @@ export default function ProductCard({ product }) {
             ...cartMutationOptions,
             onFinish: () => setAdding(false),
         });
+    };
+
+    const { requestAdd, modal } = useDeliveryBreak(submit);
+
+    const addToCart = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        requestAdd();
     };
 
     return (
@@ -91,6 +97,7 @@ export default function ProductCard({ product }) {
                     <span>{adding ? 'Adding…' : 'Add to Cart'}</span>
                 </button>
             </div>
+            {modal}
         </article>
     );
 }

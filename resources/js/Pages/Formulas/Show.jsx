@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
 import ShopLayout from '../../Layouts/ShopLayout';
 import { cartMutationOptions } from '../../lib/cartVisit';
 
@@ -13,7 +14,7 @@ function formatMoney(value) {
 export default function Show({ formula }) {
     const [adding, setAdding] = useState(false);
 
-    const addToCart = () => {
+    const submit = () => {
         if (!formula.product_id) {
             return;
         }
@@ -24,6 +25,8 @@ export default function Show({ formula }) {
             onFinish: () => setAdding(false),
         });
     };
+
+    const { requestAdd, modal } = useDeliveryBreak(submit);
 
     return (
         <ShopLayout>
@@ -121,7 +124,7 @@ export default function Show({ formula }) {
                         <div className="hidden border-t border-forest/12 pt-7 lg:block">
                             <button
                                 type="button"
-                                onClick={addToCart}
+                                onClick={requestAdd}
                                 disabled={adding || !formula.product_id}
                                 className="flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-2xl bg-ink px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(31,61,42,0.55)] transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-50"
                             >
@@ -193,7 +196,7 @@ export default function Show({ formula }) {
                     </div>
                     <button
                         type="button"
-                        onClick={addToCart}
+                        onClick={requestAdd}
                         disabled={adding || !formula.product_id}
                         className="min-h-12 shrink-0 cursor-pointer rounded-full bg-ink px-5 py-3 text-sm font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -201,6 +204,7 @@ export default function Show({ formula }) {
                     </button>
                 </div>
             </div>
+            {modal}
         </ShopLayout>
     );
 }
