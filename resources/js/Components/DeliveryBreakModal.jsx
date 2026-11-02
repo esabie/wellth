@@ -75,7 +75,7 @@ export default function DeliveryBreakModal({ open, onCancel, onContinue }) {
     }
 
     return createPortal(
-        <div className="fixed inset-0 z-[60] flex items-end justify-center p-4 sm:items-center">
+        <div className="fixed inset-0 z-[60] flex h-dvh items-center justify-center p-4">
             <button
                 type="button"
                 aria-label="Cancel"
