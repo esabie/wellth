@@ -33,7 +33,7 @@ export function useDeliveryBreak(onContinue) {
 export default function DeliveryBreakModal({ open, onCancel, onContinue }) {
     const titleId = useId();
     const descriptionId = useId();
-    const continueRef = useRef(null);
+    const dialogRef = useRef(null);
     const onCancelRef = useRef(onCancel);
     const canDismissRef = useRef(false);
 
@@ -49,7 +49,7 @@ export default function DeliveryBreakModal({ open, onCancel, onContinue }) {
         const previousOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         canDismissRef.current = false;
-        continueRef.current?.focus();
+        dialogRef.current?.focus({ preventScroll: true });
 
         const dismissTimer = window.setTimeout(() => {
             canDismissRef.current = true;
@@ -88,11 +88,13 @@ export default function DeliveryBreakModal({ open, onCancel, onContinue }) {
             />
 
             <div
+                ref={dialogRef}
                 role="dialog"
+                tabIndex={-1}
                 aria-modal="true"
                 aria-labelledby={titleId}
                 aria-describedby={descriptionId}
-                className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-[0_24px_80px_-24px_rgba(26,26,26,0.45)] sm:p-8"
+                className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-[0_24px_80px_-24px_rgba(26,26,26,0.45)] outline-none sm:p-8"
             >
                 <p className="text-[11px] font-bold tracking-[0.16em] text-forest/55 uppercase">
                     WELLTH FOODS
@@ -114,15 +116,14 @@ export default function DeliveryBreakModal({ open, onCancel, onContinue }) {
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="min-h-11 cursor-pointer rounded-full border border-black/10 px-5 py-2.5 text-sm font-bold text-ink transition hover:bg-mist"
+                        className="min-h-11 cursor-pointer rounded-full border border-black/10 px-5 py-2.5 text-sm font-bold text-ink outline-none transition hover:bg-mist focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2"
                     >
                         Cancel
                     </button>
                     <button
-                        ref={continueRef}
                         type="button"
                         onClick={onContinue}
-                        className="min-h-11 cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-leaf-800"
+                        className="min-h-11 cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-extrabold text-white outline-none transition hover:bg-leaf-800 focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2"
                     >
                         Continue
                     </button>
