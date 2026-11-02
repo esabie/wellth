@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\MarkOrderDelivered;
 use App\Actions\MarkOrderShipped;
 use App\Actions\RestoreOrderStock;
 use App\Actions\StartPreparingOrder;
@@ -10,9 +11,12 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Notifications\Channels\MnotifyChannel;
+use App\Notifications\OrderDeliveredCustomerSmsNotification;
 use App\Notifications\OrderPreparingCustomerNotification;
 use App\Notifications\OrderShippedCustomerNotification;
 use App\Notifications\OrderShippedCustomerSmsNotification;
+use App\Support\PhoneNumber;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
@@ -73,7 +77,7 @@ test('marking shipped notifies the customer once and requires preparing status',
         ->and($order->fresh()->shipped_at)->not->toBeNull();
 
     Notification::assertSentOnDemand(OrderShippedCustomerNotification::class);
-    Notification::assertSentOnDemand(OrderShippedCustomerSmsNotification::class);
+    Notification::assertSentOnDemandTimes(OrderShippedCustomerSmsNotification::class, 0);
 
     app(MarkOrderShipped::class)->handle($order->fresh());
 
@@ -86,6 +90,44 @@ test('marking shipped notifies the customer once and requires preparing status',
 
     expect($paidOnly->fresh()->status)->toBe(OrderStatus::Paid);
     Notification::assertSentOnDemandTimes(OrderShippedCustomerNotification::class, 1);
+});
+
+test('marking delivered texts the customer once and requires shipped status', function () {
+    Notification::fake();
+
+    $order = Order::factory()->shipped()->create([
+        'uuid' => 'WLDELIV001',
+        'customer_phone' => '0244111222',
+        'customer_name' => 'Ama Mensah',
+        'shipping_city' => 'Accra',
+    ]);
+
+    OrderItem::factory()->create(['order_id' => $order->id]);
+
+    app(MarkOrderDelivered::class)->handle($order);
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Delivered)
+        ->and($order->fresh()->delivered_at)->not->toBeNull();
+
+    Notification::assertSentOnDemand(
+        OrderDeliveredCustomerSmsNotification::class,
+        function (OrderDeliveredCustomerSmsNotification $notification, array $channels, object $notifiable): bool {
+            return $notifiable->routes[MnotifyChannel::class] === PhoneNumber::forSms('0244111222')
+                && $notification->toMnotify($notifiable) === 'Hi Ama, your order has been delivered. Enjoy your Wellth shots and enjoy 5% off your next order.';
+        },
+    );
+
+    app(MarkOrderDelivered::class)->handle($order->fresh());
+
+    Notification::assertSentOnDemandTimes(OrderDeliveredCustomerSmsNotification::class, 1);
+
+    $preparing = Order::factory()->preparing()->create();
+    OrderItem::factory()->create(['order_id' => $preparing->id]);
+
+    app(MarkOrderDelivered::class)->handle($preparing);
+
+    expect($preparing->fresh()->status)->toBe(OrderStatus::Preparing);
+    Notification::assertSentOnDemandTimes(OrderDeliveredCustomerSmsNotification::class, 1);
 });
 
 test('cancelling a preparing order restores stock', function () {
@@ -138,8 +180,15 @@ test('admins can start preparing and mark shipped from the order view', function
 
     expect($order->fresh()->status)->toBe(OrderStatus::Shipped);
 
+    Livewire::test(ViewOrder::class, ['record' => $order->fresh()->getRouteKey()])
+        ->callAction('markDelivered')
+        ->assertHasNoActionErrors();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Delivered);
+
     Notification::assertSentOnDemand(OrderPreparingCustomerNotification::class);
     Notification::assertSentOnDemand(OrderShippedCustomerNotification::class);
+    Notification::assertSentOnDemand(OrderDeliveredCustomerSmsNotification::class);
 });
 
 test('cancelling from filament restores stock after preparation', function () {
@@ -193,4 +242,16 @@ test('confirmation page still renders for preparing and shipped orders', functio
 
     $this->get(route('checkout.confirmation', $shipped))
         ->assertOk();
+
+    $delivered = Order::factory()->delivered()->create([
+        'customer_name' => 'Efua Mensah',
+    ]);
+
+    OrderItem::factory()->create(['order_id' => $delivered->id]);
+
+    $this->get(route('checkout.confirmation', $delivered))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Checkout/Confirmation')
+            ->where('order.status', 'delivered'));
 });

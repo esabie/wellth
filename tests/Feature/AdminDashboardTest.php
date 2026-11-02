@@ -214,7 +214,9 @@ test('the packing list download breaks paid orders down by formula', function ()
         ->and($csv)->toContain('Ama Mensah')
         ->and($csv)->toContain('4 × Ginja')
         ->and($csv)->toContain('2 × Ginja, 2 × Glow Getter, 2 × Ruby Rush, 2 × Crave Control, 2 × Belly Reset')
+        ->and($csv)->toContain('Products,"Bottles to pack"')
         ->and($csv)->toContain('Ginja,6')
+        ->and($csv)->not->toContain('Formula,')
         ->and($csv)->not->toContain('Kojo Asante')
         ->and($csv)->not->toContain('WLPACK002');
 });

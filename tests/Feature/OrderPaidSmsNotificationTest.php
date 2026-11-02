@@ -126,11 +126,21 @@ test('customer sms notification message includes order number and total', functi
         ->toBe("Hi Kwamz, Your payment for order WLK7M2P9QX (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!");
 });
 
-test('new orders get a short order number used as the payment reference', function () {
-    $order = Order::factory()->create();
+test('new orders use a dated serial number as the payment reference', function () {
+    $this->travelTo('2026-11-01 09:00:00');
 
-    expect($order->uuid)
-        ->toStartWith('WL')
-        ->toHaveLength(10)
-        ->and($order->paymentReference())->toBe($order->uuid);
+    $first = Order::factory()->create();
+    $second = Order::factory()->create();
+
+    expect($first->uuid)->toBe('WL261101001')
+        ->and($first->paymentReference())->toBe('WL261101001')
+        ->and($second->uuid)->toBe('WL261101002')
+        ->and($second->paymentReference())->toBe('WL261101002');
+
+    $this->travelTo('2026-11-02 09:00:00');
+
+    $nextDay = Order::factory()->create();
+
+    expect($nextDay->uuid)->toBe('WL261102001')
+        ->and($nextDay->paymentReference())->toBe('WL261102001');
 });

@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useId, useState } from 'react';
 import CartDrawer from '../Components/CartDrawer';
+import Logo from '../Components/Logo';
 
 const NAV_LINKS = [
     { href: '/', label: 'Home' },
@@ -8,7 +9,7 @@ const NAV_LINKS = [
 ];
 
 export default function ShopLayout({ children, overlayHeader = false }) {
-    const { app, cart, flash } = usePage().props;
+    const { cart, flash } = usePage().props;
     const cartCount = cart?.count ?? 0;
     const [cartOpen, setCartOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -60,11 +61,8 @@ export default function ShopLayout({ children, overlayHeader = false }) {
                 }
             >
                 <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
-                    <Link
-                        href="/"
-                        className="min-w-0 truncate font-display text-xl font-extrabold tracking-tight text-ink transition hover:opacity-80 sm:text-2xl"
-                    >
-                        {app.name}
+                    <Link href="/" aria-label="Wellth" className="shrink-0 rounded-2xl transition hover:opacity-90">
+                        <Logo className="h-16 w-auto sm:h-[4.5rem]" />
                     </Link>
 
                     <nav className="hidden items-center gap-8 text-sm font-semibold text-ink sm:flex">
@@ -176,7 +174,7 @@ export default function ShopLayout({ children, overlayHeader = false }) {
             <footer className="border-t border-black/5 bg-ink pb-[env(safe-area-inset-bottom)] text-white">
                 <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 sm:grid-cols-2 lg:grid-cols-3">
                     <div className="space-y-3">
-                        <p className="font-display text-2xl font-extrabold">{app.name}</p>
+                        <Logo tone="dark" className="h-28 w-auto" />
                         <p className="max-w-xs text-sm text-white/70">
                             A small daily ritual made to bring more energy to your everyday.
                         </p>

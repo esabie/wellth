@@ -12,6 +12,7 @@ enum OrderStatus: string implements HasColor, HasLabel
     case Paid = 'paid';
     case Preparing = 'preparing';
     case Shipped = 'shipped';
+    case Delivered = 'delivered';
     case Failed = 'failed';
     case Cancelled = 'cancelled';
 
@@ -23,6 +24,7 @@ enum OrderStatus: string implements HasColor, HasLabel
             self::Paid => 'Paid',
             self::Preparing => 'Preparing',
             self::Shipped => 'Shipped',
+            self::Delivered => 'Delivered',
             self::Failed => 'Failed',
             self::Cancelled => 'Cancelled',
         };
@@ -36,6 +38,7 @@ enum OrderStatus: string implements HasColor, HasLabel
             self::Paid => 'success',
             self::Preparing => 'info',
             self::Shipped => 'primary',
+            self::Delivered => 'success',
             self::Failed => 'danger',
             self::Cancelled => 'gray',
         };

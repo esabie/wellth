@@ -21,7 +21,7 @@ function confirmationCopy(order) {
         return {
             title: 'Order preparing',
             heading: "We're preparing your shots.",
-            body: `Your order is in the kitchen, ${order.customer_name}. We'll text you again when it's on the way.`,
+            body: `Your order is in the kitchen, ${order.customer_name}. We'll text you once it has been delivered.`,
         };
     }
 
@@ -29,7 +29,15 @@ function confirmationCopy(order) {
         return {
             title: 'Order shipped',
             heading: 'Your order is on the way.',
-            body: `Your shots have left our kitchen, ${order.customer_name}. They're headed to ${order.shipping_city}.`,
+            body: `Your shots have left our kitchen, ${order.customer_name}. They're headed to ${order.shipping_city}. We'll text you when they arrive.`,
+        };
+    }
+
+    if (order.status === 'delivered') {
+        return {
+            title: 'Order delivered',
+            heading: 'Your order has arrived.',
+            body: `Your shots have been delivered, ${order.customer_name}. Enjoy the ritual.`,
         };
     }
 

@@ -132,6 +132,7 @@ class ShopPeople
             OrderStatus::Paid,
             OrderStatus::Preparing,
             OrderStatus::Shipped,
+            OrderStatus::Delivered,
         ]);
     }
 }

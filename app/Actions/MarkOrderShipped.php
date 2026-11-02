@@ -4,10 +4,7 @@ namespace App\Actions;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
-use App\Notifications\Channels\MnotifyChannel;
 use App\Notifications\OrderShippedCustomerNotification;
-use App\Notifications\OrderShippedCustomerSmsNotification;
-use App\Support\PhoneNumber;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -74,40 +71,16 @@ class MarkOrderShipped
 
     private function notifyCustomer(Order $order): void
     {
-        if (filled($order->customer_email)) {
-            Notification::route('mail', $order->customer_email)
-                ->notify(new OrderShippedCustomerNotification($order));
-
-            Log::info('fulfilment.customer_shipped_email_queued', [
-                'order' => $order->uuid,
-                'email' => $order->customer_email,
-            ]);
-        }
-
-        if (! filled(config('services.mnotify.api_key'))) {
-            Log::warning('fulfilment.customer_shipped_sms_skipped', [
-                'order' => $order->uuid,
-                'reason' => 'mnotify_not_configured',
-            ]);
-
+        if (blank($order->customer_email)) {
             return;
         }
 
-        if (blank($order->customer_phone)) {
-            Log::warning('fulfilment.customer_shipped_sms_skipped', [
-                'order' => $order->uuid,
-                'reason' => 'missing_customer_phone',
-            ]);
+        Notification::route('mail', $order->customer_email)
+            ->notify(new OrderShippedCustomerNotification($order));
 
-            return;
-        }
-
-        Notification::route(MnotifyChannel::class, PhoneNumber::forSms($order->customer_phone))
-            ->notify(new OrderShippedCustomerSmsNotification($order));
-
-        Log::info('fulfilment.customer_shipped_sms_queued', [
+        Log::info('fulfilment.customer_shipped_email_queued', [
             'order' => $order->uuid,
-            'phone' => PhoneNumber::normalize((string) $order->customer_phone),
+            'email' => $order->customer_email,
         ]);
     }
 }

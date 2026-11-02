@@ -134,6 +134,7 @@ class ShopStatsOverview extends StatsOverviewWidget
                 OrderStatus::Paid,
                 OrderStatus::Preparing,
                 OrderStatus::Shipped,
+                OrderStatus::Delivered,
             ])
             ->where('paid_at', '>=', $this->periodStart());
     }

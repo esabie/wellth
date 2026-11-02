@@ -17,7 +17,7 @@ class OrderForm
         return $schema
             ->components([
                 Section::make('Fulfilment')
-                    ->description('Use Start preparing and Mark shipped on the order view for the happy path. Here you can cancel or fail an order, or add delivery notes.')
+                    ->description('Use Start preparing, Mark shipped, and Mark delivered on the order view for the happy path. Here you can cancel or fail an order, or add delivery notes.')
                     ->schema([
                         Select::make('status')
                             ->options(fn (?Order $record): array => collect([
@@ -33,7 +33,7 @@ class OrderForm
                                 ->all())
                             ->required()
                             ->native(false)
-                            ->helperText('Preparing and shipped are set from the order view so stock and customer alerts stay in sync.'),
+                            ->helperText('Preparing, shipped, and delivered are set from the order view so stock and customer alerts stay in sync.'),
                         Textarea::make('shipping_notes')
                             ->rows(3)
                             ->columnSpanFull(),

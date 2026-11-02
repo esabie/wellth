@@ -48,6 +48,7 @@ class LoyaltyWallet extends Model
                         OrderStatus::Paid,
                         OrderStatus::Preparing,
                         OrderStatus::Shipped,
+                        OrderStatus::Delivered,
                     ]);
                 },
             );

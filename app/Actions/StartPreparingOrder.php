@@ -14,7 +14,7 @@ class StartPreparingOrder
 {
     public function handle(Order $order): Order
     {
-        if (in_array($order->status, [OrderStatus::Preparing, OrderStatus::Shipped], true)) {
+        if (in_array($order->status, [OrderStatus::Preparing, OrderStatus::Shipped, OrderStatus::Delivered], true)) {
             Log::info('fulfilment.prepare_skipped', [
                 'order' => $order->uuid,
                 'status' => $order->status->value,

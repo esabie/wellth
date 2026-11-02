@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Orders\Pages;
 
 use App\Actions\CompletePaidOrder;
+use App\Actions\MarkOrderDelivered;
 use App\Actions\MarkOrderShipped;
 use App\Actions\StartPreparingOrder;
 use App\Enums\OrderStatus;
@@ -77,14 +78,14 @@ class ViewOrder extends ViewRecord
                 ->color('primary')
                 ->requiresConfirmation()
                 ->modalHeading('Mark this order as shipped?')
-                ->modalDescription('The customer will get an email and SMS that their shots are on the way.')
+                ->modalDescription('The order leaves the kitchen. Customers with an email are told it is on the way. The delivery text is sent when you mark it delivered.')
                 ->visible(fn (): bool => $this->record->status === OrderStatus::Preparing)
                 ->action(function (MarkOrderShipped $markOrderShipped): void {
                     $markOrderShipped->handle($this->record);
 
                     Notification::make()
                         ->title('Order shipped')
-                        ->body('The customer has been notified that delivery is on the way.')
+                        ->body('The order is on the way. Mark it delivered to text the customer.')
                         ->success()
                         ->send();
 
@@ -93,6 +94,33 @@ class ViewOrder extends ViewRecord
                         'paid_at',
                         'prepared_at',
                         'shipped_at',
+                        'delivered_at',
+                        'stock_decremented_at',
+                    ]);
+                }),
+            Action::make('markDelivered')
+                ->label('Mark delivered')
+                ->icon('heroicon-o-check-badge')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Mark this order as delivered?')
+                ->modalDescription('The customer will get a text that their shots have arrived.')
+                ->visible(fn (): bool => $this->record->status === OrderStatus::Shipped)
+                ->action(function (MarkOrderDelivered $markOrderDelivered): void {
+                    $markOrderDelivered->handle($this->record);
+
+                    Notification::make()
+                        ->title('Order delivered')
+                        ->body('The customer has been texted that the order arrived.')
+                        ->success()
+                        ->send();
+
+                    $this->refreshFormData([
+                        'status',
+                        'paid_at',
+                        'prepared_at',
+                        'shipped_at',
+                        'delivered_at',
                         'stock_decremented_at',
                     ]);
                 }),

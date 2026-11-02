@@ -73,6 +73,7 @@ class SecondPurchaseDiscount
                 OrderStatus::Paid,
                 OrderStatus::Preparing,
                 OrderStatus::Shipped,
+                OrderStatus::Delivered,
             ])
             ->count();
     }

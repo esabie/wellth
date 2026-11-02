@@ -60,7 +60,7 @@ class PackingReport
         ksort($totals);
 
         fputcsv($handle, []);
-        fputcsv($handle, ['Formula', 'Bottles to pack']);
+        fputcsv($handle, ['Products', 'Bottles to pack']);
 
         foreach ($totals as $formula => $count) {
             fputcsv($handle, [$formula, $count]);

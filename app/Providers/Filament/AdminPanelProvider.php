@@ -31,6 +31,10 @@ class AdminPanelProvider extends PanelProvider
             ->profile(isSimple: false)
             ->homeUrl(fn (): string => Dashboard::getUrl())
             ->databaseNotifications(livewireComponent: DatabaseNotifications::class)
+            ->brandLogo(asset('images/logo.png'))
+            ->darkModeBrandLogo(asset('images/logo-dark.png'))
+            ->brandLogoHeight('3.5rem')
+            ->favicon(asset('images/favicon.png'))
             ->colors([
                 'primary' => Color::Amber,
             ])

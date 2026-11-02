@@ -37,6 +37,7 @@ class OrdersChart extends ChartWidget
                     OrderStatus::Paid,
                     OrderStatus::Preparing,
                     OrderStatus::Shipped,
+                    OrderStatus::Delivered,
                 ])
                 ->whereDate('paid_at', $day)
                 ->sum('total');

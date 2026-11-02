@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 #[Fillable([
     'uuid',
@@ -42,6 +42,7 @@ use Illuminate\Support\Str;
     'paid_at',
     'prepared_at',
     'shipped_at',
+    'delivered_at',
     'stock_decremented_at',
 ])]
 class Order extends Model
@@ -73,20 +74,33 @@ class Order extends Model
     }
 
     /**
-     * Short public order number, e.g. WLK7M2P9QX.
+     * Public order number, e.g. WL261101001 for the first order on 1 Nov 2026.
      */
     public static function generateOrderNumber(): string
     {
-        do {
-            $number = 'WL'.Str::upper(Str::random(8));
-        } while (
-            static::query()
-                ->where('uuid', $number)
-                ->orWhere('paystack_reference', $number)
-                ->exists()
-        );
+        $date = now()->format('ymd');
 
-        return $number;
+        $serial = DB::transaction(function () use ($date): int {
+            DB::table('order_number_sequences')->insertOrIgnore([
+                'order_date' => $date,
+                'last_serial' => 0,
+            ]);
+
+            $lastSerial = (int) DB::table('order_number_sequences')
+                ->where('order_date', $date)
+                ->lockForUpdate()
+                ->value('last_serial');
+
+            $nextSerial = $lastSerial + 1;
+
+            DB::table('order_number_sequences')
+                ->where('order_date', $date)
+                ->update(['last_serial' => $nextSerial]);
+
+            return $nextSerial;
+        });
+
+        return 'WL'.$date.str_pad((string) $serial, 3, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -109,6 +123,7 @@ class Order extends Model
             'paid_at' => 'datetime',
             'prepared_at' => 'datetime',
             'shipped_at' => 'datetime',
+            'delivered_at' => 'datetime',
             'stock_decremented_at' => 'datetime',
         ];
     }
@@ -129,6 +144,7 @@ class Order extends Model
             OrderStatus::Paid,
             OrderStatus::Preparing,
             OrderStatus::Shipped,
+            OrderStatus::Delivered,
         ], true);
     }
 
