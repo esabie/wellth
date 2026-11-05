@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import HeroSlider from '../Components/HeroSlider';
 import ProductTags, { isComingSoon } from '../Components/ProductTags';
 import Reveal from '../Components/Reveal';
@@ -10,8 +10,6 @@ export default function Home({ formulas, bouquet }) {
 
     return (
         <ShopLayout overlayHeader>
-            <Head title="Organic wellness shots" />
-
             <section className="relative isolate min-h-dvh overflow-hidden bg-[#f4efe7] sm:min-h-[92vh]">
                 <HeroSlider />
 

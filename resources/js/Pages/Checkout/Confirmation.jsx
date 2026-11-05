@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import PaymentProofReceivedModal from '../../Components/PaymentProofReceivedModal';
 import ShopLayout from '../../Layouts/ShopLayout';
@@ -13,7 +13,6 @@ function formatMoney(value) {
 function confirmationCopy(order) {
     if (order.status === 'awaiting_confirmation') {
         return {
-            title: 'Payment received',
             heading: 'Screenshot received.',
             body: `Thanks, ${order.customer_name}. We're reviewing your MoMo payment proof and will text ${order.customer_phone} once it's confirmed. Please allow up to one week after confirmation for preparation and delivery.`,
         };
@@ -21,7 +20,6 @@ function confirmationCopy(order) {
 
     if (order.status === 'preparing') {
         return {
-            title: 'Order preparing',
             heading: "We're preparing your shots.",
             body: `Your order is in the kitchen, ${order.customer_name}. We'll text you once it has been delivered.`,
         };
@@ -29,7 +27,6 @@ function confirmationCopy(order) {
 
     if (order.status === 'shipped') {
         return {
-            title: 'Order shipped',
             heading: 'Your order is on the way.',
             body: `Your shots have left our kitchen, ${order.customer_name}. They're headed to ${order.shipping_city}. We'll text you when they arrive.`,
         };
@@ -37,14 +34,12 @@ function confirmationCopy(order) {
 
     if (order.status === 'delivered') {
         return {
-            title: 'Order delivered',
             heading: 'Your order has arrived.',
             body: `Your shots have been delivered, ${order.customer_name}. Enjoy the ritual.`,
         };
     }
 
     return {
-        title: 'Order confirmed',
         heading: 'Order confirmed.',
         body: `We've confirmed your payment, ${order.customer_name}. A confirmation text is on the way. Shots are made fresh — please allow up to one week for delivery.`,
     };
@@ -57,8 +52,6 @@ export default function Confirmation({ order }) {
 
     return (
         <ShopLayout>
-            <Head title={copy.title} />
-
             <PaymentProofReceivedModal
                 open={proofModalOpen}
                 phone={order.customer_phone}

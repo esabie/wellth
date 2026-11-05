@@ -1,4 +1,3 @@
-import { Head } from '@inertiajs/react';
 import { useId, useState } from 'react';
 import ShopLayout from '../Layouts/ShopLayout';
 
@@ -55,8 +54,6 @@ export default function Faq({ faqs }) {
 
     return (
         <ShopLayout>
-            <Head title="FAQs" />
-
             <section className="bg-mist px-4 py-14 sm:px-6 sm:py-20">
                 <div className="mx-auto max-w-3xl text-center">
                     <p className="text-xs font-bold tracking-[0.2em] text-forest uppercase">Questions</p>

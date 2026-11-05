@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
 import ProductTags, { isComingSoon } from '../../Components/ProductTags';
@@ -33,8 +33,6 @@ export default function Show({ formula }) {
 
     return (
         <ShopLayout>
-            <Head title={formula.name} />
-
             <section className="mx-auto max-w-6xl px-4 pt-4 pb-28 sm:px-6 sm:pb-16 sm:pt-5">
                 <Link
                     href="/shop"

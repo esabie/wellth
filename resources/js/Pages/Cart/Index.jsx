@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import ShopLayout from '../../Layouts/ShopLayout';
 import {
@@ -71,8 +71,6 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
 
     return (
         <ShopLayout>
-            <Head title="Your cart" />
-
             <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
                 <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">Your cart</h1>
                 <p className="mt-2 text-ink/65">Guest checkout · preorder · minimum {minimumOrderQuantity} shots</p>

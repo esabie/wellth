@@ -21,10 +21,10 @@ class CategorySeeder extends Seeder
                 'sort_order' => 1,
             ],
             [
-                'name' => 'Cold-Pressed Juices',
+                'name' => 'Juices',
                 'slug' => 'cold-pressed-juices',
-                'description' => 'Fresh cold-pressed juices bottled for everyday sipping.',
-                'is_active' => false,
+                'description' => '300ml drinks bottled for everyday sipping.',
+                'is_active' => true,
                 'sort_order' => 2,
             ],
             [

@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useId, useState } from 'react';
 import CartDrawer from '../Components/CartDrawer';
 import Logo from '../Components/Logo';
+import Seo from '../Components/Seo';
 
 const NAV_LINKS = [
     { href: '/', label: 'Home' },
@@ -53,6 +54,7 @@ export default function ShopLayout({ children, overlayHeader = false }) {
 
     return (
         <div className="relative min-h-screen overflow-x-hidden bg-mist">
+            <Seo />
             <header
                 className={
                     overlayHeader

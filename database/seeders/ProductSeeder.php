@@ -15,6 +15,7 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $shots = Category::query()->where('slug', 'wellness-shots')->firstOrFail();
+        $juices = Category::query()->where('slug', 'cold-pressed-juices')->firstOrFail();
         $bundles = Category::query()->where('slug', 'bundles')->firstOrFail();
         $formulas = app(FormulaCatalog::class)->all();
         $formulaSlugs = $formulas->pluck('product_slug');
@@ -75,8 +76,41 @@ class ProductSeeder extends Seeder
 
         $bouquet->save();
 
+        Product::query()->updateOrCreate(
+            ['slug' => 'cloudy-carrot'],
+            [
+                'category_id' => $juices->id,
+                'name' => 'Cloudy Carrot',
+                'sku' => 'WL-CLOUDY-CARROT',
+                'short_description' => 'Carrot, banana and milk, warmed with cinnamon.',
+                'description' => 'Sweet carrot and banana blended with milk and condensed milk, finished with cinnamon. A creamy, naturally cloudy 300ml drink for the everyday ritual.',
+                'bottle_size' => '300ml',
+                'pack_units' => 1,
+                'taste' => 'Sweet carrot and banana with a warm cinnamon finish.',
+                'ritual' => 'Best chilled, with breakfast or as an afternoon lift.',
+                'highlights' => [
+                    'Carrot, banana, milk and cinnamon',
+                    'Creamy and naturally cloudy',
+                    'Blended and bottled fresh',
+                ],
+                'ingredients' => [
+                    ['name' => 'Carrot', 'image' => '/images/ingredients/carrot.jpg'],
+                    ['name' => 'Milk', 'image' => '/images/ingredients/milk.jpg'],
+                    ['name' => 'Condensed milk', 'image' => '/images/ingredients/condensed-milk.jpg'],
+                    ['name' => 'Cinnamon', 'image' => '/images/ingredients/cinnamon.jpg'],
+                    ['name' => 'Banana', 'image' => '/images/ingredients/banana.jpg'],
+                ],
+                'price' => 20.00,
+                'compare_at_price' => null,
+                'stock_quantity' => 50,
+                'image_path' => '/images/formulas/cloudy-carrot.jpg',
+                'is_active' => true,
+                'sort_order' => $sort,
+            ],
+        );
+
         Product::query()
-            ->whereNotIn('slug', $formulaSlugs->push('weekly-shot-pack')->all())
+            ->whereNotIn('slug', $formulaSlugs->push('weekly-shot-pack', 'cloudy-carrot')->all())
             ->update(['is_active' => false]);
     }
 }

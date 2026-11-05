@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import ProductCard from '../../Components/ProductCard';
 import ShopLayout from '../../Layouts/ShopLayout';
 
@@ -15,8 +15,6 @@ export default function Index({ products, categories, filters }) {
 
     return (
         <ShopLayout>
-            <Head title="Shop" />
-
             <section className="bg-[#f3efe6]">
                 <div className="mx-auto max-w-6xl px-4 pt-10 pb-6 sm:px-6 sm:pt-14 sm:pb-8">
                     <p className="text-xs font-bold tracking-[0.2em] text-forest/50 uppercase">

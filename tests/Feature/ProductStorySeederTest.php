@@ -31,6 +31,37 @@ test('product seeder fills story fields from the formula catalog', function () {
     }
 });
 
+test('product seeder keeps cloudy carrot on the shop', function () {
+    $this->seed(CategorySeeder::class);
+    $this->seed(ProductSeeder::class);
+
+    $product = Product::query()->where('slug', 'cloudy-carrot')->first();
+
+    expect($product)->not->toBeNull()
+        ->and($product->is_active)->toBeTrue()
+        ->and($product->name)->toBe('Cloudy Carrot')
+        ->and($product->bottle_size)->toBe('300ml')
+        ->and($product->category->slug)->toBe('cold-pressed-juices')
+        ->and($product->short_description)->toBe('Carrot, banana and milk, warmed with cinnamon.')
+        ->and($product->storefrontIngredients())->toBe([
+            ['name' => 'Carrot', 'image' => '/images/ingredients/carrot.jpg'],
+            ['name' => 'Milk', 'image' => '/images/ingredients/milk.jpg'],
+            ['name' => 'Condensed milk', 'image' => '/images/ingredients/condensed-milk.jpg'],
+            ['name' => 'Cinnamon', 'image' => '/images/ingredients/cinnamon.jpg'],
+            ['name' => 'Banana', 'image' => '/images/ingredients/banana.jpg'],
+        ]);
+
+    $this->get(route('shop.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Shop/Index')
+            ->where('products.data', fn ($products) => collect($products)->contains(
+                fn (array $item): bool => $item['name'] === 'Cloudy Carrot'
+                    && $item['image'] === '/images/formulas/cloudy-carrot.jpg',
+            ))
+        );
+});
+
 test('seeded formula product detail prefers product story fields', function () {
     $this->seed(CategorySeeder::class);
     $this->seed(ProductSeeder::class);

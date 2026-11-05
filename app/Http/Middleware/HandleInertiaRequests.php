@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Support\Cart;
+use App\Support\PageSeo;
 use App\Support\VersionedAsset;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -42,6 +43,7 @@ class HandleInertiaRequests extends Middleware
             'app' => [
                 'name' => config('app.name'),
             ],
+            'seo' => fn (): array => app(PageSeo::class)->forRequest($request),
             'assets' => [
                 'logo' => VersionedAsset::url('images/logo.png'),
                 'logoDark' => VersionedAsset::url('images/logo-dark.png'),

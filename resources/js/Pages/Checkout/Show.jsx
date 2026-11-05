@@ -1,4 +1,4 @@
-import { Form, Head, Link, router, usePage } from '@inertiajs/react';
+import { Form, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 import ShopLayout from '../../Layouts/ShopLayout';
 
@@ -124,8 +124,6 @@ export default function Show({
 
     return (
         <ShopLayout>
-            <Head title="Checkout" />
-
             <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <p className="text-sm text-ink/45">

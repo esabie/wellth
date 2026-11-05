@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
 import PreorderNotice from '../../Components/PreorderNotice';
@@ -32,8 +32,6 @@ export default function Show({ product, relatedProducts }) {
 
     return (
         <ShopLayout>
-            <Head title={product.name} />
-
             <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:gap-16">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-leaf-100">
                     <ProductTags tags={product.tags} className="absolute top-4 left-4 z-10" />

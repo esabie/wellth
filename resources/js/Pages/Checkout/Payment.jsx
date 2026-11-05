@@ -1,4 +1,4 @@
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Form, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import ShopLayout from '../../Layouts/ShopLayout';
 
@@ -23,8 +23,6 @@ export default function Payment({ order, momo }) {
 
     return (
         <ShopLayout>
-            <Head title="Pay by Mobile Money" />
-
             <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-12">
                 <p className="text-sm text-ink/45">
                     <Link href="/shop" className="transition hover:text-ink">
