@@ -14,6 +14,7 @@ test('home page advertises the shop to search engines', function () {
     $this->get(route('home'))
         ->assertOk()
         ->assertSee('<title>Organic wellness shots · '.$siteName.'</title>', false)
+        ->assertSee('name="google-site-verification" content="cdVOs4fixLHberAs65ZhY0ifIV5mwNlAy78yaLTFFk4"', false)
         ->assertSee('name="description" content="Organic wellness shots with bold flavor and clean ingredients, made fresh in Ghana for your daily ritual."', false)
         ->assertSee('rel="canonical" href="'.route('home').'"', false)
         ->assertSee('property="og:image" content="'.url('/images/formulas/bouquet.jpg').'"', false)

@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <meta name="google-site-verification" content="cdVOs4fixLHberAs65ZhY0ifIV5mwNlAy78yaLTFFk4">
         @include('seo.meta')
         <link rel="icon" type="image/png" href="{{ \App\Support\VersionedAsset::url('images/favicon.png') }}">
         <link rel="apple-touch-icon" href="{{ \App\Support\VersionedAsset::url('images/apple-touch-icon.png') }}">
