@@ -52,6 +52,7 @@ class ProductController extends Controller
                 'bottle_size' => $product->bottle_size ?: ($formulas->find($product->slug)['bottle_size'] ?? null),
                 'image' => $product->imageUrl($formulas),
                 'category' => $product->category,
+                'tags' => $product->storefrontTags(),
             ]);
 
         return Inertia::render('Shop/Index', [
@@ -96,6 +97,7 @@ class ProductController extends Controller
                 'compare_at_price',
                 'bottle_size',
                 'image_path',
+                'tags',
             ])
             ->map(fn (Product $related): array => [
                 'id' => $related->id,
@@ -106,6 +108,7 @@ class ProductController extends Controller
                 'compare_at_price' => $related->compare_at_price,
                 'bottle_size' => $related->bottle_size ?: ($formulas->find($related->slug)['bottle_size'] ?? null),
                 'image' => $related->imageUrl($formulas),
+                'tags' => $related->storefrontTags(),
             ]);
 
         return Inertia::render('Shop/Show', [
@@ -121,6 +124,7 @@ class ProductController extends Controller
                 'image' => $product->imageUrl($formulas),
                 'stock_quantity' => $product->stock_quantity,
                 'category' => $product->category,
+                'tags' => $product->storefrontTags(),
             ],
             'relatedProducts' => $relatedProducts,
         ]);
@@ -164,6 +168,7 @@ class ProductController extends Controller
                 ? $ingredients
                 : ($formula['ingredients'] ?? $ingredients),
             'product_id' => $product->id,
+            'tags' => $product->storefrontTags(),
         ];
     }
 }

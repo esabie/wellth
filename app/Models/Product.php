@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductTag;
 use App\Support\FormulaCatalog;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'image_path',
     'stock_quantity',
     'is_active',
+    'tags',
     'sort_order',
 ])]
 class Product extends Model
@@ -47,6 +49,7 @@ class Product extends Model
             'stock_quantity' => 'integer',
             'pack_units' => 'integer',
             'is_active' => 'boolean',
+            'tags' => 'array',
             'sort_order' => 'integer',
             'highlights' => 'array',
             'ingredients' => 'array',
@@ -140,6 +143,35 @@ class Product extends Model
                 $imageQuery->orWhereIn('slug', $formulaSlugs);
             }
         });
+    }
+
+    /**
+     * @return list<ProductTag>
+     */
+    public function tagList(): array
+    {
+        return collect($this->tags ?? [])
+            ->map(fn (mixed $tag): ?ProductTag => $tag instanceof ProductTag ? $tag : ProductTag::tryFrom((string) $tag))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    public function storefrontTags(): array
+    {
+        return array_map(fn (ProductTag $tag): array => [
+            'value' => $tag->value,
+            'label' => $tag->getLabel(),
+        ], $this->tagList());
+    }
+
+    public function isComingSoon(): bool
+    {
+        return in_array(ProductTag::ComingSoon, $this->tagList(), true);
     }
 
     /**

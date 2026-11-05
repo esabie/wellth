@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Enums\ProductTag;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -75,6 +77,11 @@ class ProductForm
                         Toggle::make('is_active')
                             ->default(true)
                             ->required(),
+                        CheckboxList::make('tags')
+                            ->label('Tags')
+                            ->options(ProductTag::class)
+                            ->columns(2)
+                            ->columnSpanFull(),
                         TextInput::make('sort_order')
                             ->numeric()
                             ->default(0)

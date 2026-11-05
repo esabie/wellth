@@ -2,6 +2,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
 import PreorderNotice from '../../Components/PreorderNotice';
+import ProductTags, { isComingSoon } from '../../Components/ProductTags';
 import ProductCard from '../../Components/ProductCard';
 import ShopLayout from '../../Layouts/ShopLayout';
 import { cartMutationOptions } from '../../lib/cartVisit';
@@ -27,18 +28,20 @@ export default function Show({ product, relatedProducts }) {
     };
 
     const { requestAdd, modal } = useDeliveryBreak(submit);
+    const comingSoon = isComingSoon(product.tags);
 
     return (
         <ShopLayout>
             <Head title={product.name} />
 
             <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:gap-16">
-                <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-leaf-100">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-leaf-100">
+                    <ProductTags tags={product.tags} className="absolute top-4 left-4 z-10" />
                     {product.image ? (
                         <img
                             src={product.image}
                             alt={product.name}
-                            className="h-full w-full object-cover"
+                            className={`h-full w-full object-cover ${comingSoon ? 'grayscale' : ''}`}
                         />
                     ) : (
                         <div className="flex h-full w-full items-end bg-[linear-gradient(160deg,#9ec894_0%,#fff6d8_55%,#e4f0df_100%)] p-8">
@@ -76,6 +79,15 @@ export default function Show({ product, relatedProducts }) {
 
                     <PreorderNotice />
 
+                    {comingSoon ? (
+                        <button
+                            type="button"
+                            disabled
+                            className="min-h-12 w-full cursor-not-allowed rounded-full bg-ink px-6 py-3 text-sm font-bold text-white opacity-60 sm:w-auto"
+                        >
+                            Coming soon
+                        </button>
+                    ) : (
                     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                         <div className="flex items-center gap-2">
                             <button
@@ -106,6 +118,7 @@ export default function Show({ product, relatedProducts }) {
                             {adding ? 'Adding…' : 'Add to cart'}
                         </button>
                     </div>
+                    )}
 
                     {flash?.success && (
                         <p className="text-sm font-semibold text-leaf-700">{flash.success}</p>

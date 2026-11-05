@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { useDeliveryBreak } from './DeliveryBreakModal';
+import ProductTags, { isComingSoon } from './ProductTags';
 import { cartMutationOptions } from '../lib/cartVisit';
 
 function formatMoney(value) {
@@ -13,8 +14,10 @@ function formatMoney(value) {
 export default function ProductCard({ product }) {
     const [adding, setAdding] = useState(false);
 
+    const comingSoon = isComingSoon(product.tags);
+
     const submit = () => {
-        if (!product.id || adding) {
+        if (!product.id || adding || comingSoon) {
             return;
         }
 
@@ -30,7 +33,9 @@ export default function ProductCard({ product }) {
     const addToCart = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        requestAdd();
+        if (!comingSoon) {
+            requestAdd();
+        }
     };
 
     return (
@@ -41,7 +46,7 @@ export default function ProductCard({ product }) {
                         <img
                             src={product.image}
                             alt={product.name}
-                            className="h-full w-full object-cover object-center transition duration-700 ease-out group-hover:scale-105"
+                            className={`h-full w-full object-cover object-center transition duration-700 ease-out group-hover:scale-105 ${comingSoon ? 'grayscale' : ''}`}
                             loading="lazy"
                         />
                     ) : (
@@ -49,6 +54,7 @@ export default function ProductCard({ product }) {
                             {product.name}
                         </div>
                     )}
+                    <ProductTags tags={product.tags} className="absolute top-3 left-3 z-10" />
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/10 to-transparent sm:h-16" />
                 </div>
 
@@ -78,7 +84,7 @@ export default function ProductCard({ product }) {
                 <button
                     type="button"
                     onClick={addToCart}
-                    disabled={adding}
+                    disabled={adding || comingSoon}
                     className="flex min-h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full bg-ink px-2.5 py-2.5 text-xs font-bold text-white shadow-[0_8px_20px_-10px_rgba(31,61,42,0.55)] transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-11 sm:gap-2 sm:px-4 sm:py-3 sm:text-sm"
                 >
                     <svg
@@ -94,7 +100,7 @@ export default function ProductCard({ product }) {
                         <path d="M6 7h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7Z" />
                         <path d="M9 7V5.8A3 3 0 0 1 12 2.8 3 3 0 0 1 15 5.8V7" />
                     </svg>
-                    <span>{adding ? 'Adding…' : 'Add to Cart'}</span>
+                    <span>{comingSoon ? 'Coming soon' : adding ? 'Adding…' : 'Add to Cart'}</span>
                 </button>
             </div>
             {modal}

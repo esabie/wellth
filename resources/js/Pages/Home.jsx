@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import HeroSlider from '../Components/HeroSlider';
+import ProductTags, { isComingSoon } from '../Components/ProductTags';
 import Reveal from '../Components/Reveal';
 import useScrollHomeToTop from '../hooks/useScrollHomeToTop';
 import ShopLayout from '../Layouts/ShopLayout';
@@ -80,9 +81,10 @@ export default function Home({ formulas, bouquet }) {
                                         <img
                                             src={formula.image}
                                             alt={`${formula.name} shots with ingredients`}
-                                            className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
+                                            className={`h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105 ${isComingSoon(formula.tags) ? 'grayscale' : ''}`}
                                             loading="lazy"
                                         />
+                                        <ProductTags tags={formula.tags} className="absolute top-3 left-3 z-10" />
                                         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/10 to-transparent" />
                                     </div>
 
@@ -137,7 +139,10 @@ export default function Home({ formulas, bouquet }) {
                     {bouquet && (
                         <Reveal variant="slide-right" delay={160}>
                             <div className="rounded-[2rem] bg-white/70 p-5 ring-1 ring-black/5 sm:p-8">
-                                <p className="font-display text-2xl font-extrabold text-ink">The whole lineup, one box.</p>
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <p className="font-display text-2xl font-extrabold text-ink">The whole lineup, one box.</p>
+                                    <ProductTags tags={bouquet.tags} />
+                                </div>
                                 <p className="mt-2 text-ink/65">
                                     {bouquet.blurb || 'The Wellth bouquet — a ready-made mixed box. No building or choosing required.'}
                                 </p>

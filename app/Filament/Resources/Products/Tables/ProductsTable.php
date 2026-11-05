@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Enums\ProductTag;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -26,6 +27,18 @@ class ProductsTable
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('tags')
+                    ->badge()
+                    ->formatStateUsing(function (mixed $state): string {
+                        $tag = $state instanceof ProductTag ? $state : ProductTag::tryFrom((string) $state);
+
+                        return $tag?->getLabel() ?? (string) $state;
+                    })
+                    ->color(function (mixed $state): string {
+                        $tag = $state instanceof ProductTag ? $state : ProductTag::tryFrom((string) $state);
+
+                        return $tag?->getColor() ?? 'gray';
+                    }),
                 TextColumn::make('category.name')
                     ->sortable()
                     ->toggleable(),

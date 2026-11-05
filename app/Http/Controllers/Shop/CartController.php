@@ -39,6 +39,12 @@ class CartController extends Controller
         $validated = $request->validated();
         $product = Product::query()->findOrFail($validated['product_id']);
 
+        if ($product->isComingSoon()) {
+            return back()->withErrors([
+                'product_id' => 'This shot is coming soon and cannot be added yet.',
+            ]);
+        }
+
         $quantity = (int) ($validated['quantity'] ?? 1);
         $cart->add($product, $quantity);
 
@@ -55,7 +61,15 @@ class CartController extends Controller
 
     public function update(UpdateCartItemRequest $request, Product $product, Cart $cart): RedirectResponse
     {
-        $cart->update($product, (int) $request->validated('quantity'));
+        $quantity = (int) $request->validated('quantity');
+
+        if ($product->isComingSoon() && $quantity > (int) ($cart->items()[$product->id]['quantity'] ?? 0)) {
+            return back()->withErrors([
+                'quantity' => 'This shot is coming soon and cannot be added yet.',
+            ]);
+        }
+
+        $cart->update($product, $quantity);
 
         return redirect()->back();
     }

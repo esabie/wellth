@@ -11,12 +11,18 @@ class HomeController extends Controller
 {
     public function __invoke(FormulaCatalog $formulas): Response
     {
+        $tagsBySlug = Product::query()
+            ->whereIn('slug', $formulas->all()->pluck('slug'))
+            ->get(['slug', 'tags'])
+            ->keyBy('slug');
+
         $formulaCards = $formulas->all()->map(fn (array $formula): array => [
             'slug' => $formula['slug'],
             'name' => $formula['name'],
             'image' => $formula['image'],
             'points' => collect($formula['ingredients'])->pluck('name')->all(),
             'href' => route('shop.show', $formula['slug']),
+            'tags' => $tagsBySlug->get($formula['slug'])?->storefrontTags() ?? [],
         ]);
 
         $bouquet = Product::query()
@@ -32,6 +38,7 @@ class HomeController extends Controller
                 'href' => route('shop.show', $bouquet),
                 'blurb' => $bouquet->short_description,
                 'price' => $bouquet->price,
+                'tags' => $bouquet->storefrontTags(),
                 'compare_at_price' => $bouquet->compare_at_price,
                 'contents' => [
                     '2 × Ginja',

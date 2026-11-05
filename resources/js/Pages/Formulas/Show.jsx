@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
+import ProductTags, { isComingSoon } from '../../Components/ProductTags';
 import ShopLayout from '../../Layouts/ShopLayout';
 import { cartMutationOptions } from '../../lib/cartVisit';
 
@@ -15,7 +16,7 @@ export default function Show({ formula }) {
     const [adding, setAdding] = useState(false);
 
     const submit = () => {
-        if (!formula.product_id) {
+        if (!formula.product_id || isComingSoon(formula.tags)) {
             return;
         }
 
@@ -27,6 +28,8 @@ export default function Show({ formula }) {
     };
 
     const { requestAdd, modal } = useDeliveryBreak(submit);
+    const comingSoon = isComingSoon(formula.tags);
+    const canAdd = Boolean(formula.product_id) && !comingSoon;
 
     return (
         <ShopLayout>
@@ -41,12 +44,13 @@ export default function Show({ formula }) {
                 </Link>
 
                 <div className="mt-6 grid items-start gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-8">
-                    <div className="order-1 lg:col-span-6 lg:row-start-1">
+                    <div className="relative order-1 lg:col-span-6 lg:row-start-1">
                         <img
                             src={formula.image}
                             alt={formula.name}
-                            className="aspect-[4/5] w-full rounded-2xl object-cover sm:aspect-square"
+                            className={`aspect-[4/5] w-full rounded-2xl object-cover sm:aspect-square ${comingSoon ? 'grayscale' : ''}`}
                         />
+                        <ProductTags tags={formula.tags} className="absolute top-3 left-3" />
                     </div>
 
                     <div className="order-2 space-y-7 lg:col-span-6 lg:row-span-2 lg:row-start-1 lg:pt-2">
@@ -125,7 +129,7 @@ export default function Show({ formula }) {
                             <button
                                 type="button"
                                 onClick={requestAdd}
-                                disabled={adding || !formula.product_id}
+                                disabled={adding || !canAdd}
                                 className="flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-2xl bg-ink px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(31,61,42,0.55)] transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <svg
@@ -141,7 +145,7 @@ export default function Show({ formula }) {
                                     <path d="M6 7h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7Z" />
                                     <path d="M9 7V5.8A3 3 0 0 1 12 2.8 3 3 0 0 1 15 5.8V7" />
                                 </svg>
-                                <span>{adding ? 'Adding…' : 'Add to Cart'}</span>
+                                <span>{comingSoon ? 'Coming soon' : adding ? 'Adding…' : 'Add to Cart'}</span>
                             </button>
 
                             <p className="mt-4 max-w-md text-sm leading-relaxed text-ink/55">
@@ -197,10 +201,10 @@ export default function Show({ formula }) {
                     <button
                         type="button"
                         onClick={requestAdd}
-                        disabled={adding || !formula.product_id}
+                        disabled={adding || !canAdd}
                         className="min-h-12 shrink-0 cursor-pointer rounded-full bg-ink px-5 py-3 text-sm font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {adding ? 'Adding…' : 'Add to Cart'}
+                        {comingSoon ? 'Coming soon' : adding ? 'Adding…' : 'Add to Cart'}
                     </button>
                 </div>
             </div>

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Enums\ProductTag;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -18,6 +19,19 @@ class ProductInfolist
                     ->label('Category')
                     ->placeholder('-'),
                 TextEntry::make('name'),
+                TextEntry::make('tags')
+                    ->badge()
+                    ->placeholder('—')
+                    ->formatStateUsing(function (mixed $state): string {
+                        $tag = $state instanceof ProductTag ? $state : ProductTag::tryFrom((string) $state);
+
+                        return $tag?->getLabel() ?? (string) $state;
+                    })
+                    ->color(function (mixed $state): string {
+                        $tag = $state instanceof ProductTag ? $state : ProductTag::tryFrom((string) $state);
+
+                        return $tag?->getColor() ?? 'gray';
+                    }),
                 TextEntry::make('slug'),
                 TextEntry::make('sku')
                     ->label('SKU')
