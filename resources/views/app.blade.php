@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <title inertia>{{ config('app.name', 'Wellth') }}</title>
-        <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
-        <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
+        <link rel="icon" type="image/png" href="{{ \App\Support\VersionedAsset::url('images/favicon.png') }}">
+        <link rel="apple-touch-icon" href="{{ \App\Support\VersionedAsset::url('images/apple-touch-icon.png') }}">
         <script>
             if ('scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
@@ -71,7 +71,7 @@
     <body class="min-h-screen antialiased">
         <div id="wellth-boot-loader" aria-live="polite" aria-busy="true" aria-label="Loading Wellth">
             <div class="boot-mark">
-                <img src="{{ asset('images/logo.png') }}" alt="" class="boot-logo" width="184" height="161">
+                <img src="{{ \App\Support\VersionedAsset::url('images/logo.png') }}" alt="" class="boot-logo" width="184" height="161">
                 <svg class="boot-spinner" viewBox="0 0 32 32" aria-hidden="true">
                     <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(122, 36, 54, 0.18)" stroke-width="1.5"></circle>
                     <circle cx="16" cy="16" r="13" fill="none" stroke="#7a2436" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="20 62"></circle>

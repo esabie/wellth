@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Support\Cart;
+use App\Support\VersionedAsset;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -41,11 +42,16 @@ class HandleInertiaRequests extends Middleware
             'app' => [
                 'name' => config('app.name'),
             ],
+            'assets' => [
+                'logo' => VersionedAsset::url('images/logo.png'),
+                'logoDark' => VersionedAsset::url('images/logo-dark.png'),
+            ],
             'cart' => fn (): array => app(Cart::class)->summary(),
             'flash' => [
                 'success' => fn (): ?string => $request->session()->get('success'),
                 'error' => fn (): ?string => $request->session()->get('error'),
                 'open_cart' => fn (): bool => (bool) $request->session()->get('open_cart'),
+                'payment_proof_received' => fn (): bool => (bool) $request->session()->get('payment_proof_received'),
             ],
         ];
     }

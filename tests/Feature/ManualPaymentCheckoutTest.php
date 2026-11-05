@@ -72,7 +72,9 @@ test('customers can upload a payment screenshot and move to awaiting confirmatio
 
     $this->post(route('checkout.payment.store', $order), [
         'payment_proof' => $file,
-    ])->assertRedirect(route('checkout.confirmation', $order));
+    ])
+        ->assertRedirect(route('checkout.confirmation', $order))
+        ->assertSessionHas('payment_proof_received', true);
 
     $order->refresh();
 
@@ -83,6 +85,14 @@ test('customers can upload a payment screenshot and move to awaiting confirmatio
     Storage::disk('local')->assertExists($order->payment_proof_path);
 
     Notification::assertSentOnDemand(OrderPaymentProofSubmittedNotification::class);
+
+    $this->withSession(['payment_proof_received' => true])
+        ->get(route('checkout.confirmation', $order))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Checkout/Confirmation')
+            ->where('flash.payment_proof_received', true)
+        );
 });
 
 test('payment proof upload requires an image', function () {

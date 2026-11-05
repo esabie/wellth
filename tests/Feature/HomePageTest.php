@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\VersionedAsset;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\ProductSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -10,11 +11,14 @@ uses(RefreshDatabase::class);
 test('home page renders formula cards without featured products', function () {
     $this->get(route('home'))
         ->assertOk()
+        ->assertSee(VersionedAsset::url('images/logo.png'), false)
         ->assertInertia(fn (Assert $page) => $page
             ->component('Home')
             ->has('formulas', 5)
             ->where('bouquet', null)
             ->missing('featuredProducts')
+            ->where('assets.logo', VersionedAsset::url('images/logo.png'))
+            ->where('assets.logoDark', VersionedAsset::url('images/logo-dark.png'))
         );
 });
 

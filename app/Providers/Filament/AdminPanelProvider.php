@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Livewire\DatabaseNotifications;
 use App\Filament\Pages\Auth\Login;
+use App\Support\VersionedAsset;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -31,10 +32,10 @@ class AdminPanelProvider extends PanelProvider
             ->profile(isSimple: false)
             ->homeUrl(fn (): string => Dashboard::getUrl())
             ->databaseNotifications(livewireComponent: DatabaseNotifications::class)
-            ->brandLogo(asset('images/logo.png'))
-            ->darkModeBrandLogo(asset('images/logo-dark.png'))
+            ->brandLogo(VersionedAsset::url('images/logo.png'))
+            ->darkModeBrandLogo(VersionedAsset::url('images/logo-dark.png'))
             ->brandLogoHeight('3.5rem')
-            ->favicon(asset('images/favicon.png'))
+            ->favicon(VersionedAsset::url('images/favicon.png'))
             ->colors([
                 'primary' => Color::Amber,
             ])

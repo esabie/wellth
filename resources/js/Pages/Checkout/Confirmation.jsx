@@ -1,4 +1,6 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
+import PaymentProofReceivedModal from '../../Components/PaymentProofReceivedModal';
 import ShopLayout from '../../Layouts/ShopLayout';
 
 function formatMoney(value) {
@@ -49,11 +51,19 @@ function confirmationCopy(order) {
 }
 
 export default function Confirmation({ order }) {
+    const { flash } = usePage().props;
     const copy = confirmationCopy(order);
+    const [proofModalOpen, setProofModalOpen] = useState(() => Boolean(flash?.payment_proof_received));
 
     return (
         <ShopLayout>
             <Head title={copy.title} />
+
+            <PaymentProofReceivedModal
+                open={proofModalOpen}
+                phone={order.customer_phone}
+                onClose={() => setProofModalOpen(false)}
+            />
 
             <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
                 <p className="text-xs font-bold tracking-[0.18em] text-forest/50 uppercase">Thank you</p>

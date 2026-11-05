@@ -224,7 +224,7 @@ class CheckoutController extends Controller
 
         return redirect()
             ->route('checkout.confirmation', $order)
-            ->with('success', 'Payment screenshot received. We\'ll confirm it shortly.');
+            ->with('payment_proof_received', true);
     }
 
     public function confirmation(Order $order): Response
