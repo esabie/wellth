@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wellth · Instagram posts</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest: #1f3d2a;
+            --punch: #e85d2a;
+            --ink: #1a1a1a;
+            --mist: #f7f4ef;
+            --paper: #f3efe6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #222;
+            font-family: "DM Sans", sans-serif;
+            color: var(--ink);
+            padding: 40px 24px 80px;
+        }
+
+        .rail {
+            max-width: 1120px;
+            margin: 0 auto 28px;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .board {
+            width: 1080px;
+            height: 1080px;
+            margin: 0 auto 48px;
+            position: relative;
+            overflow: hidden;
+            background: var(--mist);
+        }
+
+        .board img.photo {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .logo { height: 96px; width: auto; display: block; }
+        .logo-sm { height: 78px; }
+
+        .word {
+            font-family: Outfit, sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.045em;
+            line-height: 0.92;
+        }
+
+        .eyebrow {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+        }
+
+        .body {
+            font-size: 27px;
+            line-height: 1.35;
+            font-weight: 500;
+        }
+
+        .cta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            width: 100%;
+        }
+
+        .cta-row .url {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .cta {
+            flex-shrink: 0;
+            background: var(--ink);
+            color: #fff;
+            font-family: Outfit, sans-serif;
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: 0.03em;
+            padding: 20px 32px;
+        }
+
+        .cta.light {
+            background: #f7f4ef;
+            color: var(--ink);
+        }
+
+        .cta-row.on-dark .url { color: rgba(247, 244, 239, 0.72); }
+        .cta-row.on-light .url { color: rgba(31, 61, 42, 0.62); }
+
+        /* 1 · Brand */
+        #post-brand {
+            display: grid;
+            grid-template-columns: 1fr 1.15fr;
+            background: var(--paper);
+        }
+
+        #post-brand .panel {
+            padding: 72px 56px 72px 72px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: var(--paper);
+            position: relative;
+            z-index: 1;
+        }
+
+        #post-brand .word {
+            margin-top: 36px;
+            font-size: 68px;
+            color: var(--forest);
+        }
+
+        #post-brand .body {
+            margin-top: 24px;
+            color: rgba(31, 61, 42, 0.7);
+            max-width: 12ch;
+        }
+
+        #post-brand .media { position: relative; overflow: hidden; }
+        #post-brand .media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 62% center;
+            display: block;
+        }
+
+        /* Product spotlight shared */
+        .spotlight { background: #111; }
+        .spotlight .photo { object-position: center 38%; }
+        .spotlight .bar {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 48px 64px 56px;
+            background: linear-gradient(180deg, rgba(17,17,17,0) 0%, rgba(17,17,17,0.92) 34%, #111 100%);
+            color: #f7f4ef;
+        }
+        .spotlight .eyebrow { color: rgba(247,244,239,0.55); }
+        .spotlight .word { margin-top: 10px; font-size: 96px; }
+        .spotlight .body {
+            margin: 12px 0 28px;
+            color: rgba(247,244,239,0.75);
+            max-width: 20ch;
+        }
+
+        #post-ginja .photo { object-position: center 38%; }
+        #post-glow .photo { object-position: center 42%; }
+        #post-ruby .photo { object-position: center 40%; }
+        #post-abc .photo { object-position: center 40%; }
+
+        /* Bouquet */
+        #post-bouquet { background: var(--forest); display: grid; grid-template-rows: minmax(0, 1fr) 280px; }
+        #post-bouquet .media {
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+            margin: 36px 36px 0;
+            background: #ddd;
+        }
+        #post-bouquet .media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 35%;
+            display: block;
+        }
+        #post-bouquet .footer {
+            padding: 40px 64px 48px;
+            color: #f7f4ef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 28px;
+        }
+        #post-bouquet .headline {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 32px;
+        }
+        #post-bouquet .eyebrow { color: rgba(247,244,239,0.55); margin-bottom: 12px; }
+        #post-bouquet .word { font-size: 58px; max-width: 9ch; }
+        #post-bouquet .side {
+            text-align: right;
+            font-size: 23px;
+            font-weight: 500;
+            color: rgba(247,244,239,0.72);
+            max-width: 14ch;
+            line-height: 1.35;
+            padding-bottom: 6px;
+        }
+
+        /* Cloudy Carrot */
+        #post-cloudy {
+            display: grid;
+            grid-template-columns: 0.92fr 1.08fr;
+            background: #efe6d8;
+        }
+        #post-cloudy .panel {
+            padding: 72px 48px 64px 72px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #post-cloudy .word {
+            margin-top: 34px;
+            font-size: 64px;
+            color: var(--ink);
+        }
+        #post-cloudy .body {
+            margin-top: 22px;
+            color: rgba(26,26,26,0.62);
+            font-size: 26px;
+            max-width: 11ch;
+        }
+        #post-cloudy .tag {
+            margin-bottom: 28px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--punch);
+        }
+        #post-cloudy .media { overflow: hidden; position: relative; }
+        #post-cloudy .media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
+            display: block;
+        }
+
+        /* Ritual */
+        #post-ritual {
+            background: var(--forest);
+            color: #f7f4ef;
+            display: grid;
+            grid-template-rows: 110px minmax(0, 1fr) 270px;
+        }
+        #post-ritual .top {
+            padding: 48px 72px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #post-ritual .eyebrow { color: rgba(247,244,239,0.55); }
+        #post-ritual .media {
+            margin: 0 72px;
+            overflow: hidden;
+            min-height: 0;
+            background: #000;
+        }
+        #post-ritual .media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 40%;
+            display: block;
+        }
+        #post-ritual .copy { padding: 36px 72px 48px; }
+        #post-ritual .word { font-size: 58px; max-width: 12ch; }
+        #post-ritual .body {
+            margin: 14px 0 28px;
+            color: rgba(247,244,239,0.7);
+            max-width: 22ch;
+        }
+
+        /* Shop mosaic */
+        #post-shop {
+            background: var(--mist);
+            display: grid;
+            grid-template-rows: minmax(0, 1fr) 230px;
+        }
+        #post-shop .mosaic {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 12px;
+            padding: 28px 28px 0;
+            min-height: 0;
+        }
+        #post-shop .cell { overflow: hidden; background: #ddd; }
+        #post-shop .cell:first-child { grid-row: 1 / span 2; }
+        #post-shop .cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        #post-shop .footer {
+            padding: 44px 56px 52px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 28px;
+            background: var(--mist);
+        }
+        #post-shop .word {
+            font-size: 54px;
+            color: var(--forest);
+            max-width: 10ch;
+        }
+        #post-shop .url {
+            margin-top: 12px;
+            font-size: 24px;
+            font-weight: 600;
+            color: rgba(31,61,42,0.65);
+        }
+
+        /* Fresh / made to order */
+        #post-fresh {
+            background: var(--paper);
+            display: grid;
+            grid-template-rows: minmax(0, 1fr) 280px;
+        }
+        #post-fresh .media {
+            margin: 36px 36px 0;
+            overflow: hidden;
+            min-height: 0;
+            background: #ddd;
+        }
+        #post-fresh .media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 45%;
+            display: block;
+        }
+        #post-fresh .footer {
+            padding: 40px 64px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 24px;
+        }
+        #post-fresh .eyebrow { color: rgba(31,61,42,0.5); margin-bottom: 12px; }
+        #post-fresh .word { font-size: 58px; color: var(--forest); max-width: 14ch; }
+        #post-fresh .body {
+            margin-top: 14px;
+            color: rgba(31,61,42,0.68);
+            max-width: 28ch;
+            font-size: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="rail"><strong style="color:#fff">Wellth Instagram</strong> · 1080×1080 · real product photos</div>
+
+    <section class="board" id="post-brand" data-name="01-brand-hero">
+        <div class="panel">
+            <div>
+                <img class="logo" src="../public/images/logo.png" alt="Wellth">
+                <p class="word">a little bottle of Wellth.</p>
+                <p class="body">Organic wellness shots, made fresh in Ghana.</p>
+            </div>
+            <div class="cta-row on-light">
+                <p class="url">wellthgh.com</p>
+                <div class="cta">Shop now</div>
+            </div>
+        </div>
+        <div class="media">
+            <img src="../public/images/formulas/ginger.jpg" alt="">
+        </div>
+    </section>
+
+    <section class="board spotlight" id="post-ginja" data-name="02-ginja">
+        <img class="photo" src="../public/images/formulas/ginger.jpg" alt="">
+        <div class="bar">
+            <p class="eyebrow">Wellness shot</p>
+            <p class="word">Ginja</p>
+            <p class="body">Lemon and ginger, with a clean cayenne finish.</p>
+            <div class="cta-row on-dark">
+                <p class="url">wellthgh.com</p>
+                <div class="cta light">Shop now</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="board" id="post-bouquet" data-name="03-bouquet">
+        <div class="media">
+            <img src="../public/images/formulas/bouquet.jpg" alt="">
+        </div>
+        <div class="footer">
+            <div class="headline">
+                <div>
+                    <p class="eyebrow">Wellth Bouquet</p>
+                    <p class="word">Six shots. One box.</p>
+                </div>
+                <p class="side">A ready mix for the week — no choosing required.</p>
+            </div>
+            <div class="cta-row on-dark">
+                <p class="url">wellthgh.com</p>
+                <div class="cta light">Shop now</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="board" id="post-cloudy" data-name="04-cloudy-carrot">
+        <div class="panel">
+            <div>
+                <img class="logo" src="../public/images/logo.png" alt="Wellth">
+                <p class="word">Cloudy Carrot</p>
+                <p class="body">Carrot, banana and milk, warmed with cinnamon.</p>
+            </div>
+            <div>
+                <p class="tag">300ml drink</p>
+                <div class="cta-row on-light">
+                    <p class="url">wellthgh.com</p>
+                    <div class="cta">Shop now</div>
+                </div>
+            </div>
+        </div>
+        <div class="media">
+            <img src="../public/images/formulas/cloudy-carrot.jpg" alt="">
+        </div>
+    </section>
+
+    <section class="board" id="post-ritual" data-name="05-ritual">
+        <div class="top">
+            <p class="eyebrow">The ritual</p>
+            <img class="logo logo-sm" src="../public/images/logo-dark.png" alt="">
+        </div>
+        <div class="media">
+            <img src="../public/images/formulas/beetroot.jpg" alt="">
+        </div>
+        <div class="copy">
+            <p class="word">Best chilled. First thing.</p>
+            <p class="body">Made fresh to order. Keep frozen, sip cold.</p>
+            <div class="cta-row on-dark">
+                <p class="url">wellthgh.com</p>
+                <div class="cta light">Shop now</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="board" id="post-shop" data-name="06-shop">
+        <div class="mosaic">
+            <div class="cell"><img src="../public/images/formulas/turmeric.jpg" alt=""></div>
+            <div class="cell"><img src="../public/images/formulas/abc.jpg" alt=""></div>
+            <div class="cell"><img src="../public/images/formulas/tropical.jpg" alt=""></div>
+        </div>
+        <div class="footer">
+            <div>
+                <p class="word">Order your next box.</p>
+                <p class="url">wellthgh.com</p>
+            </div>
+            <div class="cta">Shop now</div>
+        </div>
+    </section>
+
+    <section class="board spotlight" id="post-glow" data-name="07-glow-getter">
+        <img class="photo" src="../public/images/formulas/turmeric.jpg" alt="">
+        <div class="bar">
+            <p class="eyebrow">Wellness shot</p>
+            <p class="word">Glow Getter</p>
+            <p class="body">Turmeric and carrot, for everyday radiance.</p>
+            <div class="cta-row on-dark">
+                <p class="url">wellthgh.com</p>
+                <div class="cta light">Shop now</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="board spotlight" id="post-ruby" data-name="08-ruby-rush">
+        <img class="photo" src="../public/images/formulas/beetroot.jpg" alt="">
+        <div class="bar">
+            <p class="eyebrow">Wellness shot</p>
+            <p class="word">Ruby Rush</p>
+            <p class="body">Beetroot with orange and pomegranate brightness.</p>
+            <div class="cta-row on-dark">
+                <p class="url">wellthgh.com</p>
+                <div class="cta light">Shop now</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="board spotlight" id="post-abc" data-name="09-abc">
+        <img class="photo" src="../public/images/formulas/abc.jpg" alt="">
+        <div class="bar">
+            <p class="eyebrow">Wellness shot</p>
+            <p class="word">ABC</p>
+            <p class="body">Apple, beetroot and carrot in one bright daily shot.</p>
+            <div class="cta-row on-dark">
+                <p class="url">wellthgh.com</p>
+                <div class="cta light">Shop now</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="board" id="post-fresh" data-name="10-made-fresh">
+        <div class="media">
+            <img src="../public/images/formulas/green.jpg" alt="">
+        </div>
+        <div class="footer">
+            <div>
+                <p class="eyebrow">Made in Ghana</p>
+                <p class="word">Pressed fresh to your order.</p>
+                <p class="body">No shelf stock. Every bottle is made when you buy.</p>
+            </div>
+            <div class="cta-row on-light">
+                <p class="url">wellthgh.com</p>
+                <div class="cta">Shop now</div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

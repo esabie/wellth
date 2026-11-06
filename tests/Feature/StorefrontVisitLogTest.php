@@ -136,3 +136,101 @@ test('adding a product to the cart is logged and quantity changes are not', func
 
     expect($messages)->toBe(['Visitor added 2 × Ginja to the cart.']);
 });
+
+test('a visit log records the external referrer', function () {
+    Http::fake([
+        'ipwho.is/*' => Http::response([
+            'success' => true,
+            'city' => 'Accra',
+            'country' => 'Ghana',
+        ]),
+    ]);
+
+    $context = null;
+    Log::listen(function (object $event) use (&$context): void {
+        if ($event->message === 'Visitor opened the home page.') {
+            $context = $event->context;
+        }
+    });
+
+    $this->withHeader('Referer', 'https://www.instagram.com/p/abc123/')
+        ->get(route('home'))
+        ->assertOk();
+
+    expect($context['referrer'] ?? null)->toBe('www.instagram.com/p/abc123/');
+});
+
+test('campaign tags are kept for later pages in the same visit', function () {
+    Http::fake([
+        'ipwho.is/*' => Http::response([
+            'success' => true,
+            'city' => 'Accra',
+            'country' => 'Ghana',
+        ]),
+    ]);
+
+    $contexts = [];
+    Log::listen(function (object $event) use (&$contexts): void {
+        $contexts[] = [
+            'message' => $event->message,
+            'utm' => $event->context['utm'] ?? null,
+        ];
+    });
+
+    $this->get(route('home', [
+        'utm_source' => 'instagram',
+        'utm_medium' => 'social',
+        'utm_campaign' => 'ginja-launch',
+    ]))->assertOk();
+
+    $this->get(route('shop.index'))->assertOk();
+
+    expect($contexts)->toHaveCount(2)
+        ->and($contexts[0]['utm'])->toMatchArray([
+            'utm_source' => 'instagram',
+            'utm_medium' => 'social',
+            'utm_campaign' => 'ginja-launch',
+        ])
+        ->and($contexts[1]['message'])->toBe('Visitor opened the shop.')
+        ->and($contexts[1]['utm'])->toMatchArray([
+            'utm_source' => 'instagram',
+            'utm_medium' => 'social',
+            'utm_campaign' => 'ginja-launch',
+        ]);
+});
+
+test('opening the cart logs what is inside it', function () {
+    Http::fake([
+        'ipwho.is/*' => Http::response([
+            'success' => true,
+            'city' => 'Accra',
+            'country' => 'Ghana',
+        ]),
+    ]);
+
+    $product = Product::factory()->create([
+        'name' => 'Ginja',
+        'slug' => 'ginja-cart-snapshot',
+        'price' => 20,
+        'pack_units' => 1,
+    ]);
+
+    app(Cart::class)->add($product, 3);
+
+    $context = null;
+    Log::listen(function (object $event) use (&$context): void {
+        if ($event->message === 'Visitor opened the cart.') {
+            $context = $event->context;
+        }
+    });
+
+    $this->get(route('cart.index'))->assertOk();
+
+    expect($context['cart'] ?? null)->toMatchArray([
+        'bottles' => 3,
+        'subtotal' => '60.00',
+        'lines' => [
+            ['name' => 'Ginja', 'quantity' => 3],
+        ],
+    ]);
+});
