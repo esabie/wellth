@@ -36,6 +36,31 @@ class StorefrontVisitLog
         'checkout.confirmation',
     ];
 
+    /**
+     * @var array<string, string>
+     */
+    private const REFERRER_LABELS = [
+        'instagram.com' => 'Instagram',
+        'www.instagram.com' => 'Instagram',
+        'l.instagram.com' => 'Instagram',
+        'google.com' => 'Google',
+        'www.google.com' => 'Google',
+        'google.com.gh' => 'Google',
+        'www.google.com.gh' => 'Google',
+        'facebook.com' => 'Facebook',
+        'www.facebook.com' => 'Facebook',
+        'm.facebook.com' => 'Facebook',
+        'l.facebook.com' => 'Facebook',
+        'wa.me' => 'WhatsApp',
+        'api.whatsapp.com' => 'WhatsApp',
+        'web.whatsapp.com' => 'WhatsApp',
+        't.co' => 'X',
+        'twitter.com' => 'X',
+        'x.com' => 'X',
+        'tiktok.com' => 'TikTok',
+        'www.tiktok.com' => 'TikTok',
+    ];
+
     public function __construct(
         private VisitorClient $clients,
         private Cart $cart,
@@ -72,13 +97,9 @@ class StorefrontVisitLog
      *     device: string,
      *     browser: string,
      *     location: string,
-     *     referrer: string,
-     *     utm: array<string, string>,
-     *     cart?: array{
-     *         bottles: int,
-     *         subtotal: string,
-     *         lines: list<array{name: string, quantity: int}>
-     *     }
+     *     from?: string,
+     *     campaign?: string,
+     *     cart?: string
      * }
      */
     private function context(Request $request, string $visitor): array
@@ -88,12 +109,22 @@ class StorefrontVisitLog
         $context = [
             'visitor' => $visitor,
             ...$this->clients->details($request),
-            'referrer' => $this->referrer($request),
-            'utm' => $this->campaign($request),
         ];
 
+        $from = $this->referrer($request);
+
+        if ($from !== null) {
+            $context['from'] = $from;
+        }
+
+        $campaign = $this->formatCampaign($this->campaign($request));
+
+        if ($campaign !== null) {
+            $context['campaign'] = $campaign;
+        }
+
         if ($this->shouldIncludeCart($request)) {
-            $context['cart'] = $this->cartSnapshot();
+            $context['cart'] = $this->formatCart();
         }
 
         return $context;
@@ -104,22 +135,21 @@ class StorefrontVisitLog
         return in_array($request->route()?->getName(), self::CART_ROUTES, true);
     }
 
-    /**
-     * @return array{bottles: int, subtotal: string, lines: list<array{name: string, quantity: int}>}
-     */
-    private function cartSnapshot(): array
+    private function formatCart(): string
     {
-        return [
-            'bottles' => $this->cart->count(),
-            'subtotal' => $this->cart->subtotal(),
-            'lines' => $this->cart->detailedItems()
-                ->map(fn (array $item): array => [
-                    'name' => $item['product']->name,
-                    'quantity' => (int) $item['quantity'],
-                ])
-                ->values()
-                ->all(),
-        ];
+        $lines = $this->cart->detailedItems()
+            ->map(fn (array $item): string => $item['product']->name.' × '.(int) $item['quantity'])
+            ->values()
+            ->all();
+
+        $bottles = $this->cart->count();
+        $subtotal = $this->cart->subtotal();
+
+        if ($lines === []) {
+            return 'empty';
+        }
+
+        return $bottles.' bottles · '.implode(', ', $lines).' · GH₵'.$subtotal;
     }
 
     private function rememberCampaign(Request $request): void
@@ -151,6 +181,26 @@ class StorefrontVisitLog
         }
 
         return $this->utmFromQuery($request);
+    }
+
+    /**
+     * @param  array<string, string>  $utm
+     */
+    private function formatCampaign(array $utm): ?string
+    {
+        if ($utm === []) {
+            return null;
+        }
+
+        $parts = [];
+
+        foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as $key) {
+            if (isset($utm[$key])) {
+                $parts[] = $utm[$key];
+            }
+        }
+
+        return $parts === [] ? null : implode(' · ', $parts);
     }
 
     /**
@@ -215,36 +265,58 @@ class StorefrontVisitLog
         return $value;
     }
 
-    private function referrer(Request $request): string
+    private function referrer(Request $request): ?string
     {
         $referer = trim((string) $request->headers->get('referer', ''));
 
         if ($referer === '') {
-            return 'direct';
+            return null;
         }
 
         $parts = parse_url($referer);
 
         if (! is_array($parts) || ! isset($parts['host']) || ! is_string($parts['host']) || $parts['host'] === '') {
-            return 'direct';
+            return null;
         }
 
         $host = strtolower($parts['host']);
-        $appHost = strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST));
 
-        if ($appHost !== '' && ($host === $appHost || str_ends_with($host, '.'.$appHost))) {
+        if ($this->isOwnHost($host)) {
             $path = $parts['path'] ?? '/';
 
             if (! is_string($path) || $path === '') {
                 $path = '/';
             }
 
-            return 'site:'.substr($path, 0, 120);
+            return 'site '.substr($path, 0, 120);
+        }
+
+        if (isset(self::REFERRER_LABELS[$host])) {
+            return self::REFERRER_LABELS[$host];
+        }
+
+        foreach (self::REFERRER_LABELS as $knownHost => $label) {
+            if (str_ends_with($host, '.'.$knownHost)) {
+                return $label;
+            }
         }
 
         $path = is_string($parts['path'] ?? null) ? $parts['path'] : '';
         $summary = $host.($path === '' || $path === '/' ? '' : $path);
 
         return substr($summary, 0, 160);
+    }
+
+    private function isOwnHost(string $host): bool
+    {
+        $appHost = strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST));
+
+        if ($appHost !== '' && ($host === $appHost || str_ends_with($host, '.'.$appHost))) {
+            return true;
+        }
+
+        $localHosts = ['localhost', '127.0.0.1', '::1'];
+
+        return in_array($host, $localHosts, true) && in_array($appHost, $localHosts, true);
     }
 }

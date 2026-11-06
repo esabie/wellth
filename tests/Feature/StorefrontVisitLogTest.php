@@ -137,7 +137,7 @@ test('adding a product to the cart is logged and quantity changes are not', func
     expect($messages)->toBe(['Visitor added 2 × Ginja to the cart.']);
 });
 
-test('a visit log records the external referrer', function () {
+test('a visit log records a readable external referrer', function () {
     Http::fake([
         'ipwho.is/*' => Http::response([
             'success' => true,
@@ -157,10 +157,12 @@ test('a visit log records the external referrer', function () {
         ->get(route('home'))
         ->assertOk();
 
-    expect($context['referrer'] ?? null)->toBe('www.instagram.com/p/abc123/');
+    expect($context['from'] ?? null)->toBe('Instagram')
+        ->and($context)->not->toHaveKey('utm')
+        ->and($context)->not->toHaveKey('referrer');
 });
 
-test('campaign tags are kept for later pages in the same visit', function () {
+test('campaign tags stay readable and follow later pages in the same visit', function () {
     Http::fake([
         'ipwho.is/*' => Http::response([
             'success' => true,
@@ -173,7 +175,7 @@ test('campaign tags are kept for later pages in the same visit', function () {
     Log::listen(function (object $event) use (&$contexts): void {
         $contexts[] = [
             'message' => $event->message,
-            'utm' => $event->context['utm'] ?? null,
+            'campaign' => $event->context['campaign'] ?? null,
         ];
     });
 
@@ -186,20 +188,12 @@ test('campaign tags are kept for later pages in the same visit', function () {
     $this->get(route('shop.index'))->assertOk();
 
     expect($contexts)->toHaveCount(2)
-        ->and($contexts[0]['utm'])->toMatchArray([
-            'utm_source' => 'instagram',
-            'utm_medium' => 'social',
-            'utm_campaign' => 'ginja-launch',
-        ])
+        ->and($contexts[0]['campaign'])->toBe('instagram · social · ginja-launch')
         ->and($contexts[1]['message'])->toBe('Visitor opened the shop.')
-        ->and($contexts[1]['utm'])->toMatchArray([
-            'utm_source' => 'instagram',
-            'utm_medium' => 'social',
-            'utm_campaign' => 'ginja-launch',
-        ]);
+        ->and($contexts[1]['campaign'])->toBe('instagram · social · ginja-launch');
 });
 
-test('opening the cart logs what is inside it', function () {
+test('opening the cart logs a readable snapshot of what is inside it', function () {
     Http::fake([
         'ipwho.is/*' => Http::response([
             'success' => true,
@@ -226,11 +220,5 @@ test('opening the cart logs what is inside it', function () {
 
     $this->get(route('cart.index'))->assertOk();
 
-    expect($context['cart'] ?? null)->toMatchArray([
-        'bottles' => 3,
-        'subtotal' => '60.00',
-        'lines' => [
-            ['name' => 'Ginja', 'quantity' => 3],
-        ],
-    ]);
+    expect($context['cart'] ?? null)->toBe('3 bottles · Ginja × 3 · GH₵60.00');
 });
