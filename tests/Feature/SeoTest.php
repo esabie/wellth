@@ -20,6 +20,7 @@ test('home page advertises the shop to search engines', function () {
         ->assertSee('property="og:image" content="'.url('/images/formulas/bouquet.jpg').'"', false)
         ->assertSee('"@type":["Organization","Brand"]', false)
         ->assertSee('"alternateName":["Wellth Ghana","wellthgh","Wellth wellness shots"]', false)
+        ->assertSee('"sameAs":["https://www.instagram.com/wellth.gh/"]', false)
         ->assertInertia(fn (Assert $page) => $page
             ->where('seo.title', 'Organic wellness shots from Ghana · '.$siteName)
             ->where('seo.robots', 'index, follow')
@@ -30,7 +31,7 @@ test('faqs page tells search engines what Wellth is', function () {
     $this->get(route('faqs'))
         ->assertOk()
         ->assertSee('What is Wellth?', false)
-        ->assertSee('not a banking, savings, or investment app', false)
+        ->assertSee('@wellth.gh', false)
         ->assertSee('"@type":"FAQPage"', false);
 });
 

@@ -199,6 +199,14 @@ export default function ShopLayout({ children, overlayHeader = false }) {
                     <div className="space-y-2 text-sm">
                         <p className="font-semibold tracking-wide text-white/50 uppercase">Support</p>
                         <p className="text-white/70">Guest checkout · one-time purchases</p>
+                        <a
+                            href="https://www.instagram.com/wellth.gh/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block min-h-10 py-1.5 text-white/80 hover:text-white"
+                        >
+                            Instagram @wellth.gh
+                        </a>
                     </div>
                 </div>
             </footer>

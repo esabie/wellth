@@ -171,6 +171,9 @@ class PageSeo
                         'cold-pressed juice',
                         'Ghana wellness drinks',
                     ],
+                    'sameAs' => [
+                        'https://www.instagram.com/wellth.gh/',
+                    ],
                 ],
                 [
                     '@type' => 'WebSite',
