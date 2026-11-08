@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class PageSeo
 {
-    private const FALLBACK_DESCRIPTION = 'Organic wellness shots with bold flavor and clean ingredients, made fresh in Ghana for your daily ritual.';
+    private const FALLBACK_DESCRIPTION = 'Wellth (wellthgh.com) makes organic wellness shots and juices in Ghana — bold flavor, clean ingredients, made fresh for your daily ritual.';
 
     public function __construct(private Faqs $faqs) {}
 
@@ -68,33 +68,19 @@ class PageSeo
         return match ($request->route()?->getName()) {
             'home' => [
                 ...$page,
-                'title' => 'Organic wellness shots',
-                'jsonLd' => [
-                    '@context' => 'https://schema.org',
-                    '@graph' => [
-                        [
-                            '@type' => 'Organization',
-                            'name' => $siteName,
-                            'url' => route('home'),
-                            'logo' => url('/images/logo.png'),
-                        ],
-                        [
-                            '@type' => 'WebSite',
-                            'name' => $siteName,
-                            'url' => route('home'),
-                        ],
-                    ],
-                ],
+                'title' => 'Organic wellness shots from Ghana',
+                'description' => self::FALLBACK_DESCRIPTION,
+                'jsonLd' => $this->organizationSchema($siteName),
             ],
             'shop.index' => [
                 ...$page,
                 'title' => 'Shop',
-                'description' => 'Shop Wellth organic wellness shots and juices, made fresh in Ghana for your daily ritual.',
+                'description' => 'Shop Wellth organic wellness shots and juices at wellthgh.com — made fresh in Ghana for your daily ritual.',
             ],
             'faqs' => [
                 ...$page,
                 'title' => 'FAQs',
-                'description' => 'Answers about Wellth shots, ingredients, storage, and how ordering works.',
+                'description' => 'What Wellth is, how ordering works, and answers about our Ghana wellness shots, ingredients, and storage.',
                 'jsonLd' => $this->faqSchema(),
             ],
             'shop.show' => $this->productPage($request, $siteName, $page),
@@ -150,6 +136,55 @@ class PageSeo
             'image' => $image,
             'type' => 'product',
             'jsonLd' => $this->productSchema($product, $siteName, $description, $image, $canonical),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function organizationSchema(string $siteName): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => ['Organization', 'Brand'],
+                    '@id' => route('home').'#organization',
+                    'name' => $siteName,
+                    'legalName' => 'Wellth',
+                    'alternateName' => [
+                        'Wellth Ghana',
+                        'wellthgh',
+                        'Wellth wellness shots',
+                    ],
+                    'url' => route('home'),
+                    'logo' => url('/images/logo.png'),
+                    'image' => url('/images/formulas/bouquet.jpg'),
+                    'description' => self::FALLBACK_DESCRIPTION,
+                    'slogan' => 'a little bottle of Wellth.',
+                    'areaServed' => [
+                        '@type' => 'Country',
+                        'name' => 'Ghana',
+                    ],
+                    'knowsAbout' => [
+                        'organic wellness shots',
+                        'cold-pressed juice',
+                        'Ghana wellness drinks',
+                    ],
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => route('home').'#website',
+                    'name' => $siteName.' Ghana',
+                    'alternateName' => 'wellthgh.com',
+                    'url' => route('home'),
+                    'description' => self::FALLBACK_DESCRIPTION,
+                    'publisher' => [
+                        '@id' => route('home').'#organization',
+                    ],
+                    'inLanguage' => 'en-GH',
+                ],
+            ],
         ];
     }
 

@@ -10,10 +10,11 @@ test('faqs page renders the accordion content', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Faq')
-            ->has('faqs', 9)
-            ->where('faqs.0.question', 'Are your shots 100% natural?')
-            ->where('faqs.5.question', 'Is there a minimum purchase limit?')
-            ->where('faqs.5.answer', fn (string $answer): bool => str_contains($answer, '10 shots'))
+            ->has('faqs', 10)
+            ->where('faqs.0.question', 'What is Wellth?')
+            ->where('faqs.1.question', 'Are your shots 100% natural?')
+            ->where('faqs.6.question', 'Is there a minimum purchase limit?')
+            ->where('faqs.6.answer', fn (string $answer): bool => str_contains($answer, '10 shots'))
         );
 });
 

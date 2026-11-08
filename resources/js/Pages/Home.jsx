@@ -16,13 +16,13 @@ export default function Home({ formulas, bouquet }) {
                 <div className="relative mx-auto flex min-h-dvh max-w-6xl items-end px-4 pb-20 pt-24 sm:min-h-[92vh] sm:items-center sm:px-6 sm:pb-20 sm:pt-32 lg:items-center">
                     <div className="hero-copy w-full max-w-lg space-y-5 sm:space-y-6 lg:max-w-xl">
                         <p className="text-[0.7rem] font-bold tracking-[0.28em] text-forest/55 uppercase">
-                            Wellth
+                            Wellth Ghana
                         </p>
                         <h1 className="font-display text-4xl leading-[0.94] font-extrabold tracking-tight text-forest sm:text-5xl lg:text-7xl">
                             a little bottle of Wellth.
                         </h1>
                         <p className="max-w-md text-base leading-relaxed text-forest/75 sm:text-lg">
-                            Organic wellness shots with bold flavor and clean ingredients, made for your daily ritual.
+                            Organic wellness shots and juices from Ghana — bold flavor, clean ingredients, made fresh for your daily ritual.
                         </p>
                         <div className="flex w-full flex-wrap items-center justify-center gap-3 pt-1 sm:justify-start">
                             <Link
@@ -124,8 +124,8 @@ export default function Home({ formulas, bouquet }) {
                             Function without the theatre.
                         </h2>
                         <p className="max-w-md text-ink/70">
-                            Clear purpose. Bold ingredients. Genuinely enjoyable flavour. That&apos;s how wellness should
-                            feel.
+                            Wellth is a Ghana wellness-shot brand at wellthgh.com. Clear purpose, bold ingredients, and
+                            genuinely enjoyable flavour — that&apos;s how wellness should feel.
                         </p>
                         <Link
                             href="/shop"

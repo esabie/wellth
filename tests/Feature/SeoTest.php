@@ -13,16 +13,25 @@ test('home page advertises the shop to search engines', function () {
 
     $this->get(route('home'))
         ->assertOk()
-        ->assertSee('<title>Organic wellness shots · '.$siteName.'</title>', false)
+        ->assertSee('<title>Organic wellness shots from Ghana · '.$siteName.'</title>', false)
         ->assertSee('name="google-site-verification" content="cdVOs4fixLHberAs65ZhY0ifIV5mwNlAy78yaLTFFk4"', false)
-        ->assertSee('name="description" content="Organic wellness shots with bold flavor and clean ingredients, made fresh in Ghana for your daily ritual."', false)
+        ->assertSee('name="description" content="Wellth (wellthgh.com) makes organic wellness shots and juices in Ghana — bold flavor, clean ingredients, made fresh for your daily ritual."', false)
         ->assertSee('rel="canonical" href="'.route('home').'"', false)
         ->assertSee('property="og:image" content="'.url('/images/formulas/bouquet.jpg').'"', false)
-        ->assertSee('"@type":"Organization"', false)
+        ->assertSee('"@type":["Organization","Brand"]', false)
+        ->assertSee('"alternateName":["Wellth Ghana","wellthgh","Wellth wellness shots"]', false)
         ->assertInertia(fn (Assert $page) => $page
-            ->where('seo.title', 'Organic wellness shots · '.$siteName)
+            ->where('seo.title', 'Organic wellness shots from Ghana · '.$siteName)
             ->where('seo.robots', 'index, follow')
         );
+});
+
+test('faqs page tells search engines what Wellth is', function () {
+    $this->get(route('faqs'))
+        ->assertOk()
+        ->assertSee('What is Wellth?', false)
+        ->assertSee('not a banking, savings, or investment app', false)
+        ->assertSee('"@type":"FAQPage"', false);
 });
 
 test('product page describes that shot for search and social cards', function () {

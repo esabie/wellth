@@ -13,6 +13,10 @@ class Faqs
 
         return [
             [
+                'question' => 'What is Wellth?',
+                'answer' => 'Wellth is a Ghana brand of organic wellness shots and juices, sold online at wellthgh.com. We make fresh blends such as Ginja, Glow Getter, Ruby Rush, Crave Control, Belly Reset, ABC, and Cloudy Carrot for everyday rituals. Wellth is a food and drink brand — not a banking, savings, or investment app.',
+            ],
+            [
                 'question' => 'Are your shots 100% natural?',
                 'answer' => 'Our shots are prepared using natural ingredients. Please check the individual product descriptions for details about specific ingredients and any additional components.',
             ],
