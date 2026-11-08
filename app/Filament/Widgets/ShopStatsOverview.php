@@ -41,13 +41,13 @@ class ShopStatsOverview extends StatsOverviewWidget
 
     public function downloadPackingReport(PackingReport $report): StreamedResponse
     {
-        $csv = $report->csv($this->paidOrders());
-        $filename = 'wellth-packing-'.$this->period.'-'.now()->toDateString().'.csv';
+        $xlsx = $report->xlsx($this->packingOrders());
+        $filename = 'wellth-packing-'.$this->period.'-'.now()->toDateString().'.xlsx';
 
-        return response()->streamDownload(function () use ($csv): void {
-            echo $csv;
+        return response()->streamDownload(function () use ($xlsx): void {
+            echo $xlsx;
         }, $filename, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 
@@ -123,7 +123,7 @@ class ShopStatsOverview extends StatsOverviewWidget
     }
 
     /**
-     * Paid, preparing, and shipped orders in the selected period.
+     * Paid through delivered orders in the selected period (sales totals).
      *
      * @return Builder<Order>
      */
@@ -135,6 +135,22 @@ class ShopStatsOverview extends StatsOverviewWidget
                 OrderStatus::Preparing,
                 OrderStatus::Shipped,
                 OrderStatus::Delivered,
+            ])
+            ->where('paid_at', '>=', $this->periodStart());
+    }
+
+    /**
+     * Paid orders still waiting to be packed or delivered in the selected period.
+     *
+     * @return Builder<Order>
+     */
+    private function packingOrders(): Builder
+    {
+        return Order::query()
+            ->whereIn('status', [
+                OrderStatus::Paid,
+                OrderStatus::Preparing,
+                OrderStatus::Shipped,
             ])
             ->where('paid_at', '>=', $this->periodStart());
     }

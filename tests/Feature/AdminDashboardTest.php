@@ -14,6 +14,7 @@ use Filament\Pages\Dashboard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Livewire\Livewire;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 uses(RefreshDatabase::class);
 
@@ -198,6 +199,19 @@ test('the packing list download breaks paid orders down by formula', function ()
         'quantity' => 8,
     ]);
 
+    $delivered = Order::factory()->delivered()->create([
+        'uuid' => 'WLPACK003',
+        'customer_name' => 'Yaw Mensah',
+        'paid_at' => now(),
+        'delivered_at' => now(),
+    ]);
+    OrderItem::factory()->create([
+        'order_id' => $delivered->id,
+        'product_name' => 'Ruby Rush',
+        'product_slug' => 'ruby-rush',
+        'quantity' => 5,
+    ]);
+
     $component = Livewire::test(ShopStatsOverview::class)
         ->assertSee('Packing list')
         ->assertDontSee('By formula');
@@ -206,19 +220,43 @@ test('the packing list download breaks paid orders down by formula', function ()
 
     ob_start();
     $response->sendContent();
-    $csv = ob_get_clean();
+    $xlsx = ob_get_clean();
+
+    $temp = tempnam(sys_get_temp_dir(), 'packing-test-');
+    file_put_contents($temp, $xlsx);
+    $sheet = IOFactory::load($temp)->getActiveSheet();
+    unlink($temp);
+
+    $flat = collect($sheet->rangeToArray('A1:I20', null, true, false, false))
+        ->flatten()
+        ->filter(fn (mixed $value): bool => filled($value))
+        ->values();
 
     expect($response->headers->get('content-disposition'))
-        ->toContain('wellth-packing-week-2026-10-14.csv')
-        ->and($csv)->toContain('WLPACK001')
-        ->and($csv)->toContain('Ama Mensah')
-        ->and($csv)->toContain('4 × Ginja')
-        ->and($csv)->toContain('2 × Ginja, 2 × Glow Getter, 2 × Ruby Rush, 2 × Crave Control, 2 × Belly Reset, 2 × ABC')
-        ->and($csv)->toContain('Products,"Bottles to pack"')
-        ->and($csv)->toContain('Ginja,6')
-        ->and($csv)->not->toContain('Formula,')
-        ->and($csv)->not->toContain('Kojo Asante')
-        ->and($csv)->not->toContain('WLPACK002');
+        ->toContain('wellth-packing-week-2026-10-14.xlsx')
+        ->and($response->headers->get('content-type'))
+        ->toContain('spreadsheetml.sheet')
+        ->and($sheet->getCell('A1')->getValue())->toBe('WELLTH PACKING LIST')
+        ->and($sheet->getCell('A3')->getValue())->toBe('Order')
+        ->and($sheet->getCell('H3')->getValue())->toBe('Bottles')
+        ->and($sheet->getCell('A4')->getValue())->toBe('WLPACK001')
+        ->and($sheet->getCell('B4')->getValue())->toBe('Ama Mensah')
+        ->and($sheet->getCell('F4')->getValue())->toBe('Ginja')
+        ->and($sheet->getCell('G4')->getValue())->toBe(4)
+        ->and($sheet->getCell('H4')->getValue())->toBe(4)
+        ->and($sheet->getCell('I4')->getValue())->toBe('4 × Ginja')
+        ->and($sheet->getCell('F5')->getValue())->toBe('Wellth Bouquet')
+        ->and($sheet->getCell('G5')->getValue())->toBe(1)
+        ->and($sheet->getCell('H5')->getValue())->toBe(12)
+        ->and($sheet->getCell('I5')->getValue())->toContain('2 × Ginja, 2 × Glow Getter')
+        ->and($sheet->getCell('A7')->getValue())->toBe('Products')
+        ->and($sheet->getCell('B7')->getValue())->toBe('Bottles to pack')
+        ->and($sheet->getCell('A11')->getValue())->toBe('Ginja')
+        ->and($sheet->getCell('B11')->getValue())->toBe(6)
+        ->and($flat)->not->toContain('Kojo Asante')
+        ->and($flat)->not->toContain('WLPACK002')
+        ->and($flat)->not->toContain('WLPACK003')
+        ->and($flat)->not->toContain('Yaw Mensah');
 });
 
 test('orders chart and latest orders widgets render', function () {
