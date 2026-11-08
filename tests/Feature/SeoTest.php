@@ -116,6 +116,7 @@ test('sitemap lists public shop pages and leaves out checkout', function () {
         ->assertSee(route('home'), false)
         ->assertSee(route('shop.index'), false)
         ->assertSee(route('faqs'), false)
+        ->assertSee(route('privacy'), false)
         ->assertSee(route('shop.show', $product), false)
         ->assertDontSee(route('shop.show', $hidden), false)
         ->assertDontSee(route('checkout.create'), false)

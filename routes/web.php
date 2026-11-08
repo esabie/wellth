@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
@@ -16,6 +17,7 @@ Route::get('/admin/{path?}', function (): RedirectResponse {
     return redirect()->route('home');
 })->where('path', '.*');
 Route::get('/faqs', FaqController::class)->name('faqs');
+Route::get('/privacy', PrivacyController::class)->name('privacy');
 
 Route::get('/shop', [ProductController::class, 'index'])->name('shop.index');
 Route::get('/shop/{product}', [ProductController::class, 'show'])->name('shop.show');

@@ -83,6 +83,11 @@ class PageSeo
                 'description' => 'What Wellth is, how ordering works, and answers about our Ghana wellness shots, ingredients, and storage.',
                 'jsonLd' => $this->faqSchema(),
             ],
+            'privacy' => [
+                ...$page,
+                'title' => 'Privacy Policy',
+                'description' => 'How Wellth collects, uses, and protects your personal information when you shop at wellthgh.com, under Ghana’s Data Protection Act.',
+            ],
             'shop.show' => $this->productPage($request, $siteName, $page),
             'cart.index' => [...$page, 'title' => 'Your cart', 'index' => false],
             'checkout.create' => [...$page, 'title' => 'Checkout', 'index' => false],

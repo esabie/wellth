@@ -10,7 +10,9 @@ const NAV_LINKS = [
 ];
 
 export default function ShopLayout({ children, overlayHeader = false }) {
-    const { cart, flash } = usePage().props;
+    const { app, cart, flash } = usePage().props;
+    const brandName = app?.name ?? 'Wellth';
+    const copyrightYear = new Date().getFullYear();
     const cartCount = cart?.count ?? 0;
     const [cartOpen, setCartOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -192,6 +194,9 @@ export default function ShopLayout({ children, overlayHeader = false }) {
                         <Link href="/faqs" className="block min-h-10 py-1.5 text-white/80 hover:text-white">
                             FAQs
                         </Link>
+                        <Link href="/privacy" className="block min-h-10 py-1.5 text-white/80 hover:text-white">
+                            Privacy
+                        </Link>
                         <button type="button" onClick={openCart} className="block min-h-10 py-1.5 text-left text-white/80 hover:text-white">
                             Cart
                         </button>
@@ -199,16 +204,48 @@ export default function ShopLayout({ children, overlayHeader = false }) {
                     <div className="space-y-2 text-sm">
                         <p className="font-semibold tracking-wide text-white/50 uppercase">Support</p>
                         <p className="text-white/70">Guest checkout · one-time purchases</p>
-                        <a
-                            href="https://www.instagram.com/wellth.gh/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block min-h-10 py-1.5 text-white/80 hover:text-white"
-                        >
-                            Instagram @wellth.gh
-                        </a>
+                        <div className="flex flex-col gap-1">
+                            <a
+                                href="https://www.instagram.com/wellth.gh/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex w-fit min-h-10 items-center gap-2.5 py-1.5 text-white/80 transition hover:text-white"
+                            >
+                                <svg
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    className="h-5 w-5 shrink-0"
+                                    fill="currentColor"
+                                >
+                                    <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5a4.25 4.25 0 0 0 4.25 4.25h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5a4.25 4.25 0 0 0-4.25-4.25h-8.5Zm8.75 2a1 1 0 1 1 0 2 1 1 0 0 1 0-2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
+                                </svg>
+                                <span>@wellth.gh</span>
+                            </a>
+                            <a
+                                href="mailto:admin@wellthgh.com"
+                                className="inline-flex w-fit min-h-10 items-center gap-2.5 py-1.5 text-white/80 transition hover:text-white"
+                            >
+                                <svg
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    className="h-5 w-5 shrink-0"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                                    <path d="m4 7 8 6 8-6" />
+                                </svg>
+                                <span>admin@wellthgh.com</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
+                <p className="mx-auto max-w-6xl px-4 pb-6 pt-2 text-center text-sm text-white/45 sm:px-6">
+                    © {copyrightYear} {brandName}. All rights reserved.
+                </p>
             </footer>
 
             <CartDrawer open={cartOpen} onClose={closeCart} />

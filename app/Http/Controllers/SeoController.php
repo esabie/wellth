@@ -30,6 +30,7 @@ class SeoController extends Controller
             ['loc' => route('home'), 'priority' => '1.0'],
             ['loc' => route('shop.index'), 'priority' => '0.9'],
             ['loc' => route('faqs'), 'priority' => '0.5'],
+            ['loc' => route('privacy'), 'priority' => '0.3'],
         ];
 
         $products = Product::query()

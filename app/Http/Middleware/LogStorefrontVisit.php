@@ -54,6 +54,7 @@ class LogStorefrontVisit
         return match ($route?->getName()) {
             'home' => 'Visitor opened the home page.',
             'faqs' => 'Visitor opened the FAQs.',
+            'privacy' => 'Visitor opened the privacy policy.',
             'shop.index' => $this->shopMessage($request),
             'shop.show' => $this->productMessage($request),
             'cart.index' => 'Visitor opened the cart.',
