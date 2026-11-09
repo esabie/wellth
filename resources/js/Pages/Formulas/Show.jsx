@@ -1,6 +1,5 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
 import { productRequiresLactoseChoice, useLactoseChoice } from '../../Components/LactoseChoiceModal';
 import ProductTags, { isComingSoon } from '../../Components/ProductTags';
 import ShopLayout from '../../Layouts/ShopLayout';
@@ -43,7 +42,7 @@ export default function Show({ formula }) {
         postToCart(lactoseIntolerant);
     });
 
-    const { requestAdd, modal: deliveryModal } = useDeliveryBreak(() => {
+    const requestAdd = () => {
         if (needsLactose) {
             requestChoice();
 
@@ -51,7 +50,7 @@ export default function Show({ formula }) {
         }
 
         postToCart();
-    });
+    };
 
     const comingSoon = isComingSoon(formula.tags);
     const canAdd = Boolean(formula.product_id) && !comingSoon;
@@ -231,7 +230,6 @@ export default function Show({ formula }) {
                     </button>
                 </div>
             </div>
-            {deliveryModal}
             {lactoseModal}
         </ShopLayout>
     );
