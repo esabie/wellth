@@ -38,6 +38,8 @@ class Product extends Model
     /** @use HasFactory<ProductFactory> */
     use HasFactory;
 
+    public const CLOUDY_CARROT_SLUG = 'cloudy-carrot';
+
     /**
      * @return array<string, string>
      */
@@ -64,6 +66,11 @@ class Product extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function requiresLactoseChoice(): bool
+    {
+        return $this->slug === self::CLOUDY_CARROT_SLUG;
     }
 
     public function hasStoryContent(): bool

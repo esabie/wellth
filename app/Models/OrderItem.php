@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'product_slug',
     'unit_price',
     'quantity',
+    'lactose_intolerant',
     'line_total',
 ])]
 class OrderItem extends Model
@@ -31,8 +32,18 @@ class OrderItem extends Model
         return [
             'unit_price' => 'decimal:2',
             'quantity' => 'integer',
+            'lactose_intolerant' => 'boolean',
             'line_total' => 'decimal:2',
         ];
+    }
+
+    public function lactoseLabel(): ?string
+    {
+        if ($this->lactose_intolerant === null) {
+            return null;
+        }
+
+        return $this->lactose_intolerant ? 'Lactose intolerant' : 'Not lactose intolerant';
     }
 
     public function order(): BelongsTo

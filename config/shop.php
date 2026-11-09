@@ -101,6 +101,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Blocked visitor countries (ISO 3166-1 alpha-2)
+    |--------------------------------------------------------------------------
+    |
+    | Visitors resolved to these countries receive HTTP 403. Country comes from
+    | Cloudflare/CloudFront headers when present, otherwise a cached GeoIP lookup.
+    |
+    */
+    'blocked_countries' => array_values(array_filter(array_map(
+        static fn (string $code): string => strtoupper(trim($code)),
+        explode(',', (string) env('SHOP_BLOCKED_COUNTRIES', 'RU')),
+    ))),
+
+    /*
+    |--------------------------------------------------------------------------
     | Shopper rate limits (requests per minute)
     |--------------------------------------------------------------------------
     |

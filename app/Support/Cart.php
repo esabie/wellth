@@ -8,7 +8,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
 
 /**
+ * @phpstan-type CartLine array{product_id: int, quantity: int, lactose_intolerant: bool|null}
  * @phpstan-type CartSummaryItem array{
+ *     key: string,
  *     product: array{
  *         id: int,
  *         name: string,
@@ -19,7 +21,9 @@ use Illuminate\Support\Facades\Session;
  *         pack_units: int
  *     },
  *     quantity: int,
- *     line_total: string
+ *     line_total: string,
+ *     lactose_intolerant: bool|null,
+ *     lactose_label: string|null
  * }
  */
 class Cart
@@ -29,14 +33,34 @@ class Cart
     private const UPDATED_AT_KEY = 'cart_updated_at';
 
     /**
-     * @return array<int, array{product_id: int, quantity: int}>
+     * @return array<string, CartLine>
      */
     public function items(): array
     {
         $this->forgetIfExpired();
 
-        /** @var array<int, array{product_id: int, quantity: int}> $items */
-        $items = Session::get(self::SESSION_KEY, []);
+        /** @var array<int|string, array{product_id?: int, quantity?: int, lactose_intolerant?: bool|null}> $raw */
+        $raw = Session::get(self::SESSION_KEY, []);
+
+        $items = [];
+
+        foreach ($raw as $item) {
+            if (! is_array($item) || ! isset($item['product_id'], $item['quantity'])) {
+                continue;
+            }
+
+            $productId = (int) $item['product_id'];
+            $lactose = array_key_exists('lactose_intolerant', $item)
+                ? (is_null($item['lactose_intolerant']) ? null : (bool) $item['lactose_intolerant'])
+                : null;
+            $key = $this->lineKey($productId, $lactose);
+
+            $items[$key] = [
+                'product_id' => $productId,
+                'quantity' => (int) $item['quantity'],
+                'lactose_intolerant' => $lactose,
+            ];
+        }
 
         return $items;
     }
@@ -63,41 +87,71 @@ class Cart
         return max(0, $this->minimumOrderQuantity() - $this->count());
     }
 
-    public function add(Product $product, int $quantity = 1): void
+    public function lineKey(int $productId, ?bool $lactoseIntolerant): string
     {
-        $items = $this->items();
-        $productId = $product->id;
+        if ($lactoseIntolerant === null) {
+            return (string) $productId;
+        }
 
-        if (isset($items[$productId])) {
-            $items[$productId]['quantity'] += $quantity;
+        return $productId.':'.($lactoseIntolerant ? '1' : '0');
+    }
+
+    public function add(Product $product, int $quantity = 1, ?bool $lactoseIntolerant = null): void
+    {
+        if ($product->requiresLactoseChoice() && $lactoseIntolerant === null) {
+            throw new \InvalidArgumentException('Choose whether you are lactose intolerant for Cloudy Carrot.');
+        }
+
+        if (! $product->requiresLactoseChoice()) {
+            $lactoseIntolerant = null;
+        }
+
+        $items = $this->items();
+        $key = $this->lineKey($product->id, $lactoseIntolerant);
+
+        if (isset($items[$key])) {
+            $items[$key]['quantity'] += $quantity;
         } else {
-            $items[$productId] = [
-                'product_id' => $productId,
+            $items[$key] = [
+                'product_id' => $product->id,
                 'quantity' => $quantity,
+                'lactose_intolerant' => $lactoseIntolerant,
             ];
         }
 
         $this->store($items);
     }
 
-    public function update(Product $product, int $quantity): void
+    public function update(Product $product, int $quantity, ?bool $lactoseIntolerant = null): void
     {
+        if ($product->requiresLactoseChoice() && $lactoseIntolerant === null) {
+            throw new \InvalidArgumentException('Choose whether you are lactose intolerant for Cloudy Carrot.');
+        }
+
+        if (! $product->requiresLactoseChoice()) {
+            $lactoseIntolerant = null;
+        }
+
         $items = $this->items();
-        $productId = $product->id;
+        $key = $this->lineKey($product->id, $lactoseIntolerant);
 
         if ($quantity <= 0) {
-            unset($items[$productId]);
-        } elseif (isset($items[$productId])) {
-            $items[$productId]['quantity'] = $quantity;
+            unset($items[$key]);
+        } elseif (isset($items[$key])) {
+            $items[$key]['quantity'] = $quantity;
         }
 
         $this->store($items);
     }
 
-    public function remove(Product $product): void
+    public function remove(Product $product, ?bool $lactoseIntolerant = null): void
     {
+        if (! $product->requiresLactoseChoice()) {
+            $lactoseIntolerant = null;
+        }
+
         $items = $this->items();
-        unset($items[$product->id]);
+        unset($items[$this->lineKey($product->id, $lactoseIntolerant)]);
         $this->store($items);
     }
 
@@ -113,7 +167,7 @@ class Cart
     }
 
     /**
-     * @return Collection<int, array{product: Product, quantity: int, line_total: string}>
+     * @return Collection<int, array{key: string, product: Product, quantity: int, line_total: string, lactose_intolerant: bool|null, lactose_label: string|null}>
      */
     public function detailedItems(): Collection
     {
@@ -123,23 +177,29 @@ class Cart
             return collect();
         }
 
+        $productIds = collect($items)->pluck('product_id')->unique()->all();
+
         $products = Product::query()
             ->active()
-            ->whereIn('id', array_keys($items))
+            ->whereIn('id', $productIds)
             ->get()
             ->keyBy('id');
 
         return collect($items)
             ->filter(fn (array $item): bool => $products->has($item['product_id']))
-            ->map(function (array $item) use ($products): array {
+            ->map(function (array $item, string $key) use ($products): array {
                 /** @var Product $product */
                 $product = $products->get($item['product_id']);
                 $quantity = (int) $item['quantity'];
+                $lactose = $item['lactose_intolerant'];
 
                 return [
+                    'key' => $key,
                     'product' => $product,
                     'quantity' => $quantity,
                     'line_total' => bcmul((string) $product->price, (string) $quantity, 2),
+                    'lactose_intolerant' => $lactose,
+                    'lactose_label' => $this->lactoseLabel($lactose),
                 ];
             })
             ->values();
@@ -178,6 +238,7 @@ class Cart
                     $product = $item['product'];
 
                     return [
+                        'key' => $item['key'],
                         'product' => [
                             'id' => $product->id,
                             'name' => $product->name,
@@ -189,14 +250,25 @@ class Cart
                         ],
                         'quantity' => $item['quantity'],
                         'line_total' => $item['line_total'],
+                        'lactose_intolerant' => $item['lactose_intolerant'],
+                        'lactose_label' => $item['lactose_label'],
                     ];
                 })
                 ->all(),
         ];
     }
 
+    public function lactoseLabel(?bool $lactoseIntolerant): ?string
+    {
+        if ($lactoseIntolerant === null) {
+            return null;
+        }
+
+        return $lactoseIntolerant ? 'Lactose intolerant' : 'Not lactose intolerant';
+    }
+
     /**
-     * @param  array<int, array{product_id: int, quantity: int}>  $items
+     * @param  array<string, CartLine>  $items
      */
     private function store(array $items): void
     {

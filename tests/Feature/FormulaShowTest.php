@@ -22,12 +22,13 @@ test('formula products render the rich detail page from the shop route', functio
         ->assertInertia(fn (Assert $page) => $page
             ->component('Formulas/Show')
             ->where('formula.name', 'Belly Reset')
-            ->where('formula.blurb', 'Pineapple and cucumber, supporting hydration and everyday refreshment.')
+            ->where('formula.blurb', 'Pineapple, cucumber and celery, supporting hydration and everyday refreshment.')
             ->where('formula.bottle_size', '60ml')
             ->has('formula.highlights', 3)
-            ->where('formula.taste', 'Tropical pineapple with cool cucumber and a ginger edge.')
-            ->has('formula.ingredients', 4)
+            ->where('formula.taste', 'Tropical pineapple with cool cucumber, celery, and a ginger edge.')
+            ->has('formula.ingredients', 5)
             ->where('formula.ingredients.0.name', 'Cucumber')
+            ->where('formula.ingredients.2.name', 'Celery')
             ->where('formula.product_id', $product->id)
             ->where('formula.price', '50.00')
         );

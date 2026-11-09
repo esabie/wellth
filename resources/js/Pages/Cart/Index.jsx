@@ -43,27 +43,27 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
         }
     };
 
-    const updateQuantity = (slug, quantity) => {
+    const updateQuantity = (item, quantity) => {
         dirtyRef.current = true;
         const epoch = ++syncEpochRef.current;
-        const nextCart = cartWithQuantity(cart, slug, quantity);
+        const nextCart = cartWithQuantity(cart, item.key, quantity);
         setCart(nextCart);
         setItems(nextCart.items);
         setSubtotal(nextCart.subtotal);
-        syncCartQuantity(router, slug, quantity, {
+        syncCartQuantity(router, item, quantity, {
             ...cartPageMutationOptions,
             onFinish: () => markSynced(epoch),
         });
     };
 
-    const removeItem = (slug) => {
+    const removeItem = (item) => {
         dirtyRef.current = true;
         const epoch = ++syncEpochRef.current;
-        const nextCart = cartWithQuantity(cart, slug, 0);
+        const nextCart = cartWithQuantity(cart, item.key, 0);
         setCart(nextCart);
         setItems(nextCart.items);
         setSubtotal(nextCart.subtotal);
-        syncCartRemove(router, slug, {
+        syncCartRemove(router, item, {
             ...cartPageMutationOptions,
             onFinish: () => markSynced(epoch),
         });
@@ -91,7 +91,7 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
                         <ul className="divide-y divide-black/5 overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-black/5">
                             {items.map((item) => (
                                 <li
-                                    key={item.product.id}
+                                    key={item.key ?? item.product.id}
                                     className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
                                 >
                                     <div className="flex items-center gap-4">
@@ -117,6 +117,11 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
                                             >
                                                 {item.product.name}
                                             </Link>
+                                            {item.lactose_label && (
+                                                <p className="mt-1 text-xs font-semibold text-forest">
+                                                    {item.lactose_label}
+                                                </p>
+                                            )}
                                             <p className="text-sm text-ink/60">{formatMoney(item.product.price)} each</p>
                                         </div>
                                     </div>
@@ -125,9 +130,7 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
                                         <div className="flex items-center gap-2">
                                             <button
                                                 type="button"
-                                                onClick={() =>
-                                                    updateQuantity(item.product.slug, item.quantity - 1)
-                                                }
+                                                onClick={() => updateQuantity(item, item.quantity - 1)}
                                                 className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 text-lg font-bold text-ink transition hover:bg-mist"
                                                 aria-label="Decrease quantity"
                                             >
@@ -139,10 +142,7 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
                                             <button
                                                 type="button"
                                                 onClick={() =>
-                                                    updateQuantity(
-                                                        item.product.slug,
-                                                        Math.min(48, item.quantity + 1),
-                                                    )
+                                                    updateQuantity(item, Math.min(48, item.quantity + 1))
                                                 }
                                                 className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 text-lg font-bold text-ink transition hover:bg-mist"
                                                 aria-label="Increase quantity"
@@ -155,7 +155,7 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
                                         </p>
                                         <button
                                             type="button"
-                                            onClick={() => removeItem(item.product.slug)}
+                                            onClick={() => removeItem(item)}
                                             className="min-h-11 px-2 text-sm font-semibold text-ink/50 transition hover:text-ink"
                                         >
                                             Remove

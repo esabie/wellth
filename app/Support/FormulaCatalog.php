@@ -135,12 +135,12 @@ class FormulaCatalog
             'tropic-cool' => [
                 'slug' => 'tropic-cool',
                 'name' => 'Belly Reset',
-                'blurb' => 'Pineapple and cucumber, supporting hydration and everyday refreshment.',
-                'description' => 'Pineapple sweetness meets cucumber coolness, lifted with lemon and ginger. A bright shot for daily refreshment.',
-                'taste' => 'Tropical pineapple with cool cucumber and a ginger edge.',
+                'blurb' => 'Pineapple, cucumber and celery, supporting hydration and everyday refreshment.',
+                'description' => 'Pineapple sweetness meets cucumber and celery coolness, lifted with lemon and ginger. A bright shot for daily refreshment.',
+                'taste' => 'Tropical pineapple with cool cucumber, celery, and a ginger edge.',
                 'ritual' => 'Perfect post-workout or as a hot-day refresher.',
                 'highlights' => [
-                    'Hydrating pineapple and cucumber blend',
+                    'Hydrating pineapple, cucumber and celery blend',
                     'Lemon brightness with ginger warmth',
                     'Light, refreshing, and easy to drink',
                 ],
@@ -154,6 +154,7 @@ class FormulaCatalog
                 'ingredients' => [
                     ['name' => 'Cucumber', 'image' => '/images/ingredients/cucumber.jpg'],
                     ['name' => 'Pineapple', 'image' => '/images/ingredients/pineapple.jpg'],
+                    ['name' => 'Celery', 'image' => '/images/ingredients/celery.jpg'],
                     ['name' => 'Lemon', 'image' => '/images/ingredients/lemon.jpg'],
                     ['name' => 'Ginger', 'image' => '/images/ingredients/ginger.jpg'],
                 ],

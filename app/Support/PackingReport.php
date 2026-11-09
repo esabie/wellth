@@ -80,7 +80,7 @@ class PackingReport
                 $sheet->setCellValueExplicit("C{$row}", (string) $order->customer_phone, DataType::TYPE_STRING);
                 $sheet->setCellValue("D{$row}", $order->shipping_city);
                 $sheet->setCellValue("E{$row}", $order->status->getLabel());
-                $sheet->setCellValue("F{$row}", $item->product_name);
+                $sheet->setCellValue("F{$row}", $this->itemLabel($item));
                 $sheet->setCellValue("G{$row}", $item->quantity);
                 $sheet->setCellValue("H{$row}", array_sum($bottles));
                 $sheet->setCellValue("I{$row}", $this->packNote($item));
@@ -280,10 +280,18 @@ class PackingReport
         }
     }
 
+    private function itemLabel(OrderItem $item): string
+    {
+        $label = $item->product_name;
+        $lactose = $item->lactoseLabel();
+
+        return $lactose === null ? $label : $label.' ('.$lactose.')';
+    }
+
     private function packNote(OrderItem $item): string
     {
         if (! $this->isBouquet($item)) {
-            return $item->quantity.' × '.$item->product_name;
+            return $item->quantity.' × '.$this->itemLabel($item);
         }
 
         return collect(self::BOUQUET_FORMULAS)

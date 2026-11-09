@@ -78,21 +78,21 @@ export default function CartDrawer({ open, onClose }) {
         }
     };
 
-    const updateQuantity = (slug, quantity) => {
+    const updateQuantity = (item, quantity) => {
         dirtyRef.current = true;
         const epoch = ++syncEpochRef.current;
-        setCart((current) => cartWithQuantity(current, slug, quantity));
-        syncCartQuantity(router, slug, quantity, {
+        setCart((current) => cartWithQuantity(current, item.key, quantity));
+        syncCartQuantity(router, item, quantity, {
             ...cartMutationOptions,
             onFinish: () => markSynced(epoch),
         });
     };
 
-    const removeItem = (slug) => {
+    const removeItem = (item) => {
         dirtyRef.current = true;
         const epoch = ++syncEpochRef.current;
-        setCart((current) => cartWithQuantity(current, slug, 0));
-        syncCartRemove(router, slug, {
+        setCart((current) => cartWithQuantity(current, item.key, 0));
+        syncCartRemove(router, item, {
             ...cartMutationOptions,
             onFinish: () => markSynced(epoch),
         });
@@ -186,7 +186,7 @@ export default function CartDrawer({ open, onClose }) {
                         ) : (
                             <ul className="space-y-5">
                                 {items.map((item) => (
-                                    <li key={item.product.id} className="flex gap-4">
+                                    <li key={item.key ?? item.product.id} className="flex gap-4">
                                         <Link
                                             href={`/shop/${item.product.slug}`}
                                             onClick={onClose}
@@ -217,6 +217,11 @@ export default function CartDrawer({ open, onClose }) {
                                                     >
                                                         {item.product.name}
                                                     </Link>
+                                                    {item.lactose_label && (
+                                                        <p className="mt-1 text-xs font-semibold text-forest">
+                                                            {item.lactose_label}
+                                                        </p>
+                                                    )}
                                                     {item.product.short_description && (
                                                         <p className="mt-1 line-clamp-2 text-xs text-ink/50">
                                                             {item.product.short_description}
@@ -225,7 +230,7 @@ export default function CartDrawer({ open, onClose }) {
                                                 </div>
                                                 <button
                                                     type="button"
-                                                    onClick={() => removeItem(item.product.slug)}
+                                                    onClick={() => removeItem(item)}
                                                     className="mt-0.5 flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink/35 transition hover:bg-mist hover:text-ink"
                                                     aria-label={`Remove ${item.product.name}`}
                                                 >
@@ -253,7 +258,7 @@ export default function CartDrawer({ open, onClose }) {
                                                 <button
                                                     type="button"
                                                     onClick={() =>
-                                                        updateQuantity(item.product.slug, Math.max(0, item.quantity - 1))
+                                                        updateQuantity(item, Math.max(0, item.quantity - 1))
                                                     }
                                                     className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-black/10 text-base font-bold text-ink transition hover:bg-mist"
                                                     aria-label="Decrease quantity"
@@ -266,7 +271,7 @@ export default function CartDrawer({ open, onClose }) {
                                                 <button
                                                     type="button"
                                                     onClick={() =>
-                                                        updateQuantity(item.product.slug, Math.min(48, item.quantity + 1))
+                                                        updateQuantity(item, Math.min(48, item.quantity + 1))
                                                     }
                                                     className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-black/10 text-base font-bold text-ink transition hover:bg-mist"
                                                     aria-label="Increase quantity"

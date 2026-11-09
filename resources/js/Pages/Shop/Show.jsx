@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
+import { productRequiresLactoseChoice, useLactoseChoice } from '../../Components/LactoseChoiceModal';
 import PreorderNotice from '../../Components/PreorderNotice';
 import ProductTags, { isComingSoon } from '../../Components/ProductTags';
 import ProductCard from '../../Components/ProductCard';
@@ -18,16 +19,40 @@ export default function Show({ product, relatedProducts }) {
     const [quantity, setQuantity] = useState(1);
     const [adding, setAdding] = useState(false);
     const { flash } = usePage().props;
+    const needsLactose = productRequiresLactoseChoice(product.slug);
 
-    const submit = () => {
+    const postToCart = (lactoseIntolerant) => {
         setAdding(true);
-        router.post('/cart', { product_id: product.id, quantity }, {
-            ...cartMutationOptions,
-            onFinish: () => setAdding(false),
-        });
+        router.post(
+            '/cart',
+            {
+                product_id: product.id,
+                quantity,
+                ...(lactoseIntolerant === null || lactoseIntolerant === undefined
+                    ? {}
+                    : { lactose_intolerant: lactoseIntolerant }),
+            },
+            {
+                ...cartMutationOptions,
+                onFinish: () => setAdding(false),
+            },
+        );
     };
 
-    const { requestAdd, modal } = useDeliveryBreak(submit);
+    const { requestChoice, modal: lactoseModal } = useLactoseChoice((lactoseIntolerant) => {
+        postToCart(lactoseIntolerant);
+    });
+
+    const { requestAdd, modal: deliveryModal } = useDeliveryBreak(() => {
+        if (needsLactose) {
+            requestChoice();
+
+            return;
+        }
+
+        postToCart();
+    });
+
     const comingSoon = isComingSoon(product.tags);
 
     return (
@@ -131,7 +156,8 @@ export default function Show({ product, relatedProducts }) {
                 </div>
             </section>
 
-            {modal}
+            {deliveryModal}
+            {lactoseModal}
 
             {relatedProducts.length > 0 && (
                 <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">

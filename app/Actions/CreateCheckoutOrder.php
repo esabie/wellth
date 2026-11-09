@@ -110,6 +110,12 @@ class CreateCheckoutOrder
             ]);
 
             foreach ($items as $item) {
+                if ($item['product']->requiresLactoseChoice() && $item['lactose_intolerant'] === null) {
+                    throw new InvalidArgumentException(
+                        'Please choose whether you are lactose intolerant for Cloudy Carrot before checkout.',
+                    );
+                }
+
                 $order->items()->create([
                     'product_id' => $item['product']->id,
                     'product_name' => $item['product']->name,
@@ -117,6 +123,7 @@ class CreateCheckoutOrder
                     'product_slug' => $item['product']->slug,
                     'unit_price' => $item['product']->price,
                     'quantity' => $item['quantity'],
+                    'lactose_intolerant' => $item['lactose_intolerant'],
                     'line_total' => $item['line_total'],
                 ]);
             }

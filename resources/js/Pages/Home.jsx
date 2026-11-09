@@ -22,7 +22,7 @@ export default function Home({ formulas, bouquet }) {
                             a little bottle of Wellth.
                         </h1>
                         <p className="max-w-md text-base leading-relaxed text-forest/75 sm:text-lg">
-                            Organic wellness shots and juices from Ghana — bold flavor, clean ingredients, made fresh for your daily ritual.
+                            Organic wellness shots and juices from Ghana. Bold flavor, clean ingredients, made fresh for your daily ritual.
                         </p>
                         <div className="flex w-full flex-wrap items-center justify-center gap-3 pt-1 sm:justify-start">
                             <Link

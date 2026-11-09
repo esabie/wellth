@@ -56,9 +56,9 @@ export default function Faq({ faqs }) {
         <ShopLayout>
             <section className="bg-mist px-4 py-14 sm:px-6 sm:py-20">
                 <div className="mx-auto max-w-3xl text-center">
-                    <p className="text-xs font-bold tracking-[0.2em] text-forest uppercase">Questions</p>
+                    <p className="text-xs font-bold tracking-[0.2em] text-forest uppercase">FAQ</p>
                     <h1 className="mt-3 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-                        Frequently Asked
+                        Frequently Asked Questions
                     </h1>
                     <p className="mt-3 text-base text-ink/55 sm:text-lg">
                         Everything you need to know about Wellth shots.

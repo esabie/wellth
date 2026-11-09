@@ -103,7 +103,7 @@ export default function DeliveryBreakModal({ open, onCancel, onContinue }) {
                     Delivery Notice
                 </h2>
                 <p id={descriptionId} className="mt-3 text-sm leading-relaxed text-ink/70">
-                    Our next consignment is expected to be delivered on 16 November 2026. You can proceed with your order by clicking <strong className="font-bold text-ink">Continue</strong> below.
+                    Our next consignment is expected to be delivered on <strong className="font-bold text-ink">16 November 2026</strong>. You can proceed with your order by clicking <strong className="font-bold text-ink">Continue</strong> below.
                 </p>
 
                 <p className="mt-3 text-sm leading-relaxed text-ink/70">

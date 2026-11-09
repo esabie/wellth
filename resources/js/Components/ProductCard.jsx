@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { useDeliveryBreak } from './DeliveryBreakModal';
+import { productRequiresLactoseChoice, useLactoseChoice } from './LactoseChoiceModal';
 import ProductTags, { isComingSoon } from './ProductTags';
 import { cartMutationOptions } from '../lib/cartVisit';
 
@@ -15,20 +16,43 @@ export default function ProductCard({ product }) {
     const [adding, setAdding] = useState(false);
 
     const comingSoon = isComingSoon(product.tags);
+    const needsLactose = productRequiresLactoseChoice(product.slug);
 
-    const submit = () => {
+    const postToCart = (lactoseIntolerant) => {
         if (!product.id || adding || comingSoon) {
             return;
         }
 
         setAdding(true);
-        router.post('/cart', { product_id: product.id, quantity: 1 }, {
-            ...cartMutationOptions,
-            onFinish: () => setAdding(false),
-        });
+        router.post(
+            '/cart',
+            {
+                product_id: product.id,
+                quantity: 1,
+                ...(lactoseIntolerant === null || lactoseIntolerant === undefined
+                    ? {}
+                    : { lactose_intolerant: lactoseIntolerant }),
+            },
+            {
+                ...cartMutationOptions,
+                onFinish: () => setAdding(false),
+            },
+        );
     };
 
-    const { requestAdd, modal } = useDeliveryBreak(submit);
+    const { requestChoice, modal: lactoseModal } = useLactoseChoice((lactoseIntolerant) => {
+        postToCart(lactoseIntolerant);
+    });
+
+    const { requestAdd, modal: deliveryModal } = useDeliveryBreak(() => {
+        if (needsLactose) {
+            requestChoice();
+
+            return;
+        }
+
+        postToCart();
+    });
 
     const addToCart = (event) => {
         event.preventDefault();
@@ -103,7 +127,8 @@ export default function ProductCard({ product }) {
                     <span>{comingSoon ? 'Coming soon' : adding ? 'Adding…' : 'Add to Cart'}</span>
                 </button>
             </div>
-            {modal}
+            {deliveryModal}
+            {lactoseModal}
         </article>
     );
 }

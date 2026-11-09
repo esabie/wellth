@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Support\Cart;
 use App\Support\StorefrontVisitLog;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,6 +18,7 @@ class CartController extends Controller
     public function index(Cart $cart): Response
     {
         $items = $cart->detailedItems()->map(fn (array $item): array => [
+            'key' => $item['key'],
             'product' => [
                 'id' => $item['product']->id,
                 'name' => $item['product']->name,
@@ -26,6 +28,8 @@ class CartController extends Controller
             ],
             'quantity' => $item['quantity'],
             'line_total' => $item['line_total'],
+            'lactose_intolerant' => $item['lactose_intolerant'],
+            'lactose_label' => $item['lactose_label'],
         ]);
 
         return Inertia::render('Cart/Index', [
@@ -46,12 +50,18 @@ class CartController extends Controller
         }
 
         $quantity = (int) ($validated['quantity'] ?? 1);
-        $cart->add($product, $quantity);
+        $lactoseIntolerant = $product->requiresLactoseChoice()
+            ? $request->boolean('lactose_intolerant')
+            : null;
 
-        app(StorefrontVisitLog::class)->note(
-            $request,
-            "Visitor added {$quantity} × {$product->name} to the cart.",
-        );
+        $cart->add($product, $quantity, $lactoseIntolerant);
+
+        $preference = $cart->lactoseLabel($lactoseIntolerant);
+        $note = $preference
+            ? "Visitor added {$quantity} × {$product->name} ({$preference}) to the cart."
+            : "Visitor added {$quantity} × {$product->name} to the cart.";
+
+        app(StorefrontVisitLog::class)->note($request, $note);
 
         return redirect()
             ->back()
@@ -62,21 +72,37 @@ class CartController extends Controller
     public function update(UpdateCartItemRequest $request, Product $product, Cart $cart): RedirectResponse
     {
         $quantity = (int) $request->validated('quantity');
+        $lactoseIntolerant = $product->requiresLactoseChoice()
+            ? ($request->exists('lactose_intolerant') ? $request->boolean('lactose_intolerant') : null)
+            : null;
 
-        if ($product->isComingSoon() && $quantity > (int) ($cart->items()[$product->id]['quantity'] ?? 0)) {
+        if ($product->requiresLactoseChoice() && $lactoseIntolerant === null) {
+            return back()->withErrors([
+                'lactose_intolerant' => 'Please choose whether you are lactose intolerant for Cloudy Carrot.',
+            ]);
+        }
+
+        $key = $cart->lineKey($product->id, $lactoseIntolerant);
+        $currentQuantity = (int) ($cart->items()[$key]['quantity'] ?? 0);
+
+        if ($product->isComingSoon() && $quantity > $currentQuantity) {
             return back()->withErrors([
                 'quantity' => 'This shot is coming soon and cannot be added yet.',
             ]);
         }
 
-        $cart->update($product, $quantity);
+        $cart->update($product, $quantity, $lactoseIntolerant);
 
         return redirect()->back();
     }
 
-    public function destroy(Product $product, Cart $cart): RedirectResponse
+    public function destroy(Request $request, Product $product, Cart $cart): RedirectResponse
     {
-        $cart->remove($product);
+        $lactoseIntolerant = $product->requiresLactoseChoice()
+            ? ($request->exists('lactose_intolerant') ? $request->boolean('lactose_intolerant') : null)
+            : null;
+
+        $cart->remove($product, $lactoseIntolerant);
 
         return redirect()->back();
     }

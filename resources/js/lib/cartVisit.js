@@ -23,17 +23,29 @@ function packUnitsFor(item) {
     return Math.max(1, Number(item?.product?.pack_units ?? 1));
 }
 
+function lineKey(item) {
+    return item?.key ?? String(item?.product?.id ?? '');
+}
+
+function lactosePayload(item) {
+    if (item?.lactose_intolerant === null || item?.lactose_intolerant === undefined) {
+        return {};
+    }
+
+    return { lactose_intolerant: item.lactose_intolerant };
+}
+
 /**
  * Optimistically rewrite the shared cart summary after a quantity change.
  */
-export function cartWithQuantity(cart, slug, quantity) {
+export function cartWithQuantity(cart, key, quantity) {
     const current = cart ?? {};
     const minimumOrderQuantity = current.minimum_order_quantity ?? 10;
     const nextQuantity = Math.max(0, Number(quantity) || 0);
 
     const items = (current.items ?? [])
         .map((item) => {
-            if (item.product?.slug !== slug) {
+            if (lineKey(item) !== key) {
                 return item;
             }
 
@@ -67,8 +79,8 @@ export function cartWithQuantity(cart, slug, quantity) {
 /**
  * Cart page props mirror of the shared cart items/subtotal.
  */
-export function cartPageWithQuantity(props, slug, quantity) {
-    const cart = cartWithQuantity(props.cart, slug, quantity);
+export function cartPageWithQuantity(props, key, quantity) {
+    const cart = cartWithQuantity(props.cart, key, quantity);
 
     return {
         cart,
@@ -91,15 +103,16 @@ export function emptyCartSummary(cart) {
 /**
  * Debounced server sync so rapid +/- clicks stay on the latest quantity.
  */
-export function syncCartQuantity(router, slug, quantity, options = cartMutationOptions) {
-    const existing = quantitySyncTimers.get(slug);
+export function syncCartQuantity(router, item, quantity, options = cartMutationOptions) {
+    const key = lineKey(item);
+    const existing = quantitySyncTimers.get(key);
 
     if (existing) {
         window.clearTimeout(existing);
     }
 
     const timer = window.setTimeout(() => {
-        quantitySyncTimers.delete(slug);
+        quantitySyncTimers.delete(key);
 
         // Cancel only in-flight async cart syncs, not the click itself.
         router.cancelAll({ async: true });
@@ -107,28 +120,32 @@ export function syncCartQuantity(router, slug, quantity, options = cartMutationO
         router
             .optimistic((props) =>
                 options.only?.includes('items')
-                    ? cartPageWithQuantity(props, slug, quantity)
-                    : { cart: cartWithQuantity(props.cart, slug, quantity) },
+                    ? cartPageWithQuantity(props, key, quantity)
+                    : { cart: cartWithQuantity(props.cart, key, quantity) },
             )
-            .patch(`/cart/${slug}`, { quantity }, options);
+            .patch(`/cart/${item.product.slug}`, { quantity, ...lactosePayload(item) }, options);
     }, 180);
 
-    quantitySyncTimers.set(slug, timer);
+    quantitySyncTimers.set(key, timer);
 }
 
-export function syncCartRemove(router, slug, options = cartMutationOptions) {
-    const existing = quantitySyncTimers.get(slug);
+export function syncCartRemove(router, item, options = cartMutationOptions) {
+    const key = lineKey(item);
+    const existing = quantitySyncTimers.get(key);
 
     if (existing) {
         window.clearTimeout(existing);
-        quantitySyncTimers.delete(slug);
+        quantitySyncTimers.delete(key);
     }
 
     router
         .optimistic((props) =>
             options.only?.includes('items')
-                ? cartPageWithQuantity(props, slug, 0)
-                : { cart: cartWithQuantity(props.cart, slug, 0) },
+                ? cartPageWithQuantity(props, key, 0)
+                : { cart: cartWithQuantity(props.cart, key, 0) },
         )
-        .delete(`/cart/${slug}`, options);
+        .delete(`/cart/${item.product.slug}`, {
+            ...options,
+            data: lactosePayload(item),
+        });
 }

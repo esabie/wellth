@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
+import { productRequiresLactoseChoice, useLactoseChoice } from '../../Components/LactoseChoiceModal';
 import ProductTags, { isComingSoon } from '../../Components/ProductTags';
 import ShopLayout from '../../Layouts/ShopLayout';
 import { cartMutationOptions } from '../../lib/cartVisit';
@@ -14,20 +15,44 @@ function formatMoney(value) {
 
 export default function Show({ formula }) {
     const [adding, setAdding] = useState(false);
+    const needsLactose = productRequiresLactoseChoice(formula.slug);
 
-    const submit = () => {
+    const postToCart = (lactoseIntolerant) => {
         if (!formula.product_id || isComingSoon(formula.tags)) {
             return;
         }
 
         setAdding(true);
-        router.post('/cart', { product_id: formula.product_id, quantity: 1 }, {
-            ...cartMutationOptions,
-            onFinish: () => setAdding(false),
-        });
+        router.post(
+            '/cart',
+            {
+                product_id: formula.product_id,
+                quantity: 1,
+                ...(lactoseIntolerant === null || lactoseIntolerant === undefined
+                    ? {}
+                    : { lactose_intolerant: lactoseIntolerant }),
+            },
+            {
+                ...cartMutationOptions,
+                onFinish: () => setAdding(false),
+            },
+        );
     };
 
-    const { requestAdd, modal } = useDeliveryBreak(submit);
+    const { requestChoice, modal: lactoseModal } = useLactoseChoice((lactoseIntolerant) => {
+        postToCart(lactoseIntolerant);
+    });
+
+    const { requestAdd, modal: deliveryModal } = useDeliveryBreak(() => {
+        if (needsLactose) {
+            requestChoice();
+
+            return;
+        }
+
+        postToCart();
+    });
+
     const comingSoon = isComingSoon(formula.tags);
     const canAdd = Boolean(formula.product_id) && !comingSoon;
 
@@ -206,7 +231,8 @@ export default function Show({ formula }) {
                     </button>
                 </div>
             </div>
-            {modal}
+            {deliveryModal}
+            {lactoseModal}
         </ShopLayout>
     );
 }
