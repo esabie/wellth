@@ -1,10 +1,16 @@
 <?php
 
+use App\Enums\OrderStatus;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Support\Cart;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Support\Header;
 
 uses(RefreshDatabase::class);
@@ -135,6 +141,41 @@ test('adding a product to the cart is logged and quantity changes are not', func
         ->assertRedirect();
 
     expect($messages)->toBe(['Visitor added 2 × Ginja to the cart.']);
+});
+
+test('uploading payment proof is logged for the order', function () {
+    Storage::fake('local');
+    Notification::fake();
+
+    config([
+        'services.mnotify.api_key' => null,
+        'shop.payment_proof_admin_phones' => [],
+        'shop.admin_notification_email' => null,
+        'shop.admin_notification_phone' => null,
+    ]);
+
+    $messages = [];
+    Log::listen(function (object $event) use (&$messages): void {
+        if (str_starts_with($event->message, 'Visitor ')) {
+            $messages[] = $event->message;
+        }
+    });
+
+    $order = Order::factory()->create([
+        'status' => OrderStatus::Pending,
+        'total' => '200.00',
+    ]);
+
+    OrderItem::factory()->create([
+        'order_id' => $order->id,
+        'quantity' => 10,
+    ]);
+
+    $this->post(route('checkout.payment.store', $order), [
+        'payment_proof' => UploadedFile::fake()->image('momo-proof.jpg', 800, 1200),
+    ])->assertRedirect(route('checkout.confirmation', $order));
+
+    expect($messages)->toBe(["Visitor uploaded payment proof for order {$order->uuid}."]);
 });
 
 test('a visit log records a readable external referrer', function () {

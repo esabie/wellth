@@ -10,6 +10,7 @@ use App\Notifications\OrderPaidCustomerNotification;
 use App\Notifications\OrderPaymentProofSubmittedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -98,10 +99,30 @@ test('customers can upload a payment screenshot and move to awaiting confirmatio
 test('payment proof upload requires an image', function () {
     $order = Order::factory()->create(['status' => OrderStatus::Pending]);
 
+    $messages = [];
+    Log::listen(function (object $event) use (&$messages): void {
+        $messages[] = [
+            'message' => $event->message,
+            'context' => $event->context,
+        ];
+    });
+
     $this->from(route('checkout.payment', $order))
         ->post(route('checkout.payment.store', $order), [])
         ->assertRedirect(route('checkout.payment', $order))
         ->assertSessionHasErrors('payment_proof');
+
+    expect($messages)->toContainEqual([
+        'message' => 'checkout.payment_proof_invalid',
+        'context' => [
+            'order' => $order->uuid,
+            'errors' => ['Please upload a screenshot of your MoMo payment confirmation.'],
+            'original_name' => null,
+            'mime' => null,
+            'size' => null,
+            'upload_error' => null,
+        ],
+    ]);
 });
 
 test('awaiting confirmation orders can view the confirmation page', function () {

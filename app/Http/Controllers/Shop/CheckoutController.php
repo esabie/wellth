@@ -16,6 +16,7 @@ use App\Support\GhanaLocations;
 use App\Support\LoyaltyPoints;
 use App\Support\PromoCodes;
 use App\Support\SecondPurchaseDiscount;
+use App\Support\StorefrontVisitLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
@@ -209,18 +210,37 @@ class CheckoutController extends Controller
     ): RedirectResponse {
         abort_unless($order->canAcceptPaymentProof(), 404);
 
+        $proof = $request->file('payment_proof');
+
+        Log::info('checkout.payment_proof_upload_started', [
+            'order' => $order->uuid,
+            'status' => $order->status->value,
+            'original_name' => $proof?->getClientOriginalName(),
+            'mime' => $proof?->getClientMimeType(),
+            'size' => $proof?->getSize(),
+            'upload_error' => $proof?->getError(),
+        ]);
+
         try {
-            $submitPaymentProof->handle($order, $request->file('payment_proof'));
+            $submitPaymentProof->handle($order, $proof);
         } catch (InvalidArgumentException $exception) {
             Log::notice('checkout.payment_proof_failed', [
                 'order' => $order->uuid,
                 'message' => $exception->getMessage(),
+                'original_name' => $proof?->getClientOriginalName(),
+                'mime' => $proof?->getClientMimeType(),
+                'size' => $proof?->getSize(),
             ]);
 
             return redirect()
                 ->route('checkout.payment', $order)
                 ->withErrors(['payment_proof' => $exception->getMessage()]);
         }
+
+        app(StorefrontVisitLog::class)->note(
+            $request,
+            "Visitor uploaded payment proof for order {$order->uuid}.",
+        );
 
         return redirect()
             ->route('checkout.confirmation', $order)
