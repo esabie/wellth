@@ -173,7 +173,7 @@ export default function CartDrawer({ open, onClose }) {
                             <div className="flex h-full min-h-48 flex-col items-center justify-center text-center">
                                 <p className="font-display text-2xl font-extrabold text-ink">Your cart is empty</p>
                                 <p className="mt-2 max-w-xs text-sm text-ink/60">
-                                    Add a formula and it will show up here.
+                                    Add a blend and it will show up here.
                                 </p>
                                 <Link
                                     href="/shop"

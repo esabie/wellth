@@ -62,7 +62,7 @@ export default function Show({ formula }) {
                     href="/shop"
                     className="text-sm font-medium text-forest/60 transition hover:text-forest"
                 >
-                    ← Formulas
+                    ← Blends
                 </Link>
 
                 <div className="mt-6 grid items-start gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-8">

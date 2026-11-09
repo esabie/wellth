@@ -49,7 +49,7 @@ export default function Home({ formulas, bouquet }) {
                 <div className="relative mx-auto max-w-6xl">
                     <Reveal variant="drama">
                         <p className="text-xs font-bold tracking-[0.2em] text-forest uppercase">
-                            Find your formula
+                            Find your Blend
                         </p>
                     </Reveal>
                     <Reveal variant="drama" delay={120}>

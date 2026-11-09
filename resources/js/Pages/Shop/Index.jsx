@@ -75,7 +75,7 @@ export default function Index({ products, categories, filters }) {
                                 onClick={() => selectCategory(null)}
                                 className="mt-6 rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-white transition hover:bg-leaf-800"
                             >
-                                View all formulas
+                                View all Blends
                             </button>
                         </div>
                     ) : (
