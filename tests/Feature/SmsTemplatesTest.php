@@ -38,9 +38,11 @@ test('order placed customer sms includes the payment page link', function () {
 });
 
 test('sms templates render placeholders for customer payment confirmation', function () {
-    $order = Order::factory()->create([
+    $order = Order::factory()->paid()->create([
         'uuid' => 'WLK7M2P9QX',
         'customer_name' => 'Kwamz Original',
+        'customer_phone' => '0244111222',
+        'customer_phone_normalized' => '233244111222',
         'total' => '185.50',
         'currency' => 'GHS',
     ]);
@@ -50,7 +52,7 @@ test('sms templates render placeholders for customer payment confirmation', func
     );
 
     expect($message)
-        ->toBe("Hi Kwamz, Your payment for order WLK7M2P9QX (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!");
+        ->toBe("Hi Kwamz, Your payment for order WLK7M2P9QX (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us! Your next order gets 5% off.");
 });
 
 test('a saved order placed template still includes the payment page link', function () {

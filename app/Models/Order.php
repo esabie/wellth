@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Enums\OrderStatus;
 use App\Enums\PointsRedeemStatus;
 use App\Support\PhoneNumber;
+use Carbon\CarbonInterface;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -46,6 +48,7 @@ use Illuminate\Support\Facades\DB;
     'delivered_at',
     'feedback_token',
     'feedback_invited_at',
+    'feedback_auto_invite_on',
     'stock_decremented_at',
 ])]
 class Order extends Model
@@ -128,8 +131,39 @@ class Order extends Model
             'shipped_at' => 'datetime',
             'delivered_at' => 'datetime',
             'feedback_invited_at' => 'datetime',
+            'feedback_auto_invite_on' => 'date',
             'stock_decremented_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Calendar date (GMT) when the delayed feedback invite SMS should go out.
+     */
+    public static function feedbackAutoInviteOnFor(CarbonInterface $deliveredAt): string
+    {
+        return $deliveredAt->copy()
+            ->timezone('GMT')
+            ->startOfDay()
+            ->addDays(3)
+            ->toDateString();
+    }
+
+    /**
+     * New deliveries only: eligible once feedback_auto_invite_on is due (09:00 GMT job).
+     *
+     * @param  Builder<Order>  $query
+     * @return Builder<Order>
+     */
+    public function scopeDueForAutomaticFeedbackInvite(Builder $query): Builder
+    {
+        return $query
+            ->where('status', OrderStatus::Delivered)
+            ->whereNotNull('feedback_auto_invite_on')
+            ->whereDate('feedback_auto_invite_on', '<=', now('GMT')->toDateString())
+            ->whereNull('feedback_invited_at')
+            ->whereDoesntHave('feedback')
+            ->whereNotNull('customer_phone')
+            ->where('customer_phone', '!=', '');
     }
 
     public function getRouteKeyName(): string

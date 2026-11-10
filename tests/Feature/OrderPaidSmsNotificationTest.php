@@ -114,6 +114,8 @@ test('customer sms notification message includes order number and total', functi
         'uuid' => 'WLK7M2P9QX',
         'paystack_reference' => 'WLK7M2P9QX',
         'customer_name' => 'Kwamz Original',
+        'customer_phone' => '0244111222',
+        'customer_phone_normalized' => PhoneNumber::normalize('0244111222'),
         'total' => '185.50',
         'currency' => 'GHS',
     ]);
@@ -124,6 +126,63 @@ test('customer sms notification message includes order number and total', functi
 
     expect($message)
         ->toBe("Hi Kwamz, Your payment for order WLK7M2P9QX (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!");
+});
+
+test('payment confirmed sms mentions the next-order perk for first-time buyers', function () {
+    config([
+        'shop.second_purchase_discount_enabled' => true,
+        'shop.second_purchase_discount_percent' => 5,
+    ]);
+
+    $order = Order::factory()->paid()->create([
+        'uuid' => 'WLFIRST001',
+        'paystack_reference' => 'WLFIRST001',
+        'customer_name' => 'Kwamz Original',
+        'customer_phone' => '0244111222',
+        'customer_phone_normalized' => PhoneNumber::normalize('0244111222'),
+        'total' => '185.50',
+        'currency' => 'GHS',
+    ]);
+
+    $message = (new OrderPaidCustomerSmsNotification($order))->toMnotify(
+        Notification::route(MnotifyChannel::class, '0244111222'),
+    );
+
+    expect($message)
+        ->toBe("Hi Kwamz, Your payment for order WLFIRST001 (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us! Your next order gets 5% off.");
+});
+
+test('payment confirmed sms omits the next-order perk for returning buyers', function () {
+    config([
+        'shop.second_purchase_discount_enabled' => true,
+        'shop.second_purchase_discount_percent' => 5,
+    ]);
+
+    $phone = '0244111222';
+    $normalized = PhoneNumber::normalize($phone);
+
+    Order::factory()->delivered()->create([
+        'customer_phone' => $phone,
+        'customer_phone_normalized' => $normalized,
+    ]);
+
+    $order = Order::factory()->paid()->create([
+        'uuid' => 'WLRETURN01',
+        'paystack_reference' => 'WLRETURN01',
+        'customer_name' => 'Kwamz Original',
+        'customer_phone' => $phone,
+        'customer_phone_normalized' => $normalized,
+        'total' => '185.50',
+        'currency' => 'GHS',
+    ]);
+
+    $message = (new OrderPaidCustomerSmsNotification($order))->toMnotify(
+        Notification::route(MnotifyChannel::class, $phone),
+    );
+
+    expect($message)
+        ->toBe("Hi Kwamz, Your payment for order WLRETURN01 (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!")
+        ->and($message)->not->toContain('next order');
 });
 
 test('new orders use a dated serial number as the payment reference', function () {

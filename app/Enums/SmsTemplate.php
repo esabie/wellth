@@ -41,7 +41,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::OrderPlacedAdmin => 'Sent to the admin alert phone when a customer places an order.',
             self::OrderPlacedCustomer => 'Sent to the customer when they place an order, before MoMo proof.',
             self::PaymentProofAdmin => 'Sent to the admin alert phone when MoMo proof is uploaded.',
-            self::OrderPaidCustomer => 'Sent to the customer when payment is confirmed in admin.',
+            self::OrderPaidCustomer => 'Sent to the customer when payment is confirmed in admin. {loyalty_suffix} only fills in for first-time buyers whose next order will qualify for the second-purchase discount.',
             self::OrderShippedCustomer => 'Kept for older saved templates. Shipped orders no longer send this text.',
             self::OrderDeliveredCustomer => 'Sent to the customer when an order is marked as delivered. {loyalty_suffix} only fills in when their next order qualifies for the second-purchase discount.',
             self::OrderFeedbackInvite => 'Sent to already-delivered customers to request feedback without repeating the delivery notice.',
@@ -52,13 +52,13 @@ enum SmsTemplate: string implements HasDescription, HasLabel
     public function defaultMessage(): string
     {
         return match ($this) {
-            self::OrderPlacedAdmin => 'New order {order} from {name}. Total {currency} {total}. Waiting for MoMo proof.',
-            self::OrderPlacedCustomer => 'Hi {first_name}, your Wellth order {order} ({currency} {total}) is awaiting MoMo payment. Pay and upload your screenshot to confirm: {payment_url}',
+            self::OrderPlacedAdmin => 'New order {order} from {name}. Total {currency} {total}. Waiting for proof of payment.',
+            self::OrderPlacedCustomer => 'Hi {first_name}, your Wellth order {order} ({currency} {total}) is awaiting mobile money payment. Pay and upload your screenshot to confirm: {payment_url}',
             self::PaymentProofAdmin => 'Payment proof uploaded for {order} ({currency} {total}) by {name}. Review and confirm in admin.',
-            self::OrderPaidCustomer => "Hi {first_name}, Your payment for order {order} ({currency} {total}) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!",
+            self::OrderPaidCustomer => "Hi {first_name}, Your payment for order {order} ({currency} {total}) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!{loyalty_suffix}",
             self::OrderShippedCustomer => 'Hi {first_name}, your Wellth order {order} is on the way{city_suffix}. Thanks for choosing us!',
             self::OrderDeliveredCustomer => 'Hi {first_name}, your order has been delivered. Enjoy your Wellth shots{loyalty_suffix}.',
-            self::OrderFeedbackInvite => 'Hi {first_name}, how were your Wellth shots? Tell us your favourite blend and how shopping went: {feedback_url}',
+            self::OrderFeedbackInvite => 'Hi {first_name}, how were your Wellth shots? Tell us about your favourite blend and shopping shppoing experience: {feedback_url}',
             self::ReferralReward => 'Someone used your code {promo_code}. You earned {points} points. Your balance is now {balance} points. Thanks for sharing!',
         };
     }
@@ -71,7 +71,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
         return match ($this) {
             self::OrderPlacedAdmin, self::PaymentProofAdmin => ['{order}', '{name}', '{currency}', '{total}'],
             self::OrderPlacedCustomer => ['{first_name}', '{order}', '{currency}', '{total}', '{payment_url}'],
-            self::OrderPaidCustomer => ['{first_name}', '{order}', '{currency}', '{total}'],
+            self::OrderPaidCustomer => ['{first_name}', '{order}', '{currency}', '{total}', '{loyalty_suffix}'],
             self::OrderShippedCustomer => ['{first_name}', '{order}', '{city_suffix}'],
             self::OrderDeliveredCustomer => ['{first_name}', '{loyalty_suffix}'],
             self::OrderFeedbackInvite => ['{first_name}', '{feedback_url}'],

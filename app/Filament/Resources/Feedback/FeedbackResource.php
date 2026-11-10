@@ -6,6 +6,7 @@ use App\Filament\Resources\Feedback\Pages\ListFeedback;
 use App\Filament\Resources\Feedback\Pages\ViewFeedback;
 use App\Filament\Resources\Feedback\Schemas\FeedbackInfolist;
 use App\Filament\Resources\Feedback\Tables\FeedbackTable;
+use App\Filament\Resources\Feedback\Widgets\FeedbackSummary;
 use App\Models\Feedback;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -52,6 +53,13 @@ class FeedbackResource extends Resource
     public static function getRelations(): array
     {
         return [];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            FeedbackSummary::class,
+        ];
     }
 
     public static function getPages(): array

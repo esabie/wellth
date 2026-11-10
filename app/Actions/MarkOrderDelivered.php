@@ -45,9 +45,12 @@ class MarkOrderDelivered
                 return $order;
             }
 
+            $deliveredAt = $order->delivered_at ?? now();
+
             $order->update([
                 'status' => OrderStatus::Delivered,
-                'delivered_at' => $order->delivered_at ?? now(),
+                'delivered_at' => $deliveredAt,
+                'feedback_auto_invite_on' => Order::feedbackAutoInviteOnFor($deliveredAt),
             ]);
 
             $didTransition = true;

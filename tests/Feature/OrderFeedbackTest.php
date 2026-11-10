@@ -15,6 +15,7 @@ use App\Notifications\FeedbackSubmittedAdminNotification;
 use App\Notifications\OrderDeliveredCustomerSmsNotification;
 use App\Notifications\OrderFeedbackInviteSmsNotification;
 use App\Support\PackingReport;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -70,7 +71,9 @@ test('delivered sms does not include a feedback url', function () {
     $order = app(MarkOrderDelivered::class)->handle($order);
 
     expect($order->feedback_token)->toBeNull()
-        ->and($order->feedback_invited_at)->toBeNull();
+        ->and($order->feedback_invited_at)->toBeNull()
+        ->and($order->feedback_auto_invite_on?->toDateString())
+        ->toBe(Order::feedbackAutoInviteOnFor($order->delivered_at));
 
     Notification::assertSentOnDemand(
         OrderDeliveredCustomerSmsNotification::class,
@@ -311,6 +314,102 @@ test('artisan command sends feedback invites for past deliveries', function () {
         ->and($order->feedback_invited_at)->not->toBeNull();
 
     Notification::assertSentOnDemand(OrderFeedbackInviteSmsNotification::class);
+});
+
+test('scheduled due invites skip existing deliveries without an auto-invite date', function () {
+    Notification::fake();
+
+    $makeOrder = function (): Order {
+        $order = Order::factory()->delivered()->create([
+            'customer_phone' => '0244111222',
+            'feedback_token' => null,
+            'feedback_invited_at' => null,
+            'feedback_auto_invite_on' => null,
+        ]);
+        OrderItem::factory()->create(['order_id' => $order->id]);
+
+        return $order->fresh();
+    };
+
+    $existing = $makeOrder();
+
+    $due = $makeOrder();
+    $due->update([
+        'delivered_at' => now('GMT')->subDays(3)->setTime(15, 0),
+        'feedback_auto_invite_on' => now('GMT')->toDateString(),
+    ]);
+
+    $future = $makeOrder();
+    $future->update([
+        'delivered_at' => now('GMT'),
+        'feedback_auto_invite_on' => now('GMT')->addDays(3)->toDateString(),
+    ]);
+
+    $this->artisan('orders:send-feedback-invites', ['--due' => true])
+        ->expectsOutputToContain($due->uuid)
+        ->assertSuccessful();
+
+    expect($existing->fresh()->feedback_invited_at)->toBeNull()
+        ->and($future->fresh()->feedback_invited_at)->toBeNull()
+        ->and($due->fresh()->feedback_invited_at)->not->toBeNull();
+
+    Notification::assertSentOnDemandTimes(OrderFeedbackInviteSmsNotification::class, 1);
+});
+
+test('feedback schedule runs daily at 09:00 GMT for due invites', function () {
+    $events = collect(app(Schedule::class)->events())
+        ->filter(fn ($event) => str_contains((string) $event->command, 'orders:send-feedback-invites'));
+
+    expect($events)->toHaveCount(1);
+
+    $event = $events->first();
+
+    expect((string) $event->timezone)->toBe('GMT')
+        ->and($event->expression)->toBe('0 9 * * *')
+        ->and((string) $event->command)->toContain('--due');
+});
+
+test('feedback list shows summary stats for favourites scores and chips', function () {
+    $admin = User::factory()->create();
+    $orderA = deliveredOrderWithItems();
+    $ginja = Product::query()->where('slug', 'ginja-feedback')->firstOrFail();
+    $glow = Product::query()->where('slug', 'glow-feedback')->firstOrFail();
+
+    $orderB = Order::factory()->delivered()->create([
+        'customer_phone' => '0244333444',
+    ]);
+    OrderItem::factory()->create([
+        'order_id' => $orderB->id,
+        'product_id' => $ginja->id,
+        'product_name' => 'Ginja',
+    ]);
+
+    Feedback::factory()->forOrder($orderA)->create([
+        'product_id' => $ginja->id,
+        'shopping_rating' => 5,
+        'improvement_tags' => ['taste', 'freshness'],
+    ]);
+    Feedback::factory()->forOrder($orderB)->create([
+        'product_id' => $ginja->id,
+        'shopping_rating' => 3,
+        'improvement_tags' => ['taste'],
+    ]);
+    Feedback::factory()->create([
+        'order_id' => Order::factory()->delivered()->create()->id,
+        'product_id' => $glow->id,
+        'shopping_rating' => 4,
+        'improvement_tags' => ['packaging'],
+    ]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListFeedback::class)
+        ->assertSee('Avg shopping score')
+        ->assertSee('4 / 5')
+        ->assertSee('Top favourite blend')
+        ->assertSee('Ginja')
+        ->assertSee('Top improvement chip')
+        ->assertSee('Taste / flavour');
 });
 
 test('send feedback invite action texts a dedicated invite message', function () {
