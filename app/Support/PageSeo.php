@@ -97,6 +97,7 @@ class PageSeo
                 'title' => $this->confirmationTitle($request->route('order')),
                 'index' => false,
             ],
+            'feedback.show' => [...$page, 'title' => 'Share feedback', 'index' => false],
             default => $page,
         };
     }

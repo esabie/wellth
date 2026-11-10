@@ -112,8 +112,11 @@ test('marking delivered texts the customer once and requires shipped status', fu
     Notification::assertSentOnDemand(
         OrderDeliveredCustomerSmsNotification::class,
         function (OrderDeliveredCustomerSmsNotification $notification, array $channels, object $notifiable): bool {
+            $message = $notification->toMnotify($notifiable);
+
             return $notifiable->routes[MnotifyChannel::class] === PhoneNumber::forSms('0244111222')
-                && $notification->toMnotify($notifiable) === 'Hi Ama, your order has been delivered. Enjoy your Wellth shots and enjoy 5% off your next order.';
+                && $message === 'Hi Ama, your order has been delivered. Enjoy your Wellth shots and enjoy 5% off your next order.'
+                && ! str_contains($message, '/feedback/');
         },
     );
 

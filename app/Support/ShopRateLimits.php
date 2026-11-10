@@ -18,6 +18,7 @@ class ShopRateLimits
         self::define('shop-loyalty', 'loyalty');
         self::define('shop-points', 'points');
         self::define('shop-payment', 'payment');
+        self::define('shop-feedback', 'feedback');
     }
 
     private static function define(string $name, string $configKey): void

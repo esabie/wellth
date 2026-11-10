@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Orders\Pages;
 use App\Actions\CompletePaidOrder;
 use App\Actions\MarkOrderDelivered;
 use App\Actions\MarkOrderShipped;
+use App\Actions\SendOrderFeedbackInvite;
 use App\Actions\StartPreparingOrder;
 use App\Enums\OrderStatus;
 use App\Filament\Resources\Orders\OrderResource;
@@ -12,6 +13,7 @@ use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use InvalidArgumentException;
 
 class ViewOrder extends ViewRecord
 {
@@ -104,7 +106,7 @@ class ViewOrder extends ViewRecord
                 ->color('success')
                 ->requiresConfirmation()
                 ->modalHeading('Mark this order as delivered?')
-                ->modalDescription('The customer will get a text that their shots have arrived.')
+                ->modalDescription('The customer will get a text that their shots have arrived. Send the feedback invite a few days later.')
                 ->visible(fn (): bool => $this->record->status === OrderStatus::Shipped)
                 ->action(function (MarkOrderDelivered $markOrderDelivered): void {
                     $markOrderDelivered->handle($this->record);
@@ -122,6 +124,38 @@ class ViewOrder extends ViewRecord
                         'shipped_at',
                         'delivered_at',
                         'stock_decremented_at',
+                    ]);
+                }),
+            Action::make('sendFeedbackInvite')
+                ->label('Send feedback link')
+                ->icon('heroicon-o-chat-bubble-left-right')
+                ->color('gray')
+                ->requiresConfirmation()
+                ->modalHeading('Send feedback SMS?')
+                ->modalDescription('Texts the customer a unique feedback link. Best a few days after delivery, once they have tried the shots.')
+                ->visible(fn (): bool => $this->record->status === OrderStatus::Delivered
+                    && $this->record->feedback()->doesntExist())
+                ->action(function (SendOrderFeedbackInvite $sendInvite): void {
+                    try {
+                        $sendInvite->handle($this->record);
+                    } catch (InvalidArgumentException $exception) {
+                        Notification::make()
+                            ->title($exception->getMessage())
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
+                    Notification::make()
+                        ->title('Feedback link sent')
+                        ->body('The customer has been texted their unique feedback URL.')
+                        ->success()
+                        ->send();
+
+                    $this->refreshFormData([
+                        'feedback_token',
+                        'feedback_invited_at',
                     ]);
                 }),
             EditAction::make()

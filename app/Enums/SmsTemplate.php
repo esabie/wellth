@@ -13,6 +13,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
     case OrderPaidCustomer = 'order_paid_customer';
     case OrderShippedCustomer = 'order_shipped_customer';
     case OrderDeliveredCustomer = 'order_delivered_customer';
+    case OrderFeedbackInvite = 'order_feedback_invite';
     case ReferralReward = 'referral_reward';
 
     public function settingKey(): string
@@ -29,6 +30,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::OrderPaidCustomer => 'Payment confirmed (customer)',
             self::OrderShippedCustomer => 'Order shipped (customer)',
             self::OrderDeliveredCustomer => 'Order delivered (customer)',
+            self::OrderFeedbackInvite => 'Feedback invite (customer)',
             self::ReferralReward => 'Referral reward (referrer)',
         };
     }
@@ -41,7 +43,8 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::PaymentProofAdmin => 'Sent to the admin alert phone when MoMo proof is uploaded.',
             self::OrderPaidCustomer => 'Sent to the customer when payment is confirmed in admin.',
             self::OrderShippedCustomer => 'Kept for older saved templates. Shipped orders no longer send this text.',
-            self::OrderDeliveredCustomer => 'Sent to the customer when an order is marked as delivered.',
+            self::OrderDeliveredCustomer => 'Sent to the customer when an order is marked as delivered. {loyalty_suffix} only fills in when their next order qualifies for the second-purchase discount.',
+            self::OrderFeedbackInvite => 'Sent to already-delivered customers to request feedback without repeating the delivery notice.',
             self::ReferralReward => 'Sent to the referrer when their code is used on a paid order.',
         };
     }
@@ -54,7 +57,8 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::PaymentProofAdmin => 'Payment proof uploaded for {order} ({currency} {total}) by {name}. Review and confirm in admin.',
             self::OrderPaidCustomer => "Hi {first_name}, Your payment for order {order} ({currency} {total}) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!",
             self::OrderShippedCustomer => 'Hi {first_name}, your Wellth order {order} is on the way{city_suffix}. Thanks for choosing us!',
-            self::OrderDeliveredCustomer => 'Hi {first_name}, your order has been delivered. Enjoy your Wellth shots and enjoy 5% off your next order.',
+            self::OrderDeliveredCustomer => 'Hi {first_name}, your order has been delivered. Enjoy your Wellth shots{loyalty_suffix}.',
+            self::OrderFeedbackInvite => 'Hi {first_name}, how were your Wellth shots? Tell us your favourite blend and how shopping went: {feedback_url}',
             self::ReferralReward => 'Someone used your code {promo_code}. You earned {points} points. Your balance is now {balance} points. Thanks for sharing!',
         };
     }
@@ -69,7 +73,8 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::OrderPlacedCustomer => ['{first_name}', '{order}', '{currency}', '{total}', '{payment_url}'],
             self::OrderPaidCustomer => ['{first_name}', '{order}', '{currency}', '{total}'],
             self::OrderShippedCustomer => ['{first_name}', '{order}', '{city_suffix}'],
-            self::OrderDeliveredCustomer => ['{first_name}'],
+            self::OrderDeliveredCustomer => ['{first_name}', '{loyalty_suffix}'],
+            self::OrderFeedbackInvite => ['{first_name}', '{feedback_url}'],
             self::ReferralReward => ['{promo_code}', '{points}', '{balance}'],
         };
     }

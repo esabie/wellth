@@ -2,9 +2,11 @@
 
 namespace App\Support;
 
+use App\Models\Feedback;
 use App\Models\Order;
 use App\Models\User;
 use App\Notifications\Channels\MnotifyChannel;
+use App\Notifications\FeedbackSubmittedAdminNotification;
 use App\Notifications\OrderPaidAdminNotification;
 use App\Notifications\OrderPaymentProofSubmittedNotification;
 use App\Notifications\OrderPaymentProofSubmittedSmsNotification;
@@ -43,6 +45,15 @@ class ShopAdminNotifier
     {
         $this->mail('order_paid', $order, new OrderPaidAdminNotification($order));
         $this->database('order_paid', $order, new OrderPaidAdminNotification($order));
+    }
+
+    public function feedbackSubmitted(Feedback $feedback): void
+    {
+        $order = $feedback->order;
+        $notification = new FeedbackSubmittedAdminNotification($feedback);
+
+        $this->mail('feedback_submitted', $order, $notification);
+        $this->database('feedback_submitted', $order, $notification);
     }
 
     private function mail(string $event, Order $order, object $notification): void

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
 #[Fillable([
@@ -43,6 +44,8 @@ use Illuminate\Support\Facades\DB;
     'prepared_at',
     'shipped_at',
     'delivered_at',
+    'feedback_token',
+    'feedback_invited_at',
     'stock_decremented_at',
 ])]
 class Order extends Model
@@ -124,6 +127,7 @@ class Order extends Model
             'prepared_at' => 'datetime',
             'shipped_at' => 'datetime',
             'delivered_at' => 'datetime',
+            'feedback_invited_at' => 'datetime',
             'stock_decremented_at' => 'datetime',
         ];
     }
@@ -136,6 +140,25 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function feedback(): HasOne
+    {
+        return $this->hasOne(Feedback::class);
+    }
+
+    public function feedbackUrl(): ?string
+    {
+        if (blank($this->feedback_token)) {
+            return null;
+        }
+
+        return route('feedback.show', $this->feedback_token);
+    }
+
+    public function canAcceptFeedback(): bool
+    {
+        return $this->status === OrderStatus::Delivered && $this->feedback()->doesntExist();
     }
 
     public function isPaid(): bool

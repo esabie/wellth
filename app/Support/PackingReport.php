@@ -31,6 +31,20 @@ class PackingReport
         'ABC' => 2,
     ];
 
+    /**
+     * Product slugs that make up one Wellth Bouquet, in display order.
+     *
+     * @var list<string>
+     */
+    public const BOUQUET_PRODUCT_SLUGS = [
+        'ginja',
+        'glow-getter',
+        'ruby-rush',
+        'crave-control',
+        'tropic-cool',
+        'abc',
+    ];
+
     private const HEADERS = ['Order', 'Customer', 'Phone', 'City', 'Status', 'Item', 'Quantity', 'Bottles', 'Pack'];
 
     /** Sage from the Wellth logo mark. */

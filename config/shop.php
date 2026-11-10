@@ -129,6 +129,7 @@ return [
         'loyalty' => 30,
         'points' => 20,
         'payment' => 10,
+        'feedback' => 10,
     ],
 
 ];

@@ -54,6 +54,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn (): ?string => $request->session()->get('error'),
                 'open_cart' => fn (): bool => (bool) $request->session()->get('open_cart'),
                 'payment_proof_received' => fn (): bool => (bool) $request->session()->get('payment_proof_received'),
+                'feedback_received' => fn (): bool => (bool) $request->session()->get('feedback_received'),
             ],
         ];
     }

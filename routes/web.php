@@ -6,6 +6,7 @@ use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
+use App\Http\Controllers\Shop\FeedbackController;
 use App\Http\Controllers\Shop\ProductController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
@@ -52,3 +53,11 @@ Route::post('/checkout/{order}/pay', [CheckoutController::class, 'storePaymentPr
     ->middleware('throttle:shop-payment')
     ->name('checkout.payment.store');
 Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+
+Route::get('/feedback/{token}', [FeedbackController::class, 'show'])
+    ->where('token', '[a-z0-9]+')
+    ->name('feedback.show');
+Route::post('/feedback/{token}', [FeedbackController::class, 'store'])
+    ->middleware('throttle:shop-feedback')
+    ->where('token', '[a-z0-9]+')
+    ->name('feedback.store');
