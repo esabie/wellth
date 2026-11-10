@@ -58,7 +58,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::OrderPaidCustomer => "Hi {first_name}, Your payment for order {order} ({currency} {total}) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!{loyalty_suffix}",
             self::OrderShippedCustomer => 'Hi {first_name}, your Wellth order {order} is on the way{city_suffix}. Thanks for choosing us!',
             self::OrderDeliveredCustomer => 'Hi {first_name}, your order has been delivered. Enjoy your Wellth shots{loyalty_suffix}.',
-            self::OrderFeedbackInvite => 'Hi {first_name}, how were your Wellth shots? Tell us about your favourite blend and shopping shppoing experience: {feedback_url}',
+            self::OrderFeedbackInvite => 'Hi {first_name}, how were your Wellth shots? Tell us about your favourite blend and shopping shopping experience: {feedback_url}',
             self::ReferralReward => 'Someone used your code {promo_code}. You earned {points} points. Your balance is now {balance} points. Thanks for sharing!',
         };
     }
