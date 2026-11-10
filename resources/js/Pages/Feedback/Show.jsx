@@ -80,7 +80,7 @@ export default function Show({
                 : 'Select the blend you loved the most.',
         },
         2: {
-            title: 'How did shopping feel?',
+            title: 'How was your shopping experience?',
             body: selectedProduct
                 ? `Glad you liked ${selectedProduct.name}. Now the website itself.`
                 : 'Finding blends, cart, checkout, payment…',
@@ -101,7 +101,7 @@ export default function Show({
                             Thank you, {order.first_name}.
                         </h1>
                         <p className="mt-3 max-w-xl text-ink/65">
-                            That took seconds. We value your input as it helps us refine our products and enhance your shopping experience.
+                            We value your input as it helps us refine our products and enhance your shopping experience.
                         </p>
 
                         {feedback && (
@@ -302,7 +302,7 @@ export default function Show({
 
                                                 <label className="mt-6 block">
                                                     <span className="text-xs font-bold tracking-wide text-ink/45 uppercase">
-                                                        One more thought? Optional
+                                                        Any other thing you want to tell us? Optional
                                                     </span>
                                                     <textarea
                                                         rows={2}
