@@ -9,6 +9,7 @@ use App\Http\Requests\StoreFeedbackRequest;
 use App\Models\Order;
 use App\Support\FeedbackFormOptions;
 use App\Support\OrderFeedbackChoices;
+use App\Support\StorefrontVisitLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
@@ -32,17 +33,26 @@ class FeedbackController extends Controller
         $order = $this->orderForToken($token);
 
         try {
-            $submitOrderFeedback->handle($order, $request->validated());
+            $feedback = $submitOrderFeedback->handle($order, $request->validated());
         } catch (InvalidArgumentException $exception) {
-            Log::notice('feedback.store_failed', [
-                'order' => $order->uuid,
-                'message' => $exception->getMessage(),
-            ]);
+            Log::notice("Feedback for order {$order->uuid} was not saved: {$exception->getMessage()}");
 
             return redirect()
                 ->route('feedback.show', $token)
                 ->withErrors(['feedback' => $exception->getMessage()]);
         }
+
+        $summary = collect([
+            $feedback->product?->name ? 'favourite '.$feedback->product->name : null,
+            'shopping '.$feedback->shoppingLabel(),
+            $feedback->improvementLabels() !== [] ? implode(' · ', $feedback->improvementLabels()) : null,
+            filled($feedback->note) ? 'with a note' : null,
+        ])->filter()->implode(' · ');
+
+        app(StorefrontVisitLog::class)->note(
+            $request,
+            "Visitor submitted feedback for order {$order->uuid}".($summary !== '' ? ": {$summary}." : '.'),
+        );
 
         return redirect()
             ->route('feedback.show', $token)

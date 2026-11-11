@@ -67,6 +67,7 @@ class MarkOrderDelivered
             'previous_status' => $previousStatus,
             'status' => $order->status->value,
             'delivered_at' => $order->delivered_at?->toIso8601String(),
+            'feedback_auto_invite_on' => $order->feedback_auto_invite_on?->toDateString(),
         ]);
 
         $this->notifyCustomer($order);

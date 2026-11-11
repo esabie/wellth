@@ -8,6 +8,7 @@ use App\Models\Order;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Throwable;
 
@@ -47,14 +48,23 @@ class SendOrderFeedbackInvitesCommand extends Command
         }
 
         $orders = $query->get();
+        $scope = $dueOnly ? 'due automatic' : 'manual';
+        $orderList = $orders->pluck('uuid')->implode(', ');
 
         if ($orders->isEmpty()) {
+            Log::info($dryRun
+                ? "Feedback invite dry-run found no {$scope} orders."
+                : "No {$scope} feedback invites to send.");
+
             $this->info($dueOnly
                 ? 'No scheduled feedback invites are due.'
                 : 'No delivered orders need a feedback invite.');
 
             return self::SUCCESS;
         }
+
+        Log::info(($dryRun ? 'Feedback invite dry-run would text' : 'Sending feedback invites for')
+            ." {$orders->count()} {$scope} order(s): {$orderList}.");
 
         $this->info(($dryRun ? 'Would invite' : 'Inviting')." {$orders->count()} order(s).");
 
@@ -74,11 +84,13 @@ class SendOrderFeedbackInvitesCommand extends Command
                 $this->line("Sent · {$order->uuid}");
             } catch (InvalidArgumentException|Throwable $exception) {
                 $failed++;
+                Log::warning("Feedback invite failed for order {$order->uuid}: {$exception->getMessage()}");
                 $this->error("Failed · {$order->uuid}: {$exception->getMessage()}");
             }
         }
 
         if (! $dryRun) {
+            Log::info("Finished feedback invites: sent {$sent}, failed {$failed}.");
             $this->info("Done. Sent {$sent}, failed {$failed}.");
         }
 

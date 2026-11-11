@@ -143,6 +143,40 @@ test('adding a product to the cart is logged and quantity changes are not', func
     expect($messages)->toBe(['Visitor added 2 × Ginja to the cart.']);
 });
 
+test('opening and submitting feedback is logged for the order', function () {
+    Notification::fake();
+
+    $messages = [];
+    Log::listen(function (object $event) use (&$messages): void {
+        if (str_starts_with($event->message, 'Customer opened the feedback')
+            || str_starts_with($event->message, 'Visitor submitted feedback')) {
+            $messages[] = $event->message;
+        }
+    });
+
+    $order = Order::factory()->delivered()->create([
+        'feedback_token' => 'visitfeedbacktoken',
+    ]);
+    $item = OrderItem::factory()->create(['order_id' => $order->id]);
+
+    $this->get(route('feedback.show', $order->feedback_token))->assertOk();
+
+    $this->post(route('feedback.store', $order->feedback_token), [
+        'product_id' => $item->product_id,
+        'shopping_rating' => 5,
+        'improvement_tags' => ['all_good'],
+    ])->assertRedirect(route('feedback.show', $order->feedback_token));
+
+    expect($messages[0] ?? null)->toBe("Customer opened the feedback invite link for order {$order->uuid}.")
+        ->and($messages[1] ?? null)->toStartWith("Visitor submitted feedback for order {$order->uuid}:")
+        ->and($messages[1] ?? null)->toContain('favourite')
+        ->and($messages)->toHaveCount(2);
+
+    $this->get(route('feedback.show', $order->feedback_token))->assertOk();
+
+    expect($messages[2] ?? null)->toBe("Customer opened the feedback page for order {$order->uuid} (already submitted).");
+});
+
 test('uploading payment proof is logged for the order', function () {
     Storage::fake('local');
     Notification::fake();

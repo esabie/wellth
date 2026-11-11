@@ -17,6 +17,7 @@ use App\Notifications\OrderFeedbackInviteSmsNotification;
 use App\Support\PackingReport;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
 use Livewire\Livewire;
@@ -203,6 +204,15 @@ test('bouquet orders expand into the individual bouquet blends', function () {
 test('customers can submit feedback for a delivered order', function () {
     Notification::fake();
 
+    $logged = [];
+    Log::listen(function (object $event) use (&$logged): void {
+        if (str_contains($event->message, 'feedback for order')
+            || str_contains($event->message, 'Saved feedback for order')
+            || str_contains($event->message, 'Visitor submitted feedback')) {
+            $logged[] = $event->message;
+        }
+    });
+
     $order = deliveredOrderWithItems();
     $favoriteId = (int) $order->items->first()->product_id;
 
@@ -221,7 +231,14 @@ test('customers can submit feedback for a delivered order', function () {
         ->and($feedback->product_id)->toBe($favoriteId)
         ->and($feedback->shopping_rating)->toBe(5)
         ->and($feedback->improvement_tags)->toBe(['taste', 'delivery'])
-        ->and($feedback->note)->toBe('More ginger heat please.');
+        ->and($feedback->note)->toBe('More ginger heat please.')
+        ->and($logged)->toContain("Saved feedback for order {$order->uuid}: favourite Ginja · shopping Loved it · Taste / flavour · Delivery timing · with a note.")
+        ->and(collect($logged)->first(
+            fn (string $message): bool => str_starts_with($message, "Visitor submitted feedback for order {$order->uuid}"),
+        ))->toContain('favourite Ginja')
+        ->and(collect($logged)->first(
+            fn (string $message): bool => str_starts_with($message, "Visitor submitted feedback for order {$order->uuid}"),
+        ))->toContain('with a note');
 
     Notification::assertSentOnDemand(FeedbackSubmittedAdminNotification::class);
 
@@ -404,7 +421,7 @@ test('feedback list shows summary stats for favourites scores and chips', functi
     $this->actingAs($admin);
 
     Livewire::test(ListFeedback::class)
-        ->assertSee('Avg shopping score')
+        ->assertSee('Average shopping / website score')
         ->assertSee('4 / 5')
         ->assertSee('Top favourite blend')
         ->assertSee('Ginja')
@@ -425,7 +442,7 @@ test('send feedback invite action texts a dedicated invite message', function ()
         function (OrderFeedbackInviteSmsNotification $notification, array $channels, object $notifiable): bool {
             $message = $notification->toMnotify($notifiable);
 
-            return str_contains($message, 'favourite blend')
+            return str_contains($message, 'feedback')
                 && str_contains($message, route('feedback.show', $notification->order->feedback_token));
         },
     );

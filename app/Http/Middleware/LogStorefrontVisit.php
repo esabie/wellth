@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Order;
 use App\Support\StorefrontVisitLog;
 use Closure;
 use Illuminate\Http\Request;
@@ -23,7 +24,13 @@ class LogStorefrontVisit
             $message = $this->message($request);
 
             if ($message !== null) {
-                $this->visits->record($request, $message);
+                // Feedback invite opens should always appear in the log — do not
+                // collapse repeats the way ordinary storefront page views do.
+                if ($request->route()?->getName() === 'feedback.show') {
+                    $this->visits->note($request, $message);
+                } else {
+                    $this->visits->record($request, $message);
+                }
             }
         }
 
@@ -61,6 +68,7 @@ class LogStorefrontVisit
             'checkout.create' => 'Visitor opened checkout.',
             'checkout.payment' => $this->orderMessage($request, 'Visitor opened payment for order '),
             'checkout.confirmation' => $this->orderMessage($request, 'Visitor opened the confirmation for order '),
+            'feedback.show' => $this->feedbackMessage($request),
             default => null,
         };
     }
@@ -96,5 +104,29 @@ class LogStorefrontVisit
         }
 
         return $prefix.$uuid.'.';
+    }
+
+    private function feedbackMessage(Request $request): ?string
+    {
+        $token = $request->route('token');
+
+        if (! is_string($token) || $token === '') {
+            return null;
+        }
+
+        $order = Order::query()
+            ->where('feedback_token', $token)
+            ->withExists('feedback as has_feedback')
+            ->first(['id', 'uuid']);
+
+        if ($order === null || ! is_string($order->uuid) || $order->uuid === '') {
+            return null;
+        }
+
+        if ($order->has_feedback) {
+            return "Customer opened the feedback page for order {$order->uuid} (already submitted).";
+        }
+
+        return "Customer opened the feedback invite link for order {$order->uuid}.";
     }
 }

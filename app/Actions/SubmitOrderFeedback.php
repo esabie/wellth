@@ -21,11 +21,11 @@ class SubmitOrderFeedback
     public function handle(Order $order, array $data): Feedback
     {
         if (! $order->canAcceptFeedback()) {
-            Log::warning('feedback.submit_rejected', [
-                'order' => $order->uuid,
-                'status' => $order->status->value,
-                'reason' => $order->feedback()->exists() ? 'already_submitted' : 'order_not_accepting',
-            ]);
+            $reason = $order->feedback()->exists()
+                ? 'feedback was already submitted'
+                : 'the order is not accepting feedback';
+
+            Log::warning("Skipped feedback for order {$order->uuid}: {$reason}.");
 
             throw new InvalidArgumentException('This order can no longer accept feedback.');
         }
@@ -33,11 +33,7 @@ class SubmitOrderFeedback
         $allowedProductIds = $this->choices->allowedProductIds($order)->all();
 
         if (! in_array((int) $data['product_id'], $allowedProductIds, true)) {
-            Log::warning('feedback.submit_rejected', [
-                'order' => $order->uuid,
-                'product_id' => $data['product_id'],
-                'reason' => 'product_not_on_order',
-            ]);
+            Log::warning("Skipped feedback for order {$order->uuid}: chosen blend is not on this order.");
 
             throw new InvalidArgumentException('Please choose a blend from this order.');
         }
@@ -52,6 +48,8 @@ class SubmitOrderFeedback
         $tags = array_values(array_filter($tags, fn (string $tag): bool => in_array($tag, $allowedTags, true)));
 
         if ($tags === []) {
+            Log::warning("Skipped feedback for order {$order->uuid}: no improvement chips selected.");
+
             throw new InvalidArgumentException('Please tap anything we could improve, or “All good”.');
         }
 
@@ -67,13 +65,17 @@ class SubmitOrderFeedback
 
         $feedback->load(['order', 'product']);
 
-        Log::info('feedback.submitted', [
-            'order' => $order->uuid,
-            'product_id' => $feedback->product_id,
-            'shopping_rating' => $feedback->shopping_rating,
-            'improvement_tags' => $feedback->improvement_tags,
-            'feedback_id' => $feedback->id,
-        ]);
+        $parts = [
+            'favourite '.($feedback->product?->name ?? 'unknown blend'),
+            'shopping '.$feedback->shoppingLabel(),
+            implode(' · ', $feedback->improvementLabels()),
+        ];
+
+        if (filled($feedback->note)) {
+            $parts[] = 'with a note';
+        }
+
+        Log::info('Saved feedback for order '.$order->uuid.': '.implode(' · ', $parts).'.');
 
         app(ShopAdminNotifier::class)->feedbackSubmitted($feedback);
 

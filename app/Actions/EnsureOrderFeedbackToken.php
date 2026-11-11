@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Models\Order;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class EnsureOrderFeedbackToken
@@ -22,6 +23,8 @@ class EnsureOrderFeedbackToken
         $order->forceFill([
             'feedback_token' => $token,
         ])->save();
+
+        Log::info("Created feedback link for order {$order->uuid}.");
 
         return $order->refresh();
     }
