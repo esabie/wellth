@@ -67,19 +67,19 @@ class PromoCodeForm
                     ])
                     ->columns(2),
                 Section::make('Referral')
-                    ->description('Optional. Add a referrer to turn this into a referral code: the shopper gets the discount, and the referrer earns points from Shop settings when the order is paid. Self-referral is blocked.')
+                    ->description('Optional. Add a referrer to turn this into a referral code: they get an SMS with the code on create, the shopper gets the discount, and the referrer earns points from Shop settings when the order is paid. Self-referral is blocked.')
                     ->schema([
                         TextInput::make('referrer_name')
                             ->label('Referrer name')
                             ->maxLength(120)
                             ->placeholder('e.g. John Mensah')
-                            ->helperText('Shown on the loyalty wallet.'),
+                            ->helperText('Shown on the loyalty wallet and used to greet them in the SMS.'),
                         TextInput::make('referrer_phone')
                             ->label('Referrer phone')
                             ->tel()
                             ->maxLength(40)
                             ->placeholder('e.g. 024 123 4567')
-                            ->helperText('Leave blank for a regular (non-referral) promo.'),
+                            ->helperText('On create, we text this number their referral code. Leave blank for a regular promo.'),
                     ])
                     ->columns(2),
             ]);

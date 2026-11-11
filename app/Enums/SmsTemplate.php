@@ -14,6 +14,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
     case OrderShippedCustomer = 'order_shipped_customer';
     case OrderDeliveredCustomer = 'order_delivered_customer';
     case OrderFeedbackInvite = 'order_feedback_invite';
+    case ReferralCodeCreated = 'referral_code_created';
     case ReferralReward = 'referral_reward';
 
     public function settingKey(): string
@@ -31,6 +32,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::OrderShippedCustomer => 'Order shipped (customer)',
             self::OrderDeliveredCustomer => 'Order delivered (customer)',
             self::OrderFeedbackInvite => 'Feedback invite (customer)',
+            self::ReferralCodeCreated => 'Referral code created (referrer)',
             self::ReferralReward => 'Referral reward (referrer)',
         };
     }
@@ -45,6 +47,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::OrderShippedCustomer => 'Kept for older saved templates. Shipped orders no longer send this text.',
             self::OrderDeliveredCustomer => 'Sent to the customer when an order is marked as delivered. {loyalty_suffix} only fills in when their next order qualifies for the second-purchase discount.',
             self::OrderFeedbackInvite => 'Sent to already-delivered customers to request feedback without repeating the delivery notice.',
+            self::ReferralCodeCreated => 'Sent to the referrer when an admin creates a promo code with their phone number.',
             self::ReferralReward => 'Sent to the referrer when their code is used on a paid order.',
         };
     }
@@ -59,6 +62,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::OrderShippedCustomer => 'Hi {first_name}, your Wellth order {order} is on the way{city_suffix}. Thanks for choosing us!',
             self::OrderDeliveredCustomer => 'Hi {first_name}, your order has been delivered. Enjoy your Wellth shots{loyalty_suffix}.',
             self::OrderFeedbackInvite => 'Hi {first_name}, do you mind sparing a few minutes to give us your feedback? {feedback_url}',
+            self::ReferralCodeCreated => 'Hi {first_name}, your Wellth referral code is {promo_code}. Share it with friends — they get {discount_label}, and you earn points when they order.',
             self::ReferralReward => 'Someone used your code {promo_code}. You earned {points} points. Your balance is now {balance} points. Thanks for sharing!',
         };
     }
@@ -75,6 +79,7 @@ enum SmsTemplate: string implements HasDescription, HasLabel
             self::OrderShippedCustomer => ['{first_name}', '{order}', '{city_suffix}'],
             self::OrderDeliveredCustomer => ['{first_name}', '{loyalty_suffix}'],
             self::OrderFeedbackInvite => ['{first_name}', '{feedback_url}'],
+            self::ReferralCodeCreated => ['{first_name}', '{promo_code}', '{discount_label}'],
             self::ReferralReward => ['{promo_code}', '{points}', '{balance}'],
         };
     }
