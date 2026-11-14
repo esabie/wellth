@@ -14,7 +14,7 @@ class Faqs
         return [
             [
                 'question' => 'What is Wellth?',
-                'answer' => 'Wellth is a Ghana brand of organic wellness shots and juices, sold online at wellthgh.com and on Instagram at @wellth.gh. We make fresh blends such as Ginja, Glow Getter, Ruby Rush, Crave Control, Belly Reset, ABC, and Cloudy Carrot for everyday rituals. Wellth is a food and drink brand.',
+                'answer' => 'Wellth is a Ghana brand of organic wellness shots and juices, sold online at wellthgh.com and on Instagram at @wellth.gh. We make fresh blends such as Ginja, Glow Getter, Ruby Rush, Crave Control, Belly Reset, ABC, Cloudy Carrot, and Tigernut Drink for everyday rituals. Wellth is a food and drink brand.',
             ],
             [
                 'question' => 'Are your shots 100% natural?',
@@ -38,7 +38,7 @@ class Faqs
             ],
             [
                 'question' => 'Is there a minimum purchase limit?',
-                'answer' => "Yes, we have a minimum order quantity of {$minimumOrderQuantity} shots per purchase. Thank you for your understanding!",
+                'answer' => "Yes — wellness shots have a minimum of {$minimumOrderQuantity} per purchase. Drinks like Cloudy Carrot and Tigernut can be ordered from 1 bottle. Thank you for your understanding!",
             ],
             [
                 'question' => 'Can I cancel or modify my order after placing it?',

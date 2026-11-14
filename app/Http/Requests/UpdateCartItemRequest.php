@@ -19,6 +19,7 @@ class UpdateCartItemRequest extends FormRequest
         return [
             'quantity' => ['required', 'integer', 'min:0', 'max:48'],
             'lactose_intolerant' => ['sometimes', 'nullable', 'boolean'],
+            'with_ginger' => ['sometimes', 'nullable', 'boolean'],
         ];
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
 
 /**
- * @phpstan-type CartLine array{product_id: int, quantity: int, lactose_intolerant: bool|null}
+ * @phpstan-type CartLine array{product_id: int, quantity: int, lactose_intolerant: bool|null, with_ginger: bool|null}
  * @phpstan-type CartSummaryItem array{
  *     key: string,
  *     product: array{
@@ -18,12 +18,16 @@ use Illuminate\Support\Facades\Session;
  *         price: mixed,
  *         image: string|null,
  *         short_description: string|null,
- *         pack_units: int
+ *         pack_units: int,
+ *         is_drink: bool
  *     },
  *     quantity: int,
  *     line_total: string,
  *     lactose_intolerant: bool|null,
- *     lactose_label: string|null
+ *     lactose_label: string|null,
+ *     with_ginger: bool|null,
+ *     ginger_label: string|null,
+ *     option_label: string|null
  * }
  */
 class Cart
@@ -39,7 +43,7 @@ class Cart
     {
         $this->forgetIfExpired();
 
-        /** @var array<int|string, array{product_id?: int, quantity?: int, lactose_intolerant?: bool|null}> $raw */
+        /** @var array<int|string, array{product_id?: int, quantity?: int, lactose_intolerant?: bool|null, with_ginger?: bool|null}> $raw */
         $raw = Session::get(self::SESSION_KEY, []);
 
         $items = [];
@@ -53,12 +57,16 @@ class Cart
             $lactose = array_key_exists('lactose_intolerant', $item)
                 ? (is_null($item['lactose_intolerant']) ? null : (bool) $item['lactose_intolerant'])
                 : null;
-            $key = $this->lineKey($productId, $lactose);
+            $withGinger = array_key_exists('with_ginger', $item)
+                ? (is_null($item['with_ginger']) ? null : (bool) $item['with_ginger'])
+                : null;
+            $key = $this->lineKey($productId, $lactose, $withGinger);
 
             $items[$key] = [
                 'product_id' => $productId,
                 'quantity' => (int) $item['quantity'],
                 'lactose_intolerant' => $lactose,
+                'with_ginger' => $withGinger,
             ];
         }
 
@@ -72,42 +80,108 @@ class Cart
         );
     }
 
-    public function minimumOrderQuantity(): int
+    /**
+     * Units that count toward the shop shot minimum (excludes drink-category products).
+     */
+    public function shotUnitCount(): int
+    {
+        return (int) $this->detailedItems()->sum(function (array $item): int {
+            /** @var Product $product */
+            $product = $item['product'];
+
+            if ($product->isDrink()) {
+                return 0;
+            }
+
+            return $item['quantity'] * max(1, (int) ($product->pack_units ?? 1));
+        });
+    }
+
+    public function isDrinkOnlyCart(): bool
+    {
+        $items = $this->detailedItems();
+
+        return $items->isNotEmpty()
+            && $items->every(fn (array $item): bool => $item['product']->isDrink());
+    }
+
+    public function shopMinimumOrderQuantity(): int
     {
         return app(ShopSettings::class)->minimumOrderQuantity();
     }
 
+    public function minimumOrderQuantity(): int
+    {
+        if ($this->isDrinkOnlyCart()) {
+            return 1;
+        }
+
+        return $this->shopMinimumOrderQuantity();
+    }
+
+    public function minimumOrderErrorMessage(): string
+    {
+        $minimum = $this->minimumOrderQuantity();
+        $remaining = $this->remainingForMinimumOrder();
+        $unit = $this->isDrinkOnlyCart()
+            ? ($minimum === 1 ? 'item' : 'items')
+            : 'shots';
+
+        return "Minimum order is {$minimum} {$unit}. Add {$remaining} more to continue to checkout.";
+    }
+
+    public function countTowardMinimum(): int
+    {
+        if ($this->isDrinkOnlyCart()) {
+            return $this->count();
+        }
+
+        return $this->shotUnitCount();
+    }
+
     public function meetsMinimumOrder(): bool
     {
-        return $this->count() >= $this->minimumOrderQuantity();
+        return $this->countTowardMinimum() >= $this->minimumOrderQuantity();
     }
 
     public function remainingForMinimumOrder(): int
     {
-        return max(0, $this->minimumOrderQuantity() - $this->count());
+        return max(0, $this->minimumOrderQuantity() - $this->countTowardMinimum());
     }
 
-    public function lineKey(int $productId, ?bool $lactoseIntolerant): string
+    public function lineKey(int $productId, ?bool $lactoseIntolerant = null, ?bool $withGinger = null): string
     {
-        if ($lactoseIntolerant === null) {
-            return (string) $productId;
+        if ($lactoseIntolerant !== null) {
+            return $productId.':'.($lactoseIntolerant ? '1' : '0');
         }
 
-        return $productId.':'.($lactoseIntolerant ? '1' : '0');
+        if ($withGinger !== null) {
+            return $productId.':g:'.($withGinger ? '1' : '0');
+        }
+
+        return (string) $productId;
     }
 
-    public function add(Product $product, int $quantity = 1, ?bool $lactoseIntolerant = null): void
+    public function add(Product $product, int $quantity = 1, ?bool $lactoseIntolerant = null, ?bool $withGinger = null): void
     {
         if ($product->requiresLactoseChoice() && $lactoseIntolerant === null) {
-            throw new \InvalidArgumentException('Choose whether you are lactose intolerant for Cloudy Carrot.');
+            throw new \InvalidArgumentException('Choose a milk option for Cloudy Carrot.');
+        }
+
+        if ($product->requiresGingerChoice() && $withGinger === null) {
+            throw new \InvalidArgumentException('Choose a ginger option for Tigernut Drink.');
         }
 
         if (! $product->requiresLactoseChoice()) {
             $lactoseIntolerant = null;
         }
 
+        if (! $product->requiresGingerChoice()) {
+            $withGinger = null;
+        }
+
         $items = $this->items();
-        $key = $this->lineKey($product->id, $lactoseIntolerant);
+        $key = $this->lineKey($product->id, $lactoseIntolerant, $withGinger);
 
         if (isset($items[$key])) {
             $items[$key]['quantity'] += $quantity;
@@ -116,24 +190,33 @@ class Cart
                 'product_id' => $product->id,
                 'quantity' => $quantity,
                 'lactose_intolerant' => $lactoseIntolerant,
+                'with_ginger' => $withGinger,
             ];
         }
 
         $this->store($items);
     }
 
-    public function update(Product $product, int $quantity, ?bool $lactoseIntolerant = null): void
+    public function update(Product $product, int $quantity, ?bool $lactoseIntolerant = null, ?bool $withGinger = null): void
     {
         if ($product->requiresLactoseChoice() && $lactoseIntolerant === null) {
-            throw new \InvalidArgumentException('Choose whether you are lactose intolerant for Cloudy Carrot.');
+            throw new \InvalidArgumentException('Choose a milk option for Cloudy Carrot.');
+        }
+
+        if ($product->requiresGingerChoice() && $withGinger === null) {
+            throw new \InvalidArgumentException('Choose a ginger option for Tigernut Drink.');
         }
 
         if (! $product->requiresLactoseChoice()) {
             $lactoseIntolerant = null;
         }
 
+        if (! $product->requiresGingerChoice()) {
+            $withGinger = null;
+        }
+
         $items = $this->items();
-        $key = $this->lineKey($product->id, $lactoseIntolerant);
+        $key = $this->lineKey($product->id, $lactoseIntolerant, $withGinger);
 
         if ($quantity <= 0) {
             unset($items[$key]);
@@ -144,14 +227,18 @@ class Cart
         $this->store($items);
     }
 
-    public function remove(Product $product, ?bool $lactoseIntolerant = null): void
+    public function remove(Product $product, ?bool $lactoseIntolerant = null, ?bool $withGinger = null): void
     {
         if (! $product->requiresLactoseChoice()) {
             $lactoseIntolerant = null;
         }
 
+        if (! $product->requiresGingerChoice()) {
+            $withGinger = null;
+        }
+
         $items = $this->items();
-        unset($items[$this->lineKey($product->id, $lactoseIntolerant)]);
+        unset($items[$this->lineKey($product->id, $lactoseIntolerant, $withGinger)]);
         $this->store($items);
     }
 
@@ -167,7 +254,7 @@ class Cart
     }
 
     /**
-     * @return Collection<int, array{key: string, product: Product, quantity: int, line_total: string, lactose_intolerant: bool|null, lactose_label: string|null}>
+     * @return Collection<int, array{key: string, product: Product, quantity: int, line_total: string, lactose_intolerant: bool|null, lactose_label: string|null, with_ginger: bool|null, ginger_label: string|null, option_label: string|null}>
      */
     public function detailedItems(): Collection
     {
@@ -181,6 +268,7 @@ class Cart
 
         $products = Product::query()
             ->active()
+            ->with('category:id,slug')
             ->whereIn('id', $productIds)
             ->get()
             ->keyBy('id');
@@ -192,6 +280,9 @@ class Cart
                 $product = $products->get($item['product_id']);
                 $quantity = (int) $item['quantity'];
                 $lactose = $item['lactose_intolerant'];
+                $withGinger = $item['with_ginger'];
+                $lactoseLabel = $this->lactoseLabel($lactose);
+                $gingerLabel = $this->gingerLabel($withGinger);
 
                 return [
                     'key' => $key,
@@ -199,7 +290,10 @@ class Cart
                     'quantity' => $quantity,
                     'line_total' => bcmul((string) $product->price, (string) $quantity, 2),
                     'lactose_intolerant' => $lactose,
-                    'lactose_label' => $this->lactoseLabel($lactose),
+                    'lactose_label' => $lactoseLabel,
+                    'with_ginger' => $withGinger,
+                    'ginger_label' => $gingerLabel,
+                    'option_label' => $lactoseLabel ?? $gingerLabel,
                 ];
             })
             ->values();
@@ -219,8 +313,10 @@ class Cart
      *     count: int,
      *     subtotal: string,
      *     minimum_order_quantity: int,
+     *     minimum_order_quantity_shop: int,
      *     meets_minimum_order: bool,
      *     remaining_for_minimum_order: int,
+     *     is_drink_only: bool,
      *     items: list<CartSummaryItem>
      * }
      */
@@ -230,8 +326,10 @@ class Cart
             'count' => $this->count(),
             'subtotal' => $this->subtotal(),
             'minimum_order_quantity' => $this->minimumOrderQuantity(),
+            'minimum_order_quantity_shop' => $this->shopMinimumOrderQuantity(),
             'meets_minimum_order' => $this->meetsMinimumOrder(),
             'remaining_for_minimum_order' => $this->remainingForMinimumOrder(),
+            'is_drink_only' => $this->isDrinkOnlyCart(),
             'items' => $this->detailedItems()
                 ->map(function (array $item): array {
                     /** @var Product $product */
@@ -247,11 +345,15 @@ class Cart
                             'image' => $product->imageUrl(),
                             'short_description' => $product->short_description,
                             'pack_units' => max(1, (int) ($product->pack_units ?? 1)),
+                            'is_drink' => $product->isDrink(),
                         ],
                         'quantity' => $item['quantity'],
                         'line_total' => $item['line_total'],
                         'lactose_intolerant' => $item['lactose_intolerant'],
                         'lactose_label' => $item['lactose_label'],
+                        'with_ginger' => $item['with_ginger'],
+                        'ginger_label' => $item['ginger_label'],
+                        'option_label' => $item['option_label'],
                     ];
                 })
                 ->all(),
@@ -264,7 +366,21 @@ class Cart
             return null;
         }
 
-        return $lactoseIntolerant ? 'Lactose intolerant' : 'Not lactose intolerant';
+        return $lactoseIntolerant ? 'Lactose free milk' : 'Full Cream Milk';
+    }
+
+    public function gingerLabel(?bool $withGinger): ?string
+    {
+        if ($withGinger === null) {
+            return null;
+        }
+
+        return $withGinger ? 'With Ginger' : 'Without ginger';
+    }
+
+    public function optionLabel(?bool $lactoseIntolerant = null, ?bool $withGinger = null): ?string
+    {
+        return $this->lactoseLabel($lactoseIntolerant) ?? $this->gingerLabel($withGinger);
     }
 
     /**

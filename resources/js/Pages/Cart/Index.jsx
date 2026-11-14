@@ -36,6 +36,9 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
     const minimumOrderQuantity = cart?.minimum_order_quantity ?? 10;
     const meetsMinimumOrder = cart?.meets_minimum_order ?? false;
     const remainingForMinimum = cart?.remaining_for_minimum_order ?? minimumOrderQuantity;
+    const drinkOnly = cart?.is_drink_only
+        ?? (items.length > 0 && items.every((item) => item.product?.is_drink));
+    const minimumUnit = drinkOnly ? (minimumOrderQuantity === 1 ? 'item' : 'items') : 'shots';
 
     const markSynced = (epoch) => {
         if (epoch === syncEpochRef.current) {
@@ -73,7 +76,12 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
         <ShopLayout>
             <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
                 <h1 className="font-display text-4xl font-extrabold tracking-tight text-ink">Your cart</h1>
-                <p className="mt-2 text-ink/65">Guest checkout · preorder · minimum {minimumOrderQuantity} shots</p>
+                <p className="mt-2 text-ink/65">
+                    Guest checkout · preorder
+                    {items.length > 0
+                        ? ` · minimum ${minimumOrderQuantity} ${minimumUnit}`
+                        : ` · minimum ${minimumOrderQuantity} shots`}
+                </p>
 
                 {items.length === 0 ? (
                     <div className="mt-12 rounded-[1.5rem] bg-white p-10 text-center ring-1 ring-black/5">
@@ -117,9 +125,9 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
                                             >
                                                 {item.product.name}
                                             </Link>
-                                            {item.lactose_label && (
+                                            {(item.option_label || item.lactose_label || item.ginger_label) && (
                                                 <p className="mt-1 text-xs font-semibold text-forest">
-                                                    {item.lactose_label}
+                                                    {item.option_label || item.lactose_label || item.ginger_label}
                                                 </p>
                                             )}
                                             <p className="text-sm text-ink/60">{formatMoney(item.product.price)} each</p>
@@ -171,8 +179,8 @@ export default function Index({ items: serverItems, subtotal: serverSubtotal }) 
                                 <p className="font-display text-3xl font-extrabold text-ink">{formatMoney(subtotal)}</p>
                                 {!meetsMinimumOrder && (
                                     <p className="mt-2 max-w-sm text-sm font-semibold text-forest">
-                                        Minimum order is {minimumOrderQuantity} shots. Add {remainingForMinimum} more to
-                                        checkout.
+                                        Minimum order is {minimumOrderQuantity} {minimumUnit}. Add{' '}
+                                        {remainingForMinimum} more to checkout.
                                     </p>
                                 )}
                             </div>

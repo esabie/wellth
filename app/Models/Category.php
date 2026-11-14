@@ -23,6 +23,8 @@ class Category extends Model
     /** @use HasFactory<CategoryFactory> */
     use HasFactory;
 
+    public const DRINKS_SLUG = 'cold-pressed-juices';
+
     /**
      * @return array<string, string>
      */
@@ -32,6 +34,11 @@ class Category extends Model
             'is_active' => 'boolean',
             'sort_order' => 'integer',
         ];
+    }
+
+    public function isDrinksCategory(): bool
+    {
+        return $this->slug === self::DRINKS_SLUG;
     }
 
     public function products(): HasMany

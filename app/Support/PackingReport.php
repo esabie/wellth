@@ -297,9 +297,9 @@ class PackingReport
     private function itemLabel(OrderItem $item): string
     {
         $label = $item->product_name;
-        $lactose = $item->lactoseLabel();
+        $option = $item->optionLabel();
 
-        return $lactose === null ? $label : $label.' ('.$lactose.')';
+        return $option === null ? $label : $label.' ('.$option.')';
     }
 
     private function packNote(OrderItem $item): string

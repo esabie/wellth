@@ -14,7 +14,8 @@ test('faqs page renders the accordion content', function () {
             ->where('faqs.0.question', 'What is Wellth?')
             ->where('faqs.1.question', 'Are your shots 100% natural?')
             ->where('faqs.6.question', 'Is there a minimum purchase limit?')
-            ->where('faqs.6.answer', fn (string $answer): bool => str_contains($answer, '10 shots'))
+            ->where('faqs.6.answer', fn (string $answer): bool => str_contains($answer, 'minimum of 10')
+                && str_contains($answer, 'from 1 bottle'))
         );
 });
 

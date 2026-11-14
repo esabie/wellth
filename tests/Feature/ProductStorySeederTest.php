@@ -62,6 +62,50 @@ test('product seeder keeps cloudy carrot on the shop', function () {
         );
 });
 
+test('product seeder adds tigernut drink to the juices category', function () {
+    $this->seed(CategorySeeder::class);
+    $this->seed(ProductSeeder::class);
+
+    $product = Product::query()->where('slug', 'tigernut-drink')->first();
+
+    expect($product)->not->toBeNull()
+        ->and($product->is_active)->toBeTrue()
+        ->and($product->name)->toBe('Tigernut Drink')
+        ->and($product->bottle_size)->toBe('300ml')
+        ->and($product->price)->toBe('20.00')
+        ->and($product->category->slug)->toBe('cold-pressed-juices')
+        ->and($product->short_description)->toBe('Tigernut, ginger and dates, blended with water.')
+        ->and($product->image_path)->toBe('/images/formulas/tigernut.jpg')
+        ->and($product->storefrontIngredients())->toBe([
+            ['name' => 'Tigernut', 'image' => '/images/ingredients/tigernut.jpg'],
+            ['name' => 'Ginger', 'image' => '/images/ingredients/ginger.jpg'],
+            ['name' => 'Dates', 'image' => '/images/ingredients/dates.jpg'],
+            ['name' => 'Water', 'image' => '/images/ingredients/water.jpg'],
+        ]);
+
+    $this->get(route('shop.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Shop/Index')
+            ->where('products.data', fn ($products) => collect($products)->contains(
+                fn (array $item): bool => $item['name'] === 'Tigernut Drink'
+                    && $item['image'] === '/images/formulas/tigernut.jpg',
+            ))
+        );
+
+    $this->get(route('shop.show', $product))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Formulas/Show')
+            ->where('formula.name', 'Tigernut Drink')
+            ->where('formula.image', '/images/formulas/tigernut.jpg')
+            ->where('formula.ingredients.0.name', 'Tigernut')
+            ->where('formula.ingredients.1.name', 'Ginger')
+            ->where('formula.ingredients.2.name', 'Dates')
+            ->where('formula.ingredients.3.name', 'Water')
+        );
+});
+
 test('seeded formula product detail prefers product story fields', function () {
     $this->seed(CategorySeeder::class);
     $this->seed(ProductSeeder::class);

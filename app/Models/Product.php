@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 #[Fillable([
     'category_id',
@@ -39,6 +40,8 @@ class Product extends Model
     use HasFactory;
 
     public const CLOUDY_CARROT_SLUG = 'cloudy-carrot';
+
+    public const TIGERNUT_SLUG = 'tigernut-drink';
 
     /**
      * @return array<string, string>
@@ -73,6 +76,18 @@ class Product extends Model
         return $this->slug === self::CLOUDY_CARROT_SLUG;
     }
 
+    public function requiresGingerChoice(): bool
+    {
+        return $this->slug === self::TIGERNUT_SLUG;
+    }
+
+    public function isDrink(): bool
+    {
+        $this->loadMissing('category');
+
+        return $this->category?->isDrinksCategory() ?? false;
+    }
+
     public function hasStoryContent(): bool
     {
         return filled($this->taste)
@@ -102,7 +117,8 @@ class Product extends Model
         return collect($this->ingredientList())
             ->map(fn (array $ingredient): array => [
                 'name' => $ingredient['name'],
-                'image' => $this->publicAssetUrl($ingredient['image'] ?? null),
+                'image' => $this->publicAssetUrl($ingredient['image'] ?? null)
+                    ?? $this->bundledIngredientImageUrl($ingredient['name']),
             ])
             ->all();
     }
@@ -225,5 +241,21 @@ class Product extends Model
         }
 
         return '/storage/'.$path;
+    }
+
+    /**
+     * Fall back to bundled public ingredient photos when an admin save clears uploads.
+     */
+    private function bundledIngredientImageUrl(string $name): ?string
+    {
+        $aliases = [
+            'cayenne pepper' => 'cayenne',
+        ];
+
+        $key = Str::lower(trim($name));
+        $slug = $aliases[$key] ?? Str::slug($name);
+        $path = '/images/ingredients/'.$slug.'.jpg';
+
+        return is_file(public_path($path)) ? $path : null;
     }
 }

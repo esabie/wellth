@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { productRequiresGingerChoice, useGingerChoice } from '../../Components/GingerChoiceModal';
 import { productRequiresLactoseChoice, useLactoseChoice } from '../../Components/LactoseChoiceModal';
 import ProductTags, { isComingSoon } from '../../Components/ProductTags';
 import ShopLayout from '../../Layouts/ShopLayout';
@@ -15,8 +16,9 @@ function formatMoney(value) {
 export default function Show({ formula }) {
     const [adding, setAdding] = useState(false);
     const needsLactose = productRequiresLactoseChoice(formula.slug);
+    const needsGinger = productRequiresGingerChoice(formula.slug);
 
-    const postToCart = (lactoseIntolerant) => {
+    const postToCart = ({ lactoseIntolerant, withGinger } = {}) => {
         if (!formula.product_id || isComingSoon(formula.tags)) {
             return;
         }
@@ -30,6 +32,7 @@ export default function Show({ formula }) {
                 ...(lactoseIntolerant === null || lactoseIntolerant === undefined
                     ? {}
                     : { lactose_intolerant: lactoseIntolerant }),
+                ...(withGinger === null || withGinger === undefined ? {} : { with_ginger: withGinger }),
             },
             {
                 ...cartMutationOptions,
@@ -38,13 +41,23 @@ export default function Show({ formula }) {
         );
     };
 
-    const { requestChoice, modal: lactoseModal } = useLactoseChoice((lactoseIntolerant) => {
-        postToCart(lactoseIntolerant);
+    const { requestChoice: requestLactoseChoice, modal: lactoseModal } = useLactoseChoice((lactoseIntolerant) => {
+        postToCart({ lactoseIntolerant });
+    });
+
+    const { requestChoice: requestGingerChoice, modal: gingerModal } = useGingerChoice((withGinger) => {
+        postToCart({ withGinger });
     });
 
     const requestAdd = () => {
         if (needsLactose) {
-            requestChoice();
+            requestLactoseChoice();
+
+            return;
+        }
+
+        if (needsGinger) {
+            requestGingerChoice();
 
             return;
         }
@@ -231,6 +244,7 @@ export default function Show({ formula }) {
                 </div>
             </div>
             {lactoseModal}
+            {gingerModal}
         </ShopLayout>
     );
 }

@@ -105,12 +105,45 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 50,
                 'image_path' => '/images/formulas/cloudy-carrot.jpg',
                 'is_active' => true,
-                'sort_order' => $sort,
+                'sort_order' => $sort++,
             ],
         );
 
+        $tigernut = Product::query()->firstOrNew(['slug' => 'tigernut-drink']);
+
+        $tigernut->fill([
+            'category_id' => $juices->id,
+            'name' => 'Tigernut Drink',
+            'sku' => 'WL-TIGERNUT',
+            'short_description' => 'Tigernut, ginger and dates, blended with water.',
+            'description' => 'Earthy tigernut blended with ginger warmth and natural date sweetness, finished with water. A smooth 300ml drink for the everyday ritual.',
+            'bottle_size' => '300ml',
+            'pack_units' => 1,
+            'taste' => 'Nutty tigernut with soft date sweetness and a ginger edge.',
+            'ritual' => 'Best chilled, with breakfast or as an afternoon sip.',
+            'highlights' => [
+                'Tigernut, ginger, dates and water',
+                'Naturally sweet and earthy',
+                'Blended and bottled fresh',
+            ],
+            'ingredients' => [
+                ['name' => 'Tigernut', 'image' => '/images/ingredients/tigernut.jpg'],
+                ['name' => 'Ginger', 'image' => '/images/ingredients/ginger.jpg'],
+                ['name' => 'Dates', 'image' => '/images/ingredients/dates.jpg'],
+                ['name' => 'Water', 'image' => '/images/ingredients/water.jpg'],
+            ],
+            'price' => 20.00,
+            'compare_at_price' => null,
+            'stock_quantity' => $tigernut->exists ? $tigernut->stock_quantity : 50,
+            'image_path' => '/images/formulas/tigernut.jpg',
+            'is_active' => true,
+            'sort_order' => $sort,
+        ]);
+
+        $tigernut->save();
+
         Product::query()
-            ->whereNotIn('slug', $formulaSlugs->push('weekly-shot-pack', 'cloudy-carrot')->all())
+            ->whereNotIn('slug', $formulaSlugs->push('weekly-shot-pack', 'cloudy-carrot', 'tigernut-drink', 'abc')->all())
             ->update(['is_active' => false]);
     }
 }

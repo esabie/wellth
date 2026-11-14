@@ -27,12 +27,52 @@ function lineKey(item) {
     return item?.key ?? String(item?.product?.id ?? '');
 }
 
-function lactosePayload(item) {
-    if (item?.lactose_intolerant === null || item?.lactose_intolerant === undefined) {
-        return {};
+function optionPayload(item) {
+    const payload = {};
+
+    if (item?.lactose_intolerant !== null && item?.lactose_intolerant !== undefined) {
+        payload.lactose_intolerant = item.lactose_intolerant;
     }
 
-    return { lactose_intolerant: item.lactose_intolerant };
+    if (item?.with_ginger !== null && item?.with_ginger !== undefined) {
+        payload.with_ginger = item.with_ginger;
+    }
+
+    return payload;
+}
+
+function isDrink(item) {
+    return Boolean(item?.product?.is_drink);
+}
+
+function unitCount(items) {
+    return items.reduce((sum, item) => sum + item.quantity * packUnitsFor(item), 0);
+}
+
+function shotUnitCount(items) {
+    return items.reduce((sum, item) => {
+        if (isDrink(item)) {
+            return sum;
+        }
+
+        return sum + item.quantity * packUnitsFor(item);
+    }, 0);
+}
+
+function isDrinkOnlyCart(items) {
+    return items.length > 0 && items.every(isDrink);
+}
+
+function minimumState(items, shopMinimum) {
+    const drinkOnly = isDrinkOnlyCart(items);
+    const minimumOrderQuantity = drinkOnly ? 1 : shopMinimum;
+    const countTowardMinimum = drinkOnly ? unitCount(items) : shotUnitCount(items);
+
+    return {
+        minimum_order_quantity: minimumOrderQuantity,
+        meets_minimum_order: countTowardMinimum >= minimumOrderQuantity,
+        remaining_for_minimum_order: Math.max(0, minimumOrderQuantity - countTowardMinimum),
+    };
 }
 
 /**
@@ -40,7 +80,7 @@ function lactosePayload(item) {
  */
 export function cartWithQuantity(cart, key, quantity) {
     const current = cart ?? {};
-    const minimumOrderQuantity = current.minimum_order_quantity ?? 10;
+    const shopMinimum = current.minimum_order_quantity_shop ?? current.minimum_order_quantity ?? 10;
     const nextQuantity = Math.max(0, Number(quantity) || 0);
 
     const items = (current.items ?? [])
@@ -61,7 +101,7 @@ export function cartWithQuantity(cart, key, quantity) {
         })
         .filter(Boolean);
 
-    const count = items.reduce((sum, item) => sum + item.quantity * packUnitsFor(item), 0);
+    const count = unitCount(items);
     const subtotal = money(
         items.reduce((sum, item) => sum + Number(item.line_total), 0),
     );
@@ -71,8 +111,9 @@ export function cartWithQuantity(cart, key, quantity) {
         items,
         count,
         subtotal,
-        meets_minimum_order: count >= minimumOrderQuantity,
-        remaining_for_minimum_order: Math.max(0, minimumOrderQuantity - count),
+        minimum_order_quantity_shop: shopMinimum,
+        is_drink_only: isDrinkOnlyCart(items),
+        ...minimumState(items, shopMinimum),
     };
 }
 
@@ -90,13 +131,18 @@ export function cartPageWithQuantity(props, key, quantity) {
 }
 
 export function emptyCartSummary(cart) {
+    const shopMinimum = cart?.minimum_order_quantity_shop ?? cart?.minimum_order_quantity ?? 10;
+
     return {
         ...cart,
         items: [],
         count: 0,
         subtotal: '0.00',
+        minimum_order_quantity_shop: shopMinimum,
+        minimum_order_quantity: shopMinimum,
         meets_minimum_order: false,
-        remaining_for_minimum_order: cart?.minimum_order_quantity ?? 10,
+        remaining_for_minimum_order: shopMinimum,
+        is_drink_only: false,
     };
 }
 
@@ -123,7 +169,7 @@ export function syncCartQuantity(router, item, quantity, options = cartMutationO
                     ? cartPageWithQuantity(props, key, quantity)
                     : { cart: cartWithQuantity(props.cart, key, quantity) },
             )
-            .patch(`/cart/${item.product.slug}`, { quantity, ...lactosePayload(item) }, options);
+            .patch(`/cart/${item.product.slug}`, { quantity, ...optionPayload(item) }, options);
     }, 180);
 
     quantitySyncTimers.set(key, timer);
@@ -146,6 +192,6 @@ export function syncCartRemove(router, item, options = cartMutationOptions) {
         )
         .delete(`/cart/${item.product.slug}`, {
             ...options,
-            data: lactosePayload(item),
+            data: optionPayload(item),
         });
 }

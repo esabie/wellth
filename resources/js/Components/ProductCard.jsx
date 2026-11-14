@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { productRequiresGingerChoice, useGingerChoice } from './GingerChoiceModal';
 import { productRequiresLactoseChoice, useLactoseChoice } from './LactoseChoiceModal';
 import ProductTags, { isComingSoon } from './ProductTags';
 import { cartMutationOptions } from '../lib/cartVisit';
@@ -16,8 +17,9 @@ export default function ProductCard({ product }) {
 
     const comingSoon = isComingSoon(product.tags);
     const needsLactose = productRequiresLactoseChoice(product.slug);
+    const needsGinger = productRequiresGingerChoice(product.slug);
 
-    const postToCart = (lactoseIntolerant) => {
+    const postToCart = ({ lactoseIntolerant, withGinger } = {}) => {
         if (!product.id || adding || comingSoon) {
             return;
         }
@@ -31,6 +33,7 @@ export default function ProductCard({ product }) {
                 ...(lactoseIntolerant === null || lactoseIntolerant === undefined
                     ? {}
                     : { lactose_intolerant: lactoseIntolerant }),
+                ...(withGinger === null || withGinger === undefined ? {} : { with_ginger: withGinger }),
             },
             {
                 ...cartMutationOptions,
@@ -39,8 +42,12 @@ export default function ProductCard({ product }) {
         );
     };
 
-    const { requestChoice, modal: lactoseModal } = useLactoseChoice((lactoseIntolerant) => {
-        postToCart(lactoseIntolerant);
+    const { requestChoice: requestLactoseChoice, modal: lactoseModal } = useLactoseChoice((lactoseIntolerant) => {
+        postToCart({ lactoseIntolerant });
+    });
+
+    const { requestChoice: requestGingerChoice, modal: gingerModal } = useGingerChoice((withGinger) => {
+        postToCart({ withGinger });
     });
 
     const addToCart = (event) => {
@@ -51,7 +58,13 @@ export default function ProductCard({ product }) {
         }
 
         if (needsLactose) {
-            requestChoice();
+            requestLactoseChoice();
+
+            return;
+        }
+
+        if (needsGinger) {
+            requestGingerChoice();
 
             return;
         }
@@ -125,6 +138,7 @@ export default function ProductCard({ product }) {
                 </button>
             </div>
             {lactoseModal}
+            {gingerModal}
         </article>
     );
 }

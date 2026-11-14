@@ -50,4 +50,25 @@ class ProductFactory extends Factory
             'is_active' => false,
         ]);
     }
+
+    public function drink(): static
+    {
+        return $this->state(function (array $attributes): array {
+            $category = Category::query()->firstOrCreate(
+                ['slug' => Category::DRINKS_SLUG],
+                [
+                    'name' => 'Juices',
+                    'description' => 'Cold-pressed juices',
+                    'image_path' => null,
+                    'is_active' => true,
+                    'sort_order' => 0,
+                ],
+            );
+
+            return [
+                'category_id' => $category->id,
+                'pack_units' => 1,
+            ];
+        });
+    }
 }

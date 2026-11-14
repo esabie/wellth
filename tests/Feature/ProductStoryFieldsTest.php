@@ -45,6 +45,8 @@ test('products with story fields render the rich detail page without a catalog m
             ->has('formula.ingredients', 2)
             ->where('formula.ingredients.0.name', 'Pineapple')
             ->where('formula.ingredients.0.image', '/images/ingredients/pineapple.jpg')
+            ->where('formula.ingredients.1.name', 'Mint')
+            ->where('formula.ingredients.1.image', '/images/ingredients/mint.jpg')
             ->where('formula.product_id', $product->id)
         );
 });

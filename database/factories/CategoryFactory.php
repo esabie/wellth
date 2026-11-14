@@ -36,4 +36,12 @@ class CategoryFactory extends Factory
             'is_active' => false,
         ]);
     }
+
+    public function drinks(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'name' => 'Juices',
+            'slug' => Category::DRINKS_SLUG,
+        ]);
+    }
 }

@@ -71,6 +71,9 @@ export default function CartDrawer({ open, onClose }) {
     const minimumOrderQuantity = cart?.minimum_order_quantity ?? 10;
     const meetsMinimumOrder = cart?.meets_minimum_order ?? false;
     const remainingForMinimum = cart?.remaining_for_minimum_order ?? minimumOrderQuantity;
+    const drinkOnly = cart?.is_drink_only
+        ?? (items.length > 0 && items.every((item) => item.product?.is_drink));
+    const minimumUnit = drinkOnly ? (minimumOrderQuantity === 1 ? 'item' : 'items') : 'shots';
 
     const markSynced = (epoch) => {
         if (epoch === syncEpochRef.current) {
@@ -217,9 +220,9 @@ export default function CartDrawer({ open, onClose }) {
                                                     >
                                                         {item.product.name}
                                                     </Link>
-                                                    {item.lactose_label && (
+                                                    {(item.option_label || item.lactose_label || item.ginger_label) && (
                                                         <p className="mt-1 text-xs font-semibold text-forest">
-                                                            {item.lactose_label}
+                                                            {item.option_label || item.lactose_label || item.ginger_label}
                                                         </p>
                                                     )}
                                                     {item.product.short_description && (
@@ -295,8 +298,8 @@ export default function CartDrawer({ open, onClose }) {
                             <p className="mt-2 text-xs text-ink/45">Shipping shared at dispatch · preorder, made fresh.</p>
                             {!meetsMinimumOrder && (
                                 <p className="mt-3 rounded-xl bg-[#f7f4ef] px-3 py-2.5 text-xs leading-relaxed font-semibold text-forest">
-                                    Minimum order is {minimumOrderQuantity} shots. Add {remainingForMinimum} more to
-                                    checkout.
+                                    Minimum order is {minimumOrderQuantity} {minimumUnit}. Add {remainingForMinimum}{' '}
+                                    more to checkout.
                                 </p>
                             )}
 

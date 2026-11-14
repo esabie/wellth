@@ -27,6 +27,7 @@ class StoreCartItemRequest extends FormRequest
             ],
             'quantity' => ['sometimes', 'integer', 'min:1', 'max:48'],
             'lactose_intolerant' => ['sometimes', 'nullable', 'boolean'],
+            'with_ginger' => ['sometimes', 'nullable', 'boolean'],
         ];
     }
 
@@ -39,14 +40,23 @@ class StoreCartItemRequest extends FormRequest
 
             $product = Product::query()->find($this->integer('product_id'));
 
-            if ($product === null || ! $product->requiresLactoseChoice()) {
+            if ($product === null) {
                 return;
             }
 
-            if (! $this->exists('lactose_intolerant') || $this->input('lactose_intolerant') === null) {
+            if ($product->requiresLactoseChoice()
+                && (! $this->exists('lactose_intolerant') || $this->input('lactose_intolerant') === null)) {
                 $validator->errors()->add(
                     'lactose_intolerant',
-                    'Please choose whether you are lactose intolerant before adding Cloudy Carrot.',
+                    'Please choose a milk option before adding Cloudy Carrot.',
+                );
+            }
+
+            if ($product->requiresGingerChoice()
+                && (! $this->exists('with_ginger') || $this->input('with_ginger') === null)) {
+                $validator->errors()->add(
+                    'with_ginger',
+                    'Please choose a ginger option before adding Tigernut Drink.',
                 );
             }
         });
@@ -58,7 +68,8 @@ class StoreCartItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'lactose_intolerant.boolean' => 'Please choose whether you are lactose intolerant before adding Cloudy Carrot.',
+            'lactose_intolerant.boolean' => 'Please choose a milk option before adding Cloudy Carrot.',
+            'with_ginger.boolean' => 'Please choose a ginger option before adding Tigernut Drink.',
         ];
     }
 }

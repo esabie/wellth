@@ -40,10 +40,7 @@ class CheckoutController extends Controller
         if (! $cart->meetsMinimumOrder()) {
             return redirect()
                 ->route('cart.index')
-                ->with(
-                    'error',
-                    "Minimum order is {$cart->minimumOrderQuantity()} shots. Add {$cart->remainingForMinimumOrder()} more to continue to checkout.",
-                );
+                ->with('error', $cart->minimumOrderErrorMessage());
         }
 
         $summary = $cart->summary();
@@ -156,10 +153,7 @@ class CheckoutController extends Controller
         if (! $cart->meetsMinimumOrder()) {
             return redirect()
                 ->route('cart.index')
-                ->with(
-                    'error',
-                    "Minimum order is {$cart->minimumOrderQuantity()} shots. Add {$cart->remainingForMinimumOrder()} more to continue to checkout.",
-                );
+                ->with('error', $cart->minimumOrderErrorMessage());
         }
 
         try {

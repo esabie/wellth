@@ -1,5 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import { productRequiresGingerChoice, useGingerChoice } from '../../Components/GingerChoiceModal';
 import { productRequiresLactoseChoice, useLactoseChoice } from '../../Components/LactoseChoiceModal';
 import PreorderNotice from '../../Components/PreorderNotice';
 import ProductTags, { isComingSoon } from '../../Components/ProductTags';
@@ -19,8 +20,9 @@ export default function Show({ product, relatedProducts }) {
     const [adding, setAdding] = useState(false);
     const { flash } = usePage().props;
     const needsLactose = productRequiresLactoseChoice(product.slug);
+    const needsGinger = productRequiresGingerChoice(product.slug);
 
-    const postToCart = (lactoseIntolerant) => {
+    const postToCart = ({ lactoseIntolerant, withGinger } = {}) => {
         setAdding(true);
         router.post(
             '/cart',
@@ -30,6 +32,7 @@ export default function Show({ product, relatedProducts }) {
                 ...(lactoseIntolerant === null || lactoseIntolerant === undefined
                     ? {}
                     : { lactose_intolerant: lactoseIntolerant }),
+                ...(withGinger === null || withGinger === undefined ? {} : { with_ginger: withGinger }),
             },
             {
                 ...cartMutationOptions,
@@ -38,13 +41,23 @@ export default function Show({ product, relatedProducts }) {
         );
     };
 
-    const { requestChoice, modal: lactoseModal } = useLactoseChoice((lactoseIntolerant) => {
-        postToCart(lactoseIntolerant);
+    const { requestChoice: requestLactoseChoice, modal: lactoseModal } = useLactoseChoice((lactoseIntolerant) => {
+        postToCart({ lactoseIntolerant });
+    });
+
+    const { requestChoice: requestGingerChoice, modal: gingerModal } = useGingerChoice((withGinger) => {
+        postToCart({ withGinger });
     });
 
     const requestAdd = () => {
         if (needsLactose) {
-            requestChoice();
+            requestLactoseChoice();
+
+            return;
+        }
+
+        if (needsGinger) {
+            requestGingerChoice();
 
             return;
         }
@@ -156,6 +169,7 @@ export default function Show({ product, relatedProducts }) {
             </section>
 
             {lactoseModal}
+            {gingerModal}
 
             {relatedProducts.length > 0 && (
                 <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">

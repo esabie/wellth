@@ -46,7 +46,6 @@ class CreateCheckoutOrder
 
         if (! $cart->meetsMinimumOrder()) {
             $minimum = $cart->minimumOrderQuantity();
-            $remaining = $cart->remainingForMinimumOrder();
 
             Log::warning('checkout.order_rejected', [
                 'reason' => 'below_minimum',
@@ -54,9 +53,7 @@ class CreateCheckoutOrder
                 'minimum' => $minimum,
             ]);
 
-            throw new InvalidArgumentException(
-                "Minimum order is {$minimum} shots. Add {$remaining} more to continue to checkout.",
-            );
+            throw new InvalidArgumentException($cart->minimumOrderErrorMessage());
         }
 
         $promos = app(PromoCodes::class);
@@ -112,7 +109,13 @@ class CreateCheckoutOrder
             foreach ($items as $item) {
                 if ($item['product']->requiresLactoseChoice() && $item['lactose_intolerant'] === null) {
                     throw new InvalidArgumentException(
-                        'Please choose whether you are lactose intolerant for Cloudy Carrot before checkout.',
+                        'Please choose a milk option for Cloudy Carrot before checkout.',
+                    );
+                }
+
+                if ($item['product']->requiresGingerChoice() && $item['with_ginger'] === null) {
+                    throw new InvalidArgumentException(
+                        'Please choose a ginger option for Tigernut Drink before checkout.',
                     );
                 }
 
@@ -124,6 +127,7 @@ class CreateCheckoutOrder
                     'unit_price' => $item['product']->price,
                     'quantity' => $item['quantity'],
                     'lactose_intolerant' => $item['lactose_intolerant'],
+                    'with_ginger' => $item['with_ginger'],
                     'line_total' => $item['line_total'],
                 ]);
             }

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+
+        :root {
+            --forest: #1f3d2a;
+            --punch: #e85d2a;
+            --ink: #1a1a1a;
+            --mist: #f7f4ef;
+            --paper: #f3efe6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #222;
+            font-family: "DM Sans", sans-serif;
+            color: var(--ink);
+            padding: 40px 24px 80px;
+        }
+
+        .rail {
+            max-width: 1120px;
+            margin: 0 auto 28px;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .board {
+            width: 1080px;
+            height: 1080px;
+            margin: 0 auto 48px;
+            position: relative;
+            overflow: hidden;
+            background: var(--mist);
+        }
+
+        .logo { height: 88px; width: auto; display: block; }
+        .logo-sm { height: 72px; }
+
+        .word {
+            font-family: Outfit, sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.045em;
+            line-height: 0.9;
+        }
+
+        .eyebrow {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+        }
+
+        .body {
+            font-size: 27px;
+            line-height: 1.35;
+            font-weight: 500;
+        }
+
+        .cta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            width: 100%;
+        }
+
+        .cta-row .meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .cta-row .url {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .cta-row .handle {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            opacity: 0.72;
+        }
+
+        .cta {
+            flex-shrink: 0;
+            background: var(--ink);
+            color: #fff;
+            font-family: Outfit, sans-serif;
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: 0.03em;
+            padding: 20px 32px;
+        }
+
+        .cta.light {
+            background: #f7f4ef;
+            color: var(--ink);
+        }
+
+        .cta.punch {
+            background: var(--punch);
+            color: #fff;
+        }
+
+        .cta-row.on-dark .url,
+        .cta-row.on-dark .handle { color: rgba(247, 244, 239, 0.78); }
+        .cta-row.on-light .url { color: rgba(31, 61, 42, 0.62); }
+        .cta-row.on-light .handle { color: rgba(31, 61, 42, 0.5); }
+
+        .offer-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--punch);
+            color: #fff;
+            font-family: Outfit, sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            padding: 16px 20px;
+        }
+
+        .offer-mark strong {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .offer-mark span {
+            margin-left: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        /* 1 · Date drop */
+        #bf-date {
+            display: grid;
+            grid-template-columns: 1fr 1.05fr;
+            background: var(--ink);
+        }
+
+        #bf-date .panel {
+            padding: 56px 48px 52px 56px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 28px;
+            background: var(--ink);
+            color: #f7f4ef;
+            position: relative;
+            z-index: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #bf-date .eyebrow {
+            color: rgba(247, 244, 239, 0.55);
+            margin-bottom: 16px;
+        }
+
+        #bf-date .offer-mark {
+            margin: 0 0 18px;
+        }
+
+        #bf-date .word {
+            font-size: 72px;
+            color: #f7f4ef;
+            max-width: 7ch;
+        }
+
+        #bf-date .date-mark {
+            margin-top: 18px;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 12px;
+            border-top: 2px solid rgba(247, 244, 239, 0.18);
+            padding-top: 16px;
+        }
+
+        #bf-date .date-mark strong {
+            font-family: Outfit, sans-serif;
+            font-size: 52px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--punch);
+            line-height: 1;
+        }
+
+        #bf-date .date-mark span {
+            font-size: 20px;
+            font-weight: 600;
+            color: rgba(247, 244, 239, 0.7);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        #bf-date .body {
+            margin-top: 18px;
+            color: rgba(247, 244, 239, 0.68);
+            max-width: 14ch;
+            font-size: 23px;
+        }
+
+        #bf-date .cta {
+            font-size: 20px;
+            padding: 18px 26px;
+        }
+
+        #bf-date .cta-row .url { font-size: 20px; }
+        #bf-date .cta-row .handle { font-size: 16px; }
+
+        #bf-date .media { position: relative; overflow: hidden; }
+        #bf-date .media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 58% center;
+            display: block;
+        }
+
+        /* 2 · Bouquet */
+        #bf-bouquet {
+            background: var(--forest);
+            display: grid;
+            grid-template-rows: minmax(0, 1fr) 340px;
+        }
+
+        #bf-bouquet .media {
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+            margin: 36px 36px 0;
+            background: #163022;
+        }
+
+        #bf-bouquet .media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 32%;
+            display: block;
+        }
+
+        #bf-bouquet .badge {
+            position: absolute;
+            top: 28px;
+            left: 28px;
+            background: var(--ink);
+            color: #fff;
+            font-family: Outfit, sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 12px 16px;
+        }
+
+        #bf-bouquet .offer-mark {
+            position: absolute;
+            top: 28px;
+            right: 28px;
+            padding: 18px 22px;
+        }
+
+        #bf-bouquet .offer-mark strong {
+            font-size: 48px;
+        }
+
+        #bf-bouquet .offer-mark span {
+            font-size: 24px;
+        }
+
+        #bf-bouquet .footer {
+            padding: 40px 56px 48px;
+            color: #f7f4ef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 28px;
+        }
+
+        #bf-bouquet .eyebrow {
+            color: rgba(247, 244, 239, 0.55);
+            margin-bottom: 12px;
+        }
+
+        #bf-bouquet .word {
+            font-size: 64px;
+            max-width: 11ch;
+        }
+
+        #bf-bouquet .body {
+            margin-top: 14px;
+            color: rgba(247, 244, 239, 0.72);
+            max-width: 24ch;
+            font-size: 25px;
+        }
+
+        #bf-bouquet .offer-inline {
+            color: var(--punch);
+            font-weight: 700;
+        }
+
+        /* 3 · Lineup */
+        #bf-lineup {
+            background: var(--paper);
+            display: grid;
+            grid-template-rows: minmax(0, 1fr) 390px;
+        }
+
+        #bf-lineup .mosaic {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr 1fr;
+            grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 12px;
+            padding: 24px 24px 0;
+            min-height: 0;
+        }
+
+        #bf-lineup .cell {
+            overflow: hidden;
+            background: #ddd;
+            position: relative;
+        }
+
+        #bf-lineup .cell:first-child {
+            grid-row: 1 / span 2;
+        }
+
+        #bf-lineup .cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        #bf-lineup .footer {
+            padding: 28px 52px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+            background: var(--paper);
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #bf-lineup .top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        #bf-lineup .logo {
+            height: 64px;
+            margin-bottom: 14px;
+        }
+
+        #bf-lineup .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        #bf-lineup .bf-tag {
+            display: inline-block;
+            background: var(--ink);
+            color: #fff;
+            font-family: Outfit, sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 12px 16px;
+        }
+
+        #bf-lineup .offer-mark {
+            padding: 12px 14px;
+        }
+
+        #bf-lineup .offer-mark strong {
+            font-size: 28px;
+        }
+
+        #bf-lineup .offer-mark span {
+            margin-left: 8px;
+            font-size: 16px;
+        }
+
+        #bf-lineup .word {
+            font-size: 46px;
+            color: var(--forest);
+            max-width: 12ch;
+        }
+
+        #bf-lineup .date-chip {
+            flex-shrink: 0;
+            border: 2px solid var(--forest);
+            color: var(--forest);
+            font-family: Outfit, sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 14px 16px;
+            text-align: center;
+            line-height: 1.15;
+        }
+
+        #bf-lineup .date-chip small {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+    
+html, body { margin:0; padding:0; background:#111; overflow:hidden; width:1080px; height:1080px; }
+.board { margin:0 !important; }
+</style>
+</head><body>
+<section class="board" id="bf-date" data-name="bf-01-date-drop">
+        <div class="panel">
+            <div>
+                <img class="logo logo-sm" src="/public/images/logo-dark.png" alt="Wellth">
+                <p class="eyebrow" style="margin-top: 28px;">One day only</p>
+                <p class="offer-mark"><strong>10%</strong><span>off</span></p>
+                <p class="word">Black Friday</p>
+                <div class="date-mark">
+                    <strong>27</strong>
+                    <span>November</span>
+                </div>
+                <p class="body">Cold-pressed wellness shots. Made fresh in Ghana.</p>
+            </div>
+            <div class="cta-row on-dark">
+                <div class="meta">
+                    <p class="url">wellthgh.com</p>
+                    <p class="handle">@wellth.gh</p>
+                </div>
+                <div class="cta punch">Shop now</div>
+            </div>
+        </div>
+        <div class="media">
+            <img src="/public/images/formulas/ginger.jpg" alt="">
+        </div>
+    </section>
+</body></html>

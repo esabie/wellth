@@ -98,18 +98,17 @@ export default function LactoseChoiceModal({ open, onCancel, onContinue }) {
             >
                 <p className="text-[11px] font-bold tracking-[0.16em] text-forest/55 uppercase">Cloudy Carrot</p>
                 <h2 id={titleId} className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">
-                    Lactose preference
+                    Choose your milk
                 </h2>
                 <p id={descriptionId} className="mt-3 text-sm leading-relaxed text-ink/70">
-                    Cloudy Carrot is a milky drink. Please indicate if you prefer lactose free milk so we prepare your
-                    bottles the right way.
+                    Cloudy Carrot is a milky drink. Pick the milk we should use so we prepare your bottles the right way.
                 </p>
 
                 <fieldset className="mt-5 space-y-2">
-                    <legend className="sr-only">Are you lactose intolerant?</legend>
+                    <legend className="sr-only">Which milk do you prefer?</legend>
                     {[
-                        { value: true, label: 'Yes, I am lactose intolerant' },
-                        { value: false, label: 'No, I am not lactose intolerant' },
+                        { value: false, label: 'Full Cream Milk' },
+                        { value: true, label: 'Lactose free milk' },
                     ].map((option) => {
                         const selected = choice === option.value;
 

@@ -51,8 +51,8 @@ test('cloudy carrot can be added with a lactose choice and keeps separate cart l
     expect($summary['count'])->toBe(5)
         ->and($summary['items'])->toHaveCount(2)
         ->and(collect($summary['items'])->pluck('lactose_label')->sort()->values()->all())->toBe([
-            'Lactose intolerant',
-            'Not lactose intolerant',
+            'Full Cream Milk',
+            'Lactose free milk',
         ]);
 });
 
@@ -90,5 +90,5 @@ test('checkout stores the lactose preference on the order item', function () {
 
     expect($carrotLine)->not->toBeNull()
         ->and($carrotLine->lactose_intolerant)->toBeTrue()
-        ->and($carrotLine->lactoseLabel())->toBe('Lactose intolerant');
+        ->and($carrotLine->lactoseLabel())->toBe('Lactose free milk');
 });

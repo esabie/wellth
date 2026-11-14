@@ -21,11 +21,19 @@ class ItemsRelationManager extends RelationManager
                     ->label('Product')
                     ->searchable(),
                 TextColumn::make('lactose_intolerant')
-                    ->label('Lactose')
+                    ->label('Milk')
                     ->placeholder('—')
                     ->formatStateUsing(fn (?bool $state): ?string => match ($state) {
-                        true => 'Intolerant',
-                        false => 'Not intolerant',
+                        true => 'Lactose free milk',
+                        false => 'Full Cream Milk',
+                        default => null,
+                    }),
+                TextColumn::make('with_ginger')
+                    ->label('Ginger')
+                    ->placeholder('—')
+                    ->formatStateUsing(fn (?bool $state): ?string => match ($state) {
+                        true => 'With Ginger',
+                        false => 'Without ginger',
                         default => null,
                     }),
                 TextColumn::make('product_sku')

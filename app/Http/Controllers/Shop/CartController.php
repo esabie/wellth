@@ -30,6 +30,9 @@ class CartController extends Controller
             'line_total' => $item['line_total'],
             'lactose_intolerant' => $item['lactose_intolerant'],
             'lactose_label' => $item['lactose_label'],
+            'with_ginger' => $item['with_ginger'],
+            'ginger_label' => $item['ginger_label'],
+            'option_label' => $item['option_label'],
         ]);
 
         return Inertia::render('Cart/Index', [
@@ -53,10 +56,13 @@ class CartController extends Controller
         $lactoseIntolerant = $product->requiresLactoseChoice()
             ? $request->boolean('lactose_intolerant')
             : null;
+        $withGinger = $product->requiresGingerChoice()
+            ? $request->boolean('with_ginger')
+            : null;
 
-        $cart->add($product, $quantity, $lactoseIntolerant);
+        $cart->add($product, $quantity, $lactoseIntolerant, $withGinger);
 
-        $preference = $cart->lactoseLabel($lactoseIntolerant);
+        $preference = $cart->optionLabel($lactoseIntolerant, $withGinger);
         $note = $preference
             ? "Visitor added {$quantity} × {$product->name} ({$preference}) to the cart."
             : "Visitor added {$quantity} × {$product->name} to the cart.";
@@ -75,14 +81,23 @@ class CartController extends Controller
         $lactoseIntolerant = $product->requiresLactoseChoice()
             ? ($request->exists('lactose_intolerant') ? $request->boolean('lactose_intolerant') : null)
             : null;
+        $withGinger = $product->requiresGingerChoice()
+            ? ($request->exists('with_ginger') ? $request->boolean('with_ginger') : null)
+            : null;
 
         if ($product->requiresLactoseChoice() && $lactoseIntolerant === null) {
             return back()->withErrors([
-                'lactose_intolerant' => 'Please choose whether you are lactose intolerant for Cloudy Carrot.',
+                'lactose_intolerant' => 'Please choose a milk option for Cloudy Carrot.',
             ]);
         }
 
-        $key = $cart->lineKey($product->id, $lactoseIntolerant);
+        if ($product->requiresGingerChoice() && $withGinger === null) {
+            return back()->withErrors([
+                'with_ginger' => 'Please choose a ginger option for Tigernut Drink.',
+            ]);
+        }
+
+        $key = $cart->lineKey($product->id, $lactoseIntolerant, $withGinger);
         $currentQuantity = (int) ($cart->items()[$key]['quantity'] ?? 0);
 
         if ($product->isComingSoon() && $quantity > $currentQuantity) {
@@ -91,7 +106,7 @@ class CartController extends Controller
             ]);
         }
 
-        $cart->update($product, $quantity, $lactoseIntolerant);
+        $cart->update($product, $quantity, $lactoseIntolerant, $withGinger);
 
         return redirect()->back();
     }
@@ -101,8 +116,11 @@ class CartController extends Controller
         $lactoseIntolerant = $product->requiresLactoseChoice()
             ? ($request->exists('lactose_intolerant') ? $request->boolean('lactose_intolerant') : null)
             : null;
+        $withGinger = $product->requiresGingerChoice()
+            ? ($request->exists('with_ginger') ? $request->boolean('with_ginger') : null)
+            : null;
 
-        $cart->remove($product, $lactoseIntolerant);
+        $cart->remove($product, $lactoseIntolerant, $withGinger);
 
         return redirect()->back();
     }

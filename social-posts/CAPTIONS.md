@@ -73,7 +73,7 @@ Shop now → wellthgh.com
 
 Glow Getter.
 
-Turmeric and carrot, for everyday radiance — without the fuss.
+Carrot, turmeric, lemon and clementine — for everyday radiance.
 
 Shop now → wellthgh.com
 
@@ -111,3 +111,39 @@ No shelf stock. Every bottle is made when you buy — here in Ghana.
 Shop now → wellthgh.com
 
 #MadeFresh #WellthGhana
+
+## Black Friday · 27 Nov
+
+### bf-01 · Date drop
+**File:** `bf-01-date-drop.png`
+
+One day only. Black Friday. 10% off.
+
+Cold-pressed wellness shots, made fresh in Ghana. The drop is 27 November.
+
+Shop now → wellthgh.com
+@wellth.gh
+
+#BlackFriday #Wellth #WellnessShots #Ghana
+
+### bf-02 · Bouquet
+**File:** `bf-02-bouquet.png`
+
+The Black Friday box. 10% off.
+
+Twelve bottles. Six formulas. One ready mix for the week.
+
+Shop now → wellthgh.com
+@wellth.gh
+
+#BlackFriday #WellthBouquet #Wellth
+
+### bf-03 · Lineup
+**File:** `bf-03-lineup.png`
+
+Fill the fridge. One day only. 10% off for Black Friday — 27 November.
+
+Shop now → wellthgh.com
+@wellth.gh
+
+#BlackFriday #ShopWellth #Accra

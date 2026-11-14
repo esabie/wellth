@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'unit_price',
     'quantity',
     'lactose_intolerant',
+    'with_ginger',
     'line_total',
 ])]
 class OrderItem extends Model
@@ -33,6 +34,7 @@ class OrderItem extends Model
             'unit_price' => 'decimal:2',
             'quantity' => 'integer',
             'lactose_intolerant' => 'boolean',
+            'with_ginger' => 'boolean',
             'line_total' => 'decimal:2',
         ];
     }
@@ -43,7 +45,21 @@ class OrderItem extends Model
             return null;
         }
 
-        return $this->lactose_intolerant ? 'Lactose intolerant' : 'Not lactose intolerant';
+        return $this->lactose_intolerant ? 'Lactose free milk' : 'Full Cream Milk';
+    }
+
+    public function gingerLabel(): ?string
+    {
+        if ($this->with_ginger === null) {
+            return null;
+        }
+
+        return $this->with_ginger ? 'With Ginger' : 'Without ginger';
+    }
+
+    public function optionLabel(): ?string
+    {
+        return $this->lactoseLabel() ?? $this->gingerLabel();
     }
 
     public function order(): BelongsTo
