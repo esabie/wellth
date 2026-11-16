@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import HeroSlider from '../Components/HeroSlider';
 import ProductTags, { isComingSoon } from '../Components/ProductTags';
 import Reveal from '../Components/Reveal';
@@ -7,13 +7,18 @@ import ShopLayout from '../Layouts/ShopLayout';
 
 export default function Home({ formulas, bouquet }) {
     useScrollHomeToTop();
+    const hasPromoBanner = Boolean(usePage().props.black_friday);
 
     return (
         <ShopLayout overlayHeader>
             <section className="relative isolate min-h-dvh overflow-hidden bg-[#f4efe7] sm:min-h-[92vh]">
                 <HeroSlider />
 
-                <div className="relative mx-auto flex min-h-dvh max-w-6xl items-end px-4 pb-20 pt-24 sm:min-h-[92vh] sm:items-center sm:px-6 sm:pb-20 sm:pt-32 lg:items-center">
+                <div
+                    className={`relative mx-auto flex min-h-dvh max-w-6xl items-end px-4 pb-20 sm:min-h-[92vh] sm:items-center sm:px-6 sm:pb-20 lg:items-center ${
+                        hasPromoBanner ? 'pt-32 sm:pt-40' : 'pt-24 sm:pt-32'
+                    }`}
+                >
                     <div className="hero-copy w-full max-w-lg space-y-5 sm:space-y-6 lg:max-w-xl">
                         <p className="text-[0.7rem] font-bold tracking-[0.28em] text-forest/55 uppercase">
                             Wellth Foods

@@ -18,8 +18,6 @@ function configureBlackFridayCampaign(): void
         'shop.black_friday.timezone' => 'Africa/Accra',
         'shop.black_friday.teaser_starts' => '2026-11-16',
         'shop.black_friday.sale_date' => '2026-11-27',
-        'shop.black_friday.discount_percent' => 10,
-        'shop.black_friday.promo_code' => 'BF10',
     ]);
 }
 
@@ -32,9 +30,7 @@ test('home shares a teaser black friday banner before the sale day', function ()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Home')
             ->where('black_friday.phase', 'teaser')
-            ->where('black_friday.sale_date_label', '27 Nov')
-            ->where('black_friday.discount_percent', 10)
-            ->where('black_friday.promo_code', 'BF10')
+            ->where('black_friday.sale_date_label', '27 November')
             ->where('black_friday.href', '/shop')
         );
 });
@@ -45,9 +41,7 @@ test('black friday campaign returns a live banner on the sale day', function () 
 
     expect(app(BlackFridayCampaign::class)->banner())->toMatchArray([
         'phase' => 'live',
-        'sale_date_label' => '27 Nov',
-        'discount_percent' => 10,
-        'promo_code' => 'BF10',
+        'sale_date_label' => '27 November',
         'href' => '/shop',
     ]);
 });

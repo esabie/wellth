@@ -132,4 +132,20 @@ return [
         'feedback' => 10,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Black Friday banner
+    |--------------------------------------------------------------------------
+    |
+    | Slim site-wide notice for the one-day sale (Africa/Accra calendar days).
+    | Shown from teaser_starts through sale_date, then hidden.
+    |
+    */
+    'black_friday' => [
+        'enabled' => (bool) env('SHOP_BLACK_FRIDAY_ENABLED', true),
+        'timezone' => env('SHOP_BLACK_FRIDAY_TIMEZONE', 'Africa/Accra'),
+        'teaser_starts' => env('SHOP_BLACK_FRIDAY_TEASER_STARTS', '2026-11-16'),
+        'sale_date' => env('SHOP_BLACK_FRIDAY_SALE_DATE', '2026-11-27'),
+    ],
+
 ];

@@ -9,7 +9,7 @@ class BlackFridayCampaign
     /**
      * Shared Inertia payload for the site-wide Black Friday banner.
      *
-     * @return array{phase: string, sale_date_label: string, discount_percent: int, promo_code: string, href: string}|null
+     * @return array{phase: string, sale_date_label: string, href: string}|null
      */
     public function banner(): ?array
     {
@@ -26,13 +26,9 @@ class BlackFridayCampaign
             return null;
         }
 
-        $phase = $today->equalTo($saleDate) ? 'live' : 'teaser';
-
         return [
-            'phase' => $phase,
-            'sale_date_label' => $saleDate->format('j M'),
-            'discount_percent' => (int) config('shop.black_friday.discount_percent'),
-            'promo_code' => (string) config('shop.black_friday.promo_code'),
+            'phase' => $today->equalTo($saleDate) ? 'live' : 'teaser',
+            'sale_date_label' => $saleDate->format('j F'),
             'href' => '/shop',
         ];
     }

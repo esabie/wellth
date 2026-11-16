@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useId, useState } from 'react';
+import BlackFridayBanner from '../Components/BlackFridayBanner';
 import CartDrawer from '../Components/CartDrawer';
 import Logo from '../Components/Logo';
 import Seo from '../Components/Seo';
@@ -64,6 +65,7 @@ export default function ShopLayout({ children, overlayHeader = false }) {
                         : 'relative z-30 border-b border-black/5 bg-mist/95 backdrop-blur-md'
                 }
             >
+                <BlackFridayBanner />
                 <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
                     <Link href="/" aria-label="Wellth" className="shrink-0 rounded-2xl transition hover:opacity-90">
                         <Logo className="h-16 w-auto sm:h-[4.5rem]" />

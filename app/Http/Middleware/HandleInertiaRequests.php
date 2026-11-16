@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\BlackFridayCampaign;
 use App\Support\Cart;
 use App\Support\PageSeo;
 use App\Support\VersionedAsset;
@@ -49,6 +50,7 @@ class HandleInertiaRequests extends Middleware
                 'logoDark' => VersionedAsset::url('images/logo-dark.png'),
             ],
             'cart' => fn (): array => app(Cart::class)->summary(),
+            'black_friday' => fn (): ?array => app(BlackFridayCampaign::class)->banner(),
             'flash' => [
                 'success' => fn (): ?string => $request->session()->get('success'),
                 'error' => fn (): ?string => $request->session()->get('error'),
