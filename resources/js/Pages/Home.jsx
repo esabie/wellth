@@ -124,8 +124,8 @@ export default function Home({ formulas, bouquet }) {
                             Function without the theatre.
                         </h2>
                         <p className="max-w-md text-ink/70">
-                            Wellth is a Ghana wellness-shot brand at wellthgh.com. Clear purpose, bold ingredients, and
-                            genuinely enjoyable flavour — that&apos;s how wellness should feel.
+                            Wellth is a Ghanaian wellness-shot brand at wellthgh.com. Clear purpose, bold ingredients, and
+                            genuinely enjoyable flavour. That&apos;s how wellness should feel.
                         </p>
                         <Link
                             href="/shop"
