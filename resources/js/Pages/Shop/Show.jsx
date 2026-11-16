@@ -1,5 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
 import { productRequiresGingerChoice, useGingerChoice } from '../../Components/GingerChoiceModal';
 import { productRequiresLactoseChoice, useLactoseChoice } from '../../Components/LactoseChoiceModal';
 import PreorderNotice from '../../Components/PreorderNotice';
@@ -49,7 +50,7 @@ export default function Show({ product, relatedProducts }) {
         postToCart({ withGinger });
     });
 
-    const requestAdd = () => {
+    const { requestAdd, modal: deliveryModal } = useDeliveryBreak(() => {
         if (needsLactose) {
             requestLactoseChoice();
 
@@ -63,7 +64,7 @@ export default function Show({ product, relatedProducts }) {
         }
 
         postToCart();
-    };
+    });
 
     const comingSoon = isComingSoon(product.tags);
 
@@ -168,6 +169,7 @@ export default function Show({ product, relatedProducts }) {
                 </div>
             </section>
 
+            {deliveryModal}
             {lactoseModal}
             {gingerModal}
 
