@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Orders\Tables;
 
 use App\Enums\OrderStatus;
+use App\Models\Order;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -15,7 +16,9 @@ class OrdersTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
-            ->modifyQueryUsing(fn ($query) => $query->withSum('items', 'quantity'))
+            ->modifyQueryUsing(fn ($query) => $query
+                ->withSum('items', 'quantity')
+                ->withExists('feedback as has_feedback'))
             ->columns([
                 TextColumn::make('uuid')
                     ->label('Order')
@@ -36,6 +39,26 @@ class OrdersTable
                 TextColumn::make('total')
                     ->money(config('shop.currency', 'GHS'))
                     ->sortable(),
+                TextColumn::make('feedback_sms_status')
+                    ->label('Feedback SMS')
+                    ->state(function (Order $record): string {
+                        if ((bool) ($record->has_feedback ?? false)) {
+                            return 'Received';
+                        }
+
+                        if ($record->feedback_invited_at !== null) {
+                            return 'Sent';
+                        }
+
+                        return 'Not sent';
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Received' => 'success',
+                        'Sent' => 'warning',
+                        default => 'gray',
+                    })
+                    ->toggleable(),
                 TextColumn::make('customer_phone')
                     ->searchable()
                     ->toggleable(),

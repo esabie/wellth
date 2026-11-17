@@ -6,6 +6,8 @@ use App\Enums\OrderStatus;
 use App\Filament\Resources\Feedback\FeedbackResource;
 use App\Filament\Resources\Feedback\Pages\ListFeedback;
 use App\Filament\Resources\Feedback\Pages\ViewFeedback;
+use App\Filament\Resources\Orders\Pages\ListOrders;
+use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Models\Feedback;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -446,6 +448,42 @@ test('send feedback invite action texts a dedicated invite message', function ()
                 && str_contains($message, route('feedback.show', $notification->order->feedback_token));
         },
     );
+});
+
+test('order admin shows when feedback sms has not been sent yet', function () {
+    $admin = User::factory()->create();
+    $order = deliveredOrderWithItems();
+    $order->update(['feedback_invited_at' => null]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ViewOrder::class, ['record' => $order->getRouteKey()])
+        ->assertOk()
+        ->assertSee('Feedback SMS')
+        ->assertSee('Not sent')
+        ->assertActionVisible('sendFeedbackInvite')
+        ->assertSee('Send feedback link');
+});
+
+test('order admin shows that feedback sms was already sent and labels the action as resend', function () {
+    $admin = User::factory()->create();
+    $order = deliveredOrderWithItems();
+    $order->update(['feedback_invited_at' => now()->subDay()]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ViewOrder::class, ['record' => $order->getRouteKey()])
+        ->assertOk()
+        ->assertSee('Feedback SMS')
+        ->assertSee('Sent')
+        ->assertSee('Invite texted')
+        ->assertActionVisible('sendFeedbackInvite')
+        ->assertSee('Resend feedback link');
+
+    Livewire::test(ListOrders::class)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$order])
+        ->assertSee('Sent');
 });
 
 test('admins can list and view feedback', function () {

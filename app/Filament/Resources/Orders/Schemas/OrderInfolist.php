@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Orders\Schemas;
 
+use App\Enums\OrderStatus;
+use App\Models\Order;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -62,6 +64,40 @@ class OrderInfolist
                         TextEntry::make('delivered_at')
                             ->dateTime()
                             ->placeholder('-'),
+                        TextEntry::make('feedback_sms_status')
+                            ->label('Feedback SMS')
+                            ->state(function (Order $record): string {
+                                if ($record->feedback()->exists()) {
+                                    return 'Received';
+                                }
+
+                                if ($record->feedback_invited_at !== null) {
+                                    return 'Sent';
+                                }
+
+                                return 'Not sent';
+                            })
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                'Received' => 'success',
+                                'Sent' => 'warning',
+                                default => 'gray',
+                            })
+                            ->helperText(function (Order $record): ?string {
+                                if ($record->feedback()->exists()) {
+                                    return 'Customer already submitted feedback.';
+                                }
+
+                                if ($record->feedback_invited_at !== null) {
+                                    return 'Invite texted '.$record->feedback_invited_at->timezone(config('app.timezone'))->toDayDateTimeString().'.';
+                                }
+
+                                if ($record->status === OrderStatus::Delivered) {
+                                    return 'No feedback invite has been texted yet.';
+                                }
+
+                                return null;
+                            }),
                         TextEntry::make('created_at')
                             ->dateTime(),
                     ])

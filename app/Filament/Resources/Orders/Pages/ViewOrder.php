@@ -127,15 +127,31 @@ class ViewOrder extends ViewRecord
                     ]);
                 }),
             Action::make('sendFeedbackInvite')
-                ->label('Send feedback link')
+                ->label(fn (): string => $this->record->feedback_invited_at
+                    ? 'Resend feedback link'
+                    : 'Send feedback link')
                 ->icon('heroicon-o-chat-bubble-left-right')
-                ->color('gray')
+                ->color(fn (): string => $this->record->feedback_invited_at ? 'warning' : 'gray')
                 ->requiresConfirmation()
-                ->modalHeading('Send feedback SMS?')
-                ->modalDescription('Texts the customer a unique feedback link. Best a few days after delivery, once they have tried the shots.')
+                ->modalHeading(fn (): string => $this->record->feedback_invited_at
+                    ? 'Resend feedback SMS?'
+                    : 'Send feedback SMS?')
+                ->modalDescription(function (): string {
+                    if ($this->record->feedback_invited_at) {
+                        $sentAt = $this->record->feedback_invited_at
+                            ->timezone(config('app.timezone'))
+                            ->toDayDateTimeString();
+
+                        return "This customer was already texted on {$sentAt}. Send again only if they did not receive it.";
+                    }
+
+                    return 'Texts the customer a unique feedback link. Best a few days after delivery, once they have tried the shots.';
+                })
                 ->visible(fn (): bool => $this->record->status === OrderStatus::Delivered
                     && $this->record->feedback()->doesntExist())
                 ->action(function (SendOrderFeedbackInvite $sendInvite): void {
+                    $wasPreviouslyInvited = $this->record->feedback_invited_at !== null;
+
                     try {
                         $sendInvite->handle($this->record);
                     } catch (InvalidArgumentException $exception) {
@@ -148,7 +164,7 @@ class ViewOrder extends ViewRecord
                     }
 
                     Notification::make()
-                        ->title('Feedback link sent')
+                        ->title($wasPreviouslyInvited ? 'Feedback link resent' : 'Feedback link sent')
                         ->body('The customer has been texted their unique feedback URL.')
                         ->success()
                         ->send();
