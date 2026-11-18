@@ -1,0 +1,194 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+.wellth-login {
+    display: grid;
+    min-height: 100dvh;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(10rem, 32svh) minmax(0, 1fr);
+    background: #f7f4ef;
+}
+
+.wellth-login-visual {
+    position: relative;
+    display: block;
+    min-height: 10rem;
+    overflow: hidden;
+    background: #1f3d2a;
+}
+
+.wellth-login-visual-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+}
+
+.wellth-login-visual-scrim {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(16, 32, 22, 0.08) 0%, rgba(16, 32, 22, 0.66) 100%),
+        radial-gradient(circle at 18% 12%, rgba(232, 93, 42, 0.2), transparent 42%);
+}
+
+.wellth-login-visual-copy {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    padding: 1.1rem 1.25rem 1.2rem;
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+    color: #f7f4ef;
+}
+
+.wellth-login-visual-brand {
+    margin: 0;
+    font-family: Outfit, ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(1.9rem, 8vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+}
+
+.wellth-login-visual-tagline {
+    margin: 0.45rem 0 0;
+    max-width: 17rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: rgba(247, 244, 239, 0.84);
+}
+
+.wellth-login-form-pane {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 0;
+    padding: 1.35rem 1.25rem 1.75rem;
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+    padding-bottom: max(1.75rem, env(safe-area-inset-bottom));
+    color: #1a1a1a;
+    color-scheme: light;
+    background:
+        radial-gradient(circle at 85% 8%, rgba(232, 93, 42, 0.08), transparent 34%),
+        #f7f4ef;
+}
+
+.wellth-login-form-main {
+    width: 100%;
+    max-width: 24rem;
+    color: #1a1a1a;
+}
+
+.wellth-login .fi-simple-page-content {
+    gap: 1.1rem;
+}
+
+/* Form pane stays mist, so only show the light logo (Filament also renders a dark one). */
+.wellth-login .fi-simple-header .fi-logo.fi-logo-light {
+    display: flex !important;
+    margin-bottom: 1.15rem;
+}
+
+.wellth-login .fi-simple-header .fi-logo.fi-logo-dark {
+    display: none !important;
+}
+
+.wellth-login .fi-simple-header-heading {
+    font-family: Outfit, ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.03em;
+    color: #1a1a1a !important;
+}
+
+.wellth-login .fi-simple-header-subheading {
+    margin-top: 0.35rem;
+    color: rgba(26, 26, 26, 0.55) !important;
+}
+
+.wellth-login-form-pane :is(
+    .fi-fo-field-label,
+    .fi-fo-field-label-content,
+    .fi-fo-field-wrp-label,
+    .fi-fo-field-wrp-label span,
+    .fi-checkbox-label,
+    .fi-checkbox-label span,
+    label
+) {
+    color: #1a1a1a !important;
+}
+
+.wellth-login-form-pane :is(.fi-input, .fi-input-wrp, input, textarea) {
+    color: #1a1a1a !important;
+    background-color: #ffffff !important;
+}
+
+.wellth-login-form-pane :is(.fi-input, input)::placeholder {
+    color: rgba(26, 26, 26, 0.4) !important;
+}
+
+.wellth-login-form-pane .fi-icon-btn,
+.wellth-login-form-pane .fi-icon-btn svg {
+    color: rgba(26, 26, 26, 0.55) !important;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+    .wellth-login {
+        grid-template-rows: minmax(13rem, 30svh) minmax(0, 1fr);
+    }
+
+    .wellth-login-visual-copy {
+        padding: 1.5rem 1.75rem 1.6rem;
+    }
+
+    .wellth-login-form-pane {
+        align-items: center;
+        padding: 2rem 1.75rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .wellth-login {
+        grid-template-columns: minmax(0, 2fr) minmax(22rem, 1fr);
+        grid-template-rows: minmax(0, 1fr);
+    }
+
+    .wellth-login-visual {
+        min-height: 100dvh;
+    }
+
+    .wellth-login-visual-image {
+        object-position: center;
+    }
+
+    .wellth-login-visual-copy {
+        padding: 2.5rem 2.75rem 2.75rem;
+    }
+
+    .wellth-login-visual-brand {
+        font-size: clamp(2.5rem, 4vw, 4rem);
+    }
+
+    .wellth-login-visual-tagline {
+        margin-top: 0.85rem;
+        max-width: 22rem;
+        font-size: 1.05rem;
+        line-height: 1.5;
+    }
+
+    .wellth-login-form-pane {
+        align-items: center;
+        min-height: 100dvh;
+        padding: 3rem 2.5rem;
+    }
+
+    .wellth-login .fi-simple-page-content {
+        gap: 1.5rem;
+    }
+}

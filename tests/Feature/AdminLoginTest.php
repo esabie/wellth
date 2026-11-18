@@ -9,6 +9,15 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
+test('the admin login page shows a split layout with Wellth welcome copy', function () {
+    $this->get('/hq/login')
+        ->assertOk()
+        ->assertSee('wellth-login', false)
+        ->assertSee('wellth-login-visual', false)
+        ->assertSee('Welcome back')
+        ->assertSee('Fresh wellness shots, made in Ghana.');
+});
+
 test('admins are redirected to the dashboard after login', function () {
     $user = User::factory()->create([
         'email' => 'admin@wellth.test',

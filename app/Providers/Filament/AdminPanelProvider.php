@@ -6,6 +6,7 @@ use App\Filament\Livewire\DatabaseNotifications;
 use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\BlockRestrictedCountries;
 use App\Support\VersionedAsset;
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,16 +30,23 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('hq')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login(Login::class)
             ->profile(isSimple: false)
             ->homeUrl(fn (): string => Dashboard::getUrl())
             ->databaseNotifications(livewireComponent: DatabaseNotifications::class)
+            ->brandName('Wellth')
             ->brandLogo(VersionedAsset::url('images/logo.png'))
             ->darkModeBrandLogo(VersionedAsset::url('images/logo-dark.png'))
             ->brandLogoHeight('3.5rem')
             ->favicon(VersionedAsset::url('images/favicon.png'))
+            ->font('Outfit')
+            ->defaultThemeMode(ThemeMode::Light)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => '#1f3d2a',
+                'danger' => Color::Rose,
+                'success' => Color::Emerald,
+                'warning' => '#e85d2a',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
