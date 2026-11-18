@@ -75,6 +75,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): HtmlString => new HtmlString(<<<'HTML'
+                    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
                     <meta name="theme-color" content="#1f3d2a" />
                     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
                 HTML),
