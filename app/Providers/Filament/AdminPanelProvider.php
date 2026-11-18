@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Livewire\DatabaseNotifications;
+use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\BlockRestrictedCountries;
 use App\Support\VersionedAsset;
@@ -32,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('hq')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->login(Login::class)
-            ->profile(isSimple: false)
+            ->profile(EditProfile::class, isSimple: false)
             ->homeUrl(fn (): string => Dashboard::getUrl())
             ->databaseNotifications(livewireComponent: DatabaseNotifications::class)
             ->brandName('Wellth')
