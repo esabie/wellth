@@ -23,7 +23,7 @@ export default function Index({ products, categories, filters }) {
                     <div className="mt-3 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-2xl">
                             <h1 className="font-display text-4xl font-extrabold tracking-tight text-forest sm:text-5xl lg:text-[3.25rem]">
-                                Choose your daily shot.
+                                Choose your daily blend.
                             </h1>
                             <p className="mt-3 max-w-xl text-base leading-relaxed text-forest/75 sm:text-lg">
                                 Organic wellness shots with bold flavour and clean purpose.
