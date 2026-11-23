@@ -34,6 +34,7 @@ class ViewOrder extends ViewRecord
                 ->visible(fn (): bool => $this->record->canConfirmPayment())
                 ->action(function (CompletePaidOrder $completePaidOrder): void {
                     $completePaidOrder->handle($this->record);
+                    $this->record->refresh();
 
                     Notification::make()
                         ->title('Payment confirmed')
@@ -53,16 +54,14 @@ class ViewOrder extends ViewRecord
                 ->label('Start preparing')
                 ->icon('heroicon-o-beaker')
                 ->color('info')
-                ->requiresConfirmation()
-                ->modalHeading('Start preparing this order?')
-                ->modalDescription('Moves the order to Preparing, reduces product stock, and notifies the customer by email and SMS.')
                 ->visible(fn (): bool => $this->record->status === OrderStatus::Paid)
                 ->action(function (StartPreparingOrder $startPreparingOrder): void {
                     $startPreparingOrder->handle($this->record);
+                    $this->record->refresh();
 
                     Notification::make()
                         ->title('Preparing started')
-                        ->body('Stock has been updated and the customer has been notified.')
+                        ->body('The order is now preparing and stock has been updated.')
                         ->success()
                         ->send();
 
@@ -78,16 +77,14 @@ class ViewOrder extends ViewRecord
                 ->label('Mark shipped')
                 ->icon('heroicon-o-truck')
                 ->color('primary')
-                ->requiresConfirmation()
-                ->modalHeading('Mark this order as shipped?')
-                ->modalDescription('The order leaves the kitchen. Customers with an email are told it is on the way. The delivery text is sent when you mark it delivered.')
                 ->visible(fn (): bool => $this->record->status === OrderStatus::Preparing)
                 ->action(function (MarkOrderShipped $markOrderShipped): void {
                     $markOrderShipped->handle($this->record);
+                    $this->record->refresh();
 
                     Notification::make()
                         ->title('Order shipped')
-                        ->body('The order is on the way. Mark it delivered to text the customer.')
+                        ->body('The order is marked shipped.')
                         ->success()
                         ->send();
 
@@ -110,6 +107,7 @@ class ViewOrder extends ViewRecord
                 ->visible(fn (): bool => $this->record->status === OrderStatus::Shipped)
                 ->action(function (MarkOrderDelivered $markOrderDelivered): void {
                     $markOrderDelivered->handle($this->record);
+                    $this->record->refresh();
 
                     Notification::make()
                         ->title('Order delivered')
@@ -162,6 +160,8 @@ class ViewOrder extends ViewRecord
 
                         return;
                     }
+
+                    $this->record->refresh();
 
                     Notification::make()
                         ->title($wasPreviouslyInvited ? 'Feedback link resent' : 'Feedback link sent')

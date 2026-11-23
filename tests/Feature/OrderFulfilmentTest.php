@@ -171,23 +171,21 @@ test('admins can start preparing and mark shipped from the order view', function
     ]);
 
     Livewire::test(ViewOrder::class, ['record' => $order->getRouteKey()])
+        ->assertActionVisible('startPreparing')
         ->callAction('startPreparing')
-        ->assertHasNoActionErrors();
-
-    expect($order->fresh()->status)->toBe(OrderStatus::Preparing)
-        ->and($product->fresh()->stock_quantity)->toBe(40);
-
-    Livewire::test(ViewOrder::class, ['record' => $order->fresh()->getRouteKey()])
+        ->assertHasNoActionErrors()
+        ->assertActionHidden('startPreparing')
+        ->assertActionVisible('markShipped')
         ->callAction('markShipped')
-        ->assertHasNoActionErrors();
-
-    expect($order->fresh()->status)->toBe(OrderStatus::Shipped);
-
-    Livewire::test(ViewOrder::class, ['record' => $order->fresh()->getRouteKey()])
+        ->assertHasNoActionErrors()
+        ->assertActionHidden('markShipped')
+        ->assertActionVisible('markDelivered')
         ->callAction('markDelivered')
-        ->assertHasNoActionErrors();
+        ->assertHasNoActionErrors()
+        ->assertActionHidden('markDelivered');
 
-    expect($order->fresh()->status)->toBe(OrderStatus::Delivered);
+    expect($order->fresh()->status)->toBe(OrderStatus::Delivered)
+        ->and($product->fresh()->stock_quantity)->toBe(40);
 
     Notification::assertSentOnDemand(OrderPreparingCustomerNotification::class);
     Notification::assertSentOnDemand(OrderShippedCustomerNotification::class);
