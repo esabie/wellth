@@ -7,9 +7,9 @@ use Carbon\CarbonImmutable;
 class BlackFridayCampaign
 {
     /**
-     * Shared Inertia payload for the site-wide Black Friday banner.
+     * Shared Inertia payload for the site-wide Black Friday banner and first-visit modal.
      *
-     * @return array{phase: string, sale_date_label: string, href: string}|null
+     * @return array{phase: string, sale_date_label: string, discount_percent: int, href: string}|null
      */
     public function banner(): ?array
     {
@@ -29,6 +29,7 @@ class BlackFridayCampaign
         return [
             'phase' => $today->equalTo($saleDate) ? 'live' : 'teaser',
             'sale_date_label' => $saleDate->format('j F'),
+            'discount_percent' => (int) config('shop.black_friday.discount_percent', 10),
             'href' => '/shop',
         ];
     }

@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useId, useState } from 'react';
 import BlackFridayBanner from '../Components/BlackFridayBanner';
+import BlackFridayModal from '../Components/BlackFridayModal';
 import CartDrawer from '../Components/CartDrawer';
 import Logo from '../Components/Logo';
 import Seo from '../Components/Seo';
@@ -251,6 +252,7 @@ export default function ShopLayout({ children, overlayHeader = false }) {
             </footer>
 
             <CartDrawer open={cartOpen} onClose={closeCart} />
+            <BlackFridayModal />
         </div>
     );
 }

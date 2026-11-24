@@ -31,6 +31,7 @@ test('home shares a teaser black friday banner before the sale day', function ()
             ->component('Home')
             ->where('black_friday.phase', 'teaser')
             ->where('black_friday.sale_date_label', '27 November')
+            ->where('black_friday.discount_percent', 10)
             ->where('black_friday.href', '/shop')
         );
 });
@@ -42,6 +43,7 @@ test('black friday campaign returns a live banner on the sale day', function () 
     expect(app(BlackFridayCampaign::class)->banner())->toMatchArray([
         'phase' => 'live',
         'sale_date_label' => '27 November',
+        'discount_percent' => 10,
         'href' => '/shop',
     ]);
 });

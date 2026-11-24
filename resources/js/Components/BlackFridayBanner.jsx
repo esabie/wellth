@@ -7,7 +7,7 @@ export default function BlackFridayBanner() {
         return null;
     }
 
-    const { phase, sale_date_label: saleDateLabel, href } = blackFriday;
+    const { phase, sale_date_label: saleDateLabel, discount_percent: discountPercent = 10, href } = blackFriday;
 
     return (
         <div className="relative z-40 bg-punch text-white">
@@ -37,7 +37,7 @@ export default function BlackFridayBanner() {
                                 ·
                             </span>
                             <span className="rounded-full bg-white px-2.5 py-0.5 text-[11px] font-extrabold tracking-[0.14em] text-punch uppercase sm:text-xs">
-                                10% OFF
+                                {discountPercent}% OFF
                             </span>
                         </>
                     )}

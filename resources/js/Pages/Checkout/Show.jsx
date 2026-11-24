@@ -393,12 +393,12 @@ export default function Show({
                                             </div>
                                         )}
                                         {hasPromoDiscount && (
-                                            <div className="flex justify-between text-forest">
+                                            <div className="-mx-1 flex justify-between rounded-xl bg-red-50 px-2 py-2 text-sm font-bold text-red-600 sm:text-[0.95rem]">
                                                 <span>
                                                     Promo
                                                     {promo_label ? ` (${promo_label})` : promo_code ? ` (${promo_code})` : ''}
                                                 </span>
-                                                <span className="font-semibold">
+                                                <span className="font-extrabold text-red-700">
                                                     −{formatMoney(promo_discount_amount)}
                                                 </span>
                                             </div>
