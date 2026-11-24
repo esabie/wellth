@@ -126,7 +126,7 @@ export default function BlackFridayModal() {
                 <div className="bg-punch px-6 py-5 text-white sm:px-8 sm:py-6">
                     <p className="text-[11px] font-bold tracking-[0.18em] text-white/80 uppercase">Wellth Foods</p>
                     <h2 id={titleId} className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-                        {isLive ? 'Black Friday is today.' : 'Black Friday is coming.'}
+                        {isLive ? 'Black Friday is today.' : 'Black Friday Weekend is coming.'}
                     </h2>
                     <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-extrabold tracking-[0.14em] text-punch uppercase">
                         {isLive ? 'Today only' : 'One day only'} · {discountPercent}% off
@@ -142,8 +142,8 @@ export default function BlackFridayModal() {
                             </>
                         ) : (
                             <>
-                                Mark your calendar for <strong className="font-bold text-ink">{saleDateLabel}</strong>.
-                                Black Friday Weekend: <strong className="font-bold text-ink">{discountPercent}% off</strong> the
+                                Mark your calendar for <strong className="font-bold text-ink">{saleDateLabel}. Black Friday Weekend</strong>.
+                                <strong className="font-bold text-ink">{discountPercent}% off</strong> the
                                 Wellth lineup.
                             </>
                         )}
