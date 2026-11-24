@@ -26,6 +26,16 @@ class Category extends Model
     public const DRINKS_SLUG = 'cold-pressed-juices';
 
     /**
+     * Slugs that identify the drinks / juices category for minimum-order rules.
+     *
+     * @var list<string>
+     */
+    public const DRINKS_SLUGS = [
+        self::DRINKS_SLUG,
+        'drinks',
+    ];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
@@ -38,7 +48,13 @@ class Category extends Model
 
     public function isDrinksCategory(): bool
     {
-        return $this->slug === self::DRINKS_SLUG;
+        if (in_array($this->slug, self::DRINKS_SLUGS, true)) {
+            return true;
+        }
+
+        // Production currently has name "Drinks" with a mangled slug ("drinksdrinks").
+        return strcasecmp((string) $this->name, 'Drinks') === 0
+            || str_starts_with($this->slug, 'drinks');
     }
 
     public function products(): HasMany

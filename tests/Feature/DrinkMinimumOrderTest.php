@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
 use App\Support\Cart;
@@ -67,4 +68,23 @@ test('checkout accepts a single drink bottle', function () {
     ])->assertRedirect();
 
     expect(Order::query()->count())->toBe(1);
+});
+
+test('production-style drinks category slug still skips the shot minimum', function () {
+    $category = Category::factory()->create([
+        'name' => 'Drinks',
+        'slug' => 'drinksdrinks',
+    ]);
+    $drink = Product::factory()->create([
+        'category_id' => $category->id,
+        'price' => 45.00,
+        'pack_units' => 1,
+    ]);
+
+    app(Cart::class)->add($drink, 1);
+
+    expect($drink->isDrink())->toBeTrue()
+        ->and(app(Cart::class)->isDrinkOnlyCart())->toBeTrue()
+        ->and(app(Cart::class)->minimumOrderQuantity())->toBe(1)
+        ->and(app(Cart::class)->meetsMinimumOrder())->toBeTrue();
 });
