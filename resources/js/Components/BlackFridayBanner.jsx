@@ -7,13 +7,7 @@ export default function BlackFridayBanner() {
         return null;
     }
 
-    const {
-        phase,
-        sale_date_label: saleDateLabel,
-        discount_percent: discountPercent = 10,
-        promo_code: promoCode,
-        href,
-    } = blackFriday;
+    const { phase, sale_date_label: saleDateLabel, discount_percent: discountPercent = 10, href } = blackFriday;
 
     return (
         <div className="relative z-40 bg-punch text-white">
@@ -47,16 +41,6 @@ export default function BlackFridayBanner() {
                             </span>
                         </>
                     )}
-                    {promoCode ? (
-                        <>
-                            <span aria-hidden="true" className="text-white/55">
-                                ·
-                            </span>
-                            <span className="tracking-wide">
-                                Code <span className="font-extrabold tracking-[0.08em]">{promoCode}</span>
-                            </span>
-                        </>
-                    ) : null}
                 </Link>
             </div>
         </div>
