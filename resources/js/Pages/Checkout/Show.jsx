@@ -85,17 +85,6 @@ export default function Show({
         submitPromo(promoInput);
     };
 
-    const applyBlackFridayPromo = (event) => {
-        event.preventDefault();
-
-        if (!blackFridayPromoCode) {
-            return;
-        }
-
-        setPromoInput(blackFridayPromoCode);
-        submitPromo(blackFridayPromoCode);
-    };
-
     const removePromo = () => {
         router.delete('/checkout/promo', { preserveScroll: true });
         setPromoInput('');
@@ -471,11 +460,12 @@ export default function Show({
                                                 </p>
                                                 <button
                                                     type="button"
-                                                    onClick={applyBlackFridayPromo}
-                                                    disabled={applyingPromo}
-                                                    className="min-h-9 cursor-pointer rounded-lg bg-punch px-3 py-1.5 text-xs font-extrabold tracking-wide text-white uppercase transition hover:bg-punch/90 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    disabled
+                                                    aria-disabled="true"
+                                                    title="Available on 27th November"
+                                                    className="min-h-9 cursor-not-allowed rounded-lg bg-punch px-3 py-1.5 text-xs font-extrabold tracking-wide text-white uppercase opacity-50"
                                                 >
-                                                    {applyingPromo ? '…' : 'Apply'}
+                                                    Apply
                                                 </button>
                                             </div>
                                         ) : null}

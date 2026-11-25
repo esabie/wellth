@@ -49,6 +49,8 @@ class PromoCodes
      */
     public function apply(string $code, ?string $subtotal = null, ?string $customerPhone = null): array
     {
+        $this->assertBlackFridayCodeIsLive($code);
+
         $promo = $this->find($code);
 
         if ($promo === null || ! $promo->is_active) {
@@ -58,8 +60,6 @@ class PromoCodes
         if (! $promo->hasRemainingUses()) {
             throw new InvalidArgumentException('That promo code has reached its usage limit.');
         }
-
-        $this->assertBlackFridayPromoIsLive($promo);
 
         $amount = $subtotal ?? app(Cart::class)->subtotal();
 
@@ -89,9 +89,15 @@ class PromoCodes
      */
     public function assertBlackFridayPromoIsLive(PromoCode $promo): void
     {
-        $configured = strtoupper((string) config('shop.black_friday.promo_code', 'WELLTH26'));
+        $this->assertBlackFridayCodeIsLive($promo->code);
+    }
 
-        if ($promo->code !== $configured) {
+    public function assertBlackFridayCodeIsLive(string $code): void
+    {
+        $configured = strtoupper((string) config('shop.black_friday.promo_code', 'WELLTH26'));
+        $key = Str::upper(trim($code));
+
+        if ($key === '' || $key !== $configured) {
             return;
         }
 
@@ -101,7 +107,7 @@ class PromoCodes
 
         if ($today->lt($saleDate)) {
             throw new InvalidArgumentException(
-                'This promo code can only be used on the '.$saleDate->format('jS').'.',
+                'This promo code can only be used on '.$saleDate->format('jS F'),
             );
         }
     }

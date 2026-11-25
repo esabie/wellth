@@ -197,7 +197,27 @@ test('checkout rejects the black friday promo code before the sale day', functio
         ->post(route('checkout.promo.apply'), ['code' => 'WELLTH26'])
         ->assertRedirect(route('checkout.create'))
         ->assertSessionHasErrors([
-            'promo_code' => 'This promo code can only be used on the 27th.',
+            'promo_code' => 'This promo code can only be used on 27th November',
+        ]);
+});
+
+test('checkout rejects the black friday promo code before the sale day even when the code is missing', function () {
+    config([
+        'shop.black_friday.promo_code' => 'WELLTH26',
+        'shop.black_friday.timezone' => 'Africa/Accra',
+        'shop.black_friday.sale_date' => '2026-11-27',
+    ]);
+
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-25 12:00:00', 'Africa/Accra'));
+
+    $product = Product::factory()->create(['price' => 20.00]);
+    app(Cart::class)->add($product, 10);
+
+    $this->from(route('checkout.create'))
+        ->post(route('checkout.promo.apply'), ['code' => 'WELLTH26'])
+        ->assertRedirect(route('checkout.create'))
+        ->assertSessionHasErrors([
+            'promo_code' => 'This promo code can only be used on 27th November',
         ]);
 });
 
