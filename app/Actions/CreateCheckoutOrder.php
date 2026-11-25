@@ -61,12 +61,14 @@ class CreateCheckoutOrder
 
         if ($appliedPromo !== null) {
             try {
+                $promos->assertBlackFridayPromoIsLive($appliedPromo);
                 $promos->assertNotSelfReferral($appliedPromo, $customer['customer_phone']);
             } catch (InvalidArgumentException $exception) {
                 Log::warning('checkout.order_rejected', [
-                    'reason' => 'self_referral',
+                    'reason' => 'promo_rejected',
                     'promo_code' => $appliedPromo->code,
                     'phone' => PhoneNumber::normalize($customer['customer_phone']),
+                    'message' => $exception->getMessage(),
                 ]);
 
                 throw $exception;

@@ -147,6 +147,7 @@ return [
         'teaser_starts' => env('SHOP_BLACK_FRIDAY_TEASER_STARTS', '2026-11-16'),
         'sale_date' => env('SHOP_BLACK_FRIDAY_SALE_DATE', '2026-11-27'),
         'discount_percent' => (int) env('SHOP_BLACK_FRIDAY_DISCOUNT_PERCENT', 10),
+        'promo_code' => strtoupper((string) env('SHOP_BLACK_FRIDAY_PROMO_CODE', 'WELLTH26')),
     ],
 
 ];

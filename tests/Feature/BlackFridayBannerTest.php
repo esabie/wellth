@@ -18,6 +18,7 @@ function configureBlackFridayCampaign(): void
         'shop.black_friday.timezone' => 'Africa/Accra',
         'shop.black_friday.teaser_starts' => '2026-11-16',
         'shop.black_friday.sale_date' => '2026-11-27',
+        'shop.black_friday.promo_code' => 'WELLTH26',
     ]);
 }
 
@@ -32,6 +33,7 @@ test('home shares a teaser black friday banner before the sale day', function ()
             ->where('black_friday.phase', 'teaser')
             ->where('black_friday.sale_date_label', '27 November')
             ->where('black_friday.discount_percent', 10)
+            ->where('black_friday.promo_code', 'WELLTH26')
             ->where('black_friday.href', '/shop')
         );
 });
@@ -44,6 +46,7 @@ test('black friday campaign returns a live banner on the sale day', function () 
         'phase' => 'live',
         'sale_date_label' => '27 November',
         'discount_percent' => 10,
+        'promo_code' => 'WELLTH26',
         'href' => '/shop',
     ]);
 });

@@ -98,7 +98,13 @@ export default function BlackFridayModal() {
         return null;
     }
 
-    const { phase, sale_date_label: saleDateLabel, discount_percent: discountPercent = 10, href } = blackFriday;
+    const {
+        phase,
+        sale_date_label: saleDateLabel,
+        discount_percent: discountPercent = 10,
+        promo_code: promoCode,
+        href,
+    } = blackFriday;
     const isLive = phase === 'live';
 
     return createPortal(
@@ -129,7 +135,7 @@ export default function BlackFridayModal() {
                         {isLive ? 'Black Friday is today.' : 'Black Friday Weekend is coming.'}
                     </h2>
                     <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-extrabold tracking-[0.14em] text-punch uppercase">
-                        {isLive ? 'Today only' : 'One day only'} · {discountPercent}% off
+                        {isLive ? 'Today only' : 'This weekend only'} · {discountPercent}% off
                     </p>
                 </div>
 
@@ -148,6 +154,15 @@ export default function BlackFridayModal() {
                             </>
                         )}
                     </p>
+
+                    {promoCode ? (
+                        <div className="mt-5 rounded-2xl border border-black/10 bg-mist/60 px-4 py-3.5 text-center">
+                            <p className="text-[11px] font-bold tracking-[0.16em] text-ink/45 uppercase">Use code at checkout</p>
+                            <p className="mt-1.5 font-display text-2xl font-extrabold tracking-[0.12em] text-ink uppercase">
+                                {promoCode}
+                            </p>
+                        </div>
+                    ) : null}
 
                     <div className="mt-6 flex justify-end">
                         <Link

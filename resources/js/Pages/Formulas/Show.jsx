@@ -1,6 +1,5 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { useDeliveryBreak } from '../../Components/DeliveryBreakModal';
 import { productRequiresGingerChoice, useGingerChoice } from '../../Components/GingerChoiceModal';
 import { productRequiresLactoseChoice, useLactoseChoice } from '../../Components/LactoseChoiceModal';
 import ProductTags, { isComingSoon } from '../../Components/ProductTags';
@@ -50,7 +49,7 @@ export default function Show({ formula }) {
         postToCart({ withGinger });
     });
 
-    const { requestAdd, modal: deliveryModal } = useDeliveryBreak(() => {
+    const addToCart = () => {
         if (needsLactose) {
             requestLactoseChoice();
 
@@ -64,7 +63,7 @@ export default function Show({ formula }) {
         }
 
         postToCart();
-    });
+    };
 
     const comingSoon = isComingSoon(formula.tags);
     const canAdd = Boolean(formula.product_id) && !comingSoon;
@@ -164,7 +163,7 @@ export default function Show({ formula }) {
                         <div className="hidden border-t border-forest/12 pt-7 lg:block">
                             <button
                                 type="button"
-                                onClick={requestAdd}
+                                onClick={addToCart}
                                 disabled={adding || !canAdd}
                                 className="flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-2xl bg-ink px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(31,61,42,0.55)] transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-50"
                             >
@@ -236,7 +235,7 @@ export default function Show({ formula }) {
                     </div>
                     <button
                         type="button"
-                        onClick={requestAdd}
+                        onClick={addToCart}
                         disabled={adding || !canAdd}
                         className="min-h-12 shrink-0 cursor-pointer rounded-full bg-ink px-5 py-3 text-sm font-bold text-white transition hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -244,7 +243,6 @@ export default function Show({ formula }) {
                     </button>
                 </div>
             </div>
-            {deliveryModal}
             {lactoseModal}
             {gingerModal}
         </ShopLayout>

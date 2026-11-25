@@ -5,6 +5,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\PromoCode;
 use App\Support\Cart;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -22,6 +23,10 @@ beforeEach(function () {
         'value' => 10,
         'label' => '10% off',
     ]);
+});
+
+afterEach(function () {
+    CarbonImmutable::setTestNow();
 });
 
 test('checkout can apply a valid promo code', function () {
@@ -167,4 +172,63 @@ test('confirming payment increments the promo code used count', function () {
     app(CompletePaidOrder::class)->handle($order);
 
     expect($promo->fresh()->used_count)->toBe(1);
+});
+
+test('checkout rejects the black friday promo code before the sale day', function () {
+    config([
+        'shop.black_friday.promo_code' => 'WELLTH26',
+        'shop.black_friday.timezone' => 'Africa/Accra',
+        'shop.black_friday.sale_date' => '2026-11-27',
+    ]);
+
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-25 12:00:00', 'Africa/Accra'));
+
+    PromoCode::factory()->create([
+        'code' => 'WELLTH26',
+        'type' => 'percent',
+        'value' => 10,
+        'label' => 'Black Friday 10% off',
+    ]);
+
+    $product = Product::factory()->create(['price' => 20.00]);
+    app(Cart::class)->add($product, 10);
+
+    $this->from(route('checkout.create'))
+        ->post(route('checkout.promo.apply'), ['code' => 'WELLTH26'])
+        ->assertRedirect(route('checkout.create'))
+        ->assertSessionHasErrors([
+            'promo_code' => 'This promo code can only be used on the 27th.',
+        ]);
+});
+
+test('checkout can apply the black friday promo code on the sale day', function () {
+    config([
+        'shop.black_friday.promo_code' => 'WELLTH26',
+        'shop.black_friday.timezone' => 'Africa/Accra',
+        'shop.black_friday.sale_date' => '2026-11-27',
+    ]);
+
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-27 09:00:00', 'Africa/Accra'));
+
+    PromoCode::factory()->create([
+        'code' => 'WELLTH26',
+        'type' => 'percent',
+        'value' => 10,
+        'label' => 'Black Friday 10% off',
+    ]);
+
+    $product = Product::factory()->create(['price' => 20.00]);
+    app(Cart::class)->add($product, 10);
+
+    $this->from(route('checkout.create'))
+        ->post(route('checkout.promo.apply'), ['code' => 'WELLTH26'])
+        ->assertRedirect(route('checkout.create'))
+        ->assertSessionHas('success');
+
+    $this->get(route('checkout.create'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('promo_code', 'WELLTH26')
+            ->where('promo_discount_amount', '20.00')
+        );
 });

@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Enums\PromoCodeType;
 use App\Models\PromoCode;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -58,6 +59,8 @@ class PromoCodes
             throw new InvalidArgumentException('That promo code has reached its usage limit.');
         }
 
+        $this->assertBlackFridayPromoIsLive($promo);
+
         $amount = $subtotal ?? app(Cart::class)->subtotal();
 
         if (! $promo->meetsMinimumOrder($amount)) {
@@ -78,6 +81,28 @@ class PromoCodes
     {
         if ($promo->isOwnedByPhone($customerPhone)) {
             throw new InvalidArgumentException('You can’t use your own referral code.');
+        }
+    }
+
+    /**
+     * Black Friday codes are only redeemable on the configured sale day (Africa/Accra by default).
+     */
+    public function assertBlackFridayPromoIsLive(PromoCode $promo): void
+    {
+        $configured = strtoupper((string) config('shop.black_friday.promo_code', 'WELLTH26'));
+
+        if ($promo->code !== $configured) {
+            return;
+        }
+
+        $timezone = (string) config('shop.black_friday.timezone', 'Africa/Accra');
+        $today = CarbonImmutable::now($timezone)->startOfDay();
+        $saleDate = CarbonImmutable::parse((string) config('shop.black_friday.sale_date'), $timezone)->startOfDay();
+
+        if ($today->lt($saleDate)) {
+            throw new InvalidArgumentException(
+                'This promo code can only be used on the '.$saleDate->format('jS').'.',
+            );
         }
     }
 
@@ -114,11 +139,19 @@ class PromoCodes
         if ($promo !== null && $promo->isUsableForSubtotal($subtotal)) {
             $phone = $customerPhone ?? app(SecondPurchaseDiscount::class)->previewPhone();
 
-            if ($promo->isOwnedByPhone($phone)) {
+            try {
+                $this->assertBlackFridayPromoIsLive($promo);
+            } catch (InvalidArgumentException) {
                 $this->clear();
                 $promo = null;
                 $code = null;
-            } else {
+            }
+
+            if ($promo !== null && $promo->isOwnedByPhone($phone)) {
+                $this->clear();
+                $promo = null;
+                $code = null;
+            } elseif ($promo !== null) {
                 $discount = $this->discountAmount($promo, $subtotal);
                 $label = $promo->discountLabel();
                 $code = $promo->code;

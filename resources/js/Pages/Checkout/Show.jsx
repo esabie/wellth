@@ -41,7 +41,7 @@ export default function Show({
     total,
     locations,
 }) {
-    const { errors, app } = usePage().props;
+    const { errors, app, black_friday: blackFriday } = usePage().props;
     const [region, setRegion] = useState('Greater Accra');
     const [city, setCity] = useState('Accra');
     const [promoInput, setPromoInput] = useState(promo_code ?? '');
@@ -59,6 +59,8 @@ export default function Show({
     const hasPointsDiscount = Number(points_discount_amount) > 0;
     const hasDiscount = Number(discount_amount) > 0;
     const canUsePoints = points_enabled && Number(points_balance) > 0;
+    const blackFridayPromoCode = blackFriday?.promo_code || null;
+    const showBlackFridayPromoHint = Boolean(blackFridayPromoCode) && !promo_code && !points_redeeming;
 
     const selectRegion = (nextRegion) => {
         setRegion(nextRegion);
@@ -66,17 +68,32 @@ export default function Show({
         setCity(nextCities[0] ?? '');
     };
 
-    const applyPromo = (event) => {
-        event.preventDefault();
+    const submitPromo = (code) => {
         setApplyingPromo(true);
         router.post(
             '/checkout/promo',
-            { code: promoInput },
+            { code },
             {
                 preserveScroll: true,
                 onFinish: () => setApplyingPromo(false),
             },
         );
+    };
+
+    const applyPromo = (event) => {
+        event.preventDefault();
+        submitPromo(promoInput);
+    };
+
+    const applyBlackFridayPromo = (event) => {
+        event.preventDefault();
+
+        if (!blackFridayPromoCode) {
+            return;
+        }
+
+        setPromoInput(blackFridayPromoCode);
+        submitPromo(blackFridayPromoCode);
     };
 
     const removePromo = () => {
@@ -444,6 +461,24 @@ export default function Show({
 
                                     <div className="mt-5 border-t border-black/5 pt-5">
                                         <p className="text-sm font-semibold text-ink">Promo code</p>
+                                        {showBlackFridayPromoHint ? (
+                                            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-punch/20 bg-punch/5 px-3 py-2.5">
+                                                <p className="text-sm text-ink/75">
+                                                    Black Friday:{' '}
+                                                    <span className="font-extrabold tracking-wide text-punch uppercase">
+                                                        {blackFridayPromoCode}
+                                                    </span>
+                                                </p>
+                                                <button
+                                                    type="button"
+                                                    onClick={applyBlackFridayPromo}
+                                                    disabled={applyingPromo}
+                                                    className="min-h-9 cursor-pointer rounded-lg bg-punch px-3 py-1.5 text-xs font-extrabold tracking-wide text-white uppercase transition hover:bg-punch/90 disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    {applyingPromo ? '…' : 'Apply'}
+                                                </button>
+                                            </div>
+                                        ) : null}
                                         {points_redeeming ? (
                                             <p className="mt-2 text-xs leading-relaxed text-ink/55">
                                                 Promo codes are unavailable while loyalty points are applied.
