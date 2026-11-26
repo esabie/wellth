@@ -7,6 +7,7 @@ use App\Http\Controllers\SeoController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\FeedbackController;
+use App\Http\Controllers\Shop\PaystackWebhookController;
 use App\Http\Controllers\Shop\ProductController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
@@ -49,10 +50,19 @@ Route::middleware('throttle:shop-points')->group(function (): void {
     Route::delete('/checkout/points', [CheckoutController::class, 'removePoints'])->name('checkout.points.remove');
 });
 Route::get('/checkout/{order}/pay', [CheckoutController::class, 'payment'])->name('checkout.payment');
+Route::post('/checkout/{order}/pay/start', [CheckoutController::class, 'startPayment'])
+    ->middleware('throttle:shop-payment')
+    ->name('checkout.payment.start');
 Route::post('/checkout/{order}/pay', [CheckoutController::class, 'storePaymentProof'])
     ->middleware('throttle:shop-payment')
     ->name('checkout.payment.store');
+Route::get('/checkout/paystack/callback', [CheckoutController::class, 'paystackCallback'])
+    ->name('checkout.paystack.callback');
 Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+
+Route::post('/webhooks/paystack', PaystackWebhookController::class)
+    ->middleware('throttle:shop-payment')
+    ->name('webhooks.paystack');
 
 Route::get('/feedback/{token}', [FeedbackController::class, 'show'])
     ->where('token', '[a-z0-9]+')

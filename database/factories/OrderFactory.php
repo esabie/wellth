@@ -35,6 +35,7 @@ class OrderFactory extends Factory
             'shipping_notes' => null,
             'subtotal' => $subtotal,
             'shipping_amount' => $shipping,
+            'service_fee_amount' => 0,
             'discount_amount' => 0,
             'loyalty_discount_amount' => 0,
             'promo_code' => null,

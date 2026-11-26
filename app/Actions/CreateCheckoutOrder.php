@@ -97,6 +97,7 @@ class CreateCheckoutOrder
                 'shipping_notes' => $customer['shipping_notes'] ?? null,
                 'subtotal' => $subtotal,
                 'shipping_amount' => $shippingAmount,
+                'service_fee_amount' => $pricing['service_fee_amount'],
                 'discount_amount' => $pricing['discount_amount'],
                 'loyalty_discount_amount' => $pricing['loyalty_discount_amount'],
                 'promo_code' => $pricing['promo_code'],
