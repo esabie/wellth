@@ -8,6 +8,7 @@ class CheckoutPricing
         private PromoCodes $promos,
         private SecondPurchaseDiscount $secondPurchase,
         private LoyaltyPoints $loyaltyPoints,
+        private PaystackServiceFee $serviceFee,
     ) {}
 
     /**
@@ -30,6 +31,7 @@ class CheckoutPricing
      *     points_per_paid_order: int,
      *     point_value_ghs: float,
      *     discount_amount: string,
+     *     service_fee_amount: string,
      *     total: string
      * }
      */
@@ -47,7 +49,7 @@ class CheckoutPricing
                 2,
             );
 
-            return [
+            return $this->withServiceFee([
                 'loyalty_discount_amount' => '0.00',
                 'loyalty_label' => null,
                 'loyalty_eligible' => false,
@@ -64,7 +66,7 @@ class CheckoutPricing
                 'point_value_ghs' => $pointsPreview['point_value_ghs'],
                 'discount_amount' => $pointsPreview['discount_amount'],
                 'total' => $total,
-            ];
+            ]);
         }
 
         $loyalty = $this->secondPurchase->quote($subtotal, $phone);
@@ -72,7 +74,7 @@ class CheckoutPricing
         $promo = $this->promos->quote($afterLoyalty, $shippingAmount, $phone);
         $discountAmount = bcadd($loyalty['discount_amount'], $promo['discount_amount'], 2);
 
-        return [
+        return $this->withServiceFee([
             'loyalty_discount_amount' => $loyalty['discount_amount'],
             'loyalty_label' => $loyalty['label'],
             'loyalty_eligible' => $loyalty['eligible'],
@@ -89,6 +91,19 @@ class CheckoutPricing
             'point_value_ghs' => $pointsPreview['point_value_ghs'],
             'discount_amount' => $discountAmount,
             'total' => $promo['total'],
-        ];
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $quote
+     * @return array<string, mixed>
+     */
+    private function withServiceFee(array $quote): array
+    {
+        $fee = $this->serviceFee->quote((string) $quote['total']);
+        $quote['service_fee_amount'] = $fee['service_fee_amount'];
+        $quote['total'] = $fee['total'];
+
+        return $quote;
     }
 }

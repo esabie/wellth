@@ -49,6 +49,9 @@ class OrderInfolist
                         TextEntry::make('shipping_amount')
                             ->label('Delivery')
                             ->money(config('shop.currency', 'GHS')),
+                        TextEntry::make('service_fee_amount')
+                            ->label('Service fee')
+                            ->money(config('shop.currency', 'GHS')),
                         TextEntry::make('paystack_reference')
                             ->label('Payment reference')
                             ->copyable(),

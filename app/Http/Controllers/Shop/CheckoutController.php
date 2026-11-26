@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Actions\CreateCheckoutOrder;
+use App\Actions\StartPaystackPayment;
 use App\Actions\SubmitPaymentProof;
+use App\Actions\VerifyPaystackPayment;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ApplyPromoCodeRequest;
 use App\Http\Requests\PreviewLoyaltyDiscountRequest;
@@ -18,10 +20,12 @@ use App\Support\PromoCodes;
 use App\Support\SecondPurchaseDiscount;
 use App\Support\StorefrontVisitLog;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use InvalidArgumentException;
+use Throwable;
 
 class CheckoutController extends Controller
 {
@@ -51,6 +55,7 @@ class CheckoutController extends Controller
             'items' => $summary['items'],
             'subtotal' => $summary['subtotal'],
             'shipping_amount' => $shippingAmount,
+            'service_fee_amount' => $quote['service_fee_amount'],
             'discount_amount' => $quote['discount_amount'],
             'loyalty_discount_amount' => $quote['loyalty_discount_amount'],
             'loyalty_label' => $quote['loyalty_label'],
@@ -143,7 +148,8 @@ class CheckoutController extends Controller
         PromoCodes $promos,
         SecondPurchaseDiscount $loyalty,
         LoyaltyPoints $points,
-    ): RedirectResponse {
+        StartPaystackPayment $startPaystackPayment,
+    ): RedirectResponse|\Symfony\Component\HttpFoundation\Response {
         if ($cart->count() === 0) {
             return redirect()
                 ->route('shop.index')
@@ -173,7 +179,7 @@ class CheckoutController extends Controller
         $loyalty->clearPreviewPhone();
         $points->clearRedeem();
 
-        return redirect()->route('checkout.payment', $order);
+        return $this->redirectToPaystackOrPaymentPage($order, $startPaystackPayment);
     }
 
     public function payment(Order $order): Response|RedirectResponse
@@ -182,19 +188,60 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.confirmation', $order);
         }
 
-        abort_unless($order->canAcceptPaymentProof(), 404);
+        abort_unless($order->canConfirmPayment(), 404);
 
         $order->load('items');
 
         return Inertia::render('Checkout/Payment', [
             'order' => $this->orderPayload($order),
-            'momo' => [
-                'number' => config('shop.momo_number'),
-                'display_number' => config('shop.momo_display_number'),
-                'account_name' => config('shop.momo_account_name'),
-                'network' => config('shop.momo_network'),
-            ],
         ]);
+    }
+
+    public function startPayment(
+        Order $order,
+        StartPaystackPayment $startPaystackPayment,
+    ): RedirectResponse|\Symfony\Component\HttpFoundation\Response {
+        if ($order->isPaid()) {
+            return redirect()->route('checkout.confirmation', $order);
+        }
+
+        abort_unless($order->canConfirmPayment(), 404);
+
+        return $this->redirectToPaystackOrPaymentPage($order, $startPaystackPayment);
+    }
+
+    public function paystackCallback(Request $request, VerifyPaystackPayment $verifyPaystackPayment): RedirectResponse
+    {
+        $reference = $request->query('reference', $request->query('trxref'));
+
+        if (! is_string($reference) || trim($reference) === '') {
+            return redirect()
+                ->route('shop.index')
+                ->with('error', 'We could not find that payment. Please contact support if you were charged.');
+        }
+
+        try {
+            $order = $verifyPaystackPayment->handle($reference);
+        } catch (InvalidArgumentException|Throwable $exception) {
+            Log::notice('checkout.paystack_callback_failed', [
+                'reference' => $reference,
+                'message' => $exception->getMessage(),
+            ]);
+
+            $order = Order::query()->where('paystack_reference', $reference)->first();
+
+            if ($order === null) {
+                return redirect()
+                    ->route('shop.index')
+                    ->with('error', 'We could not confirm that payment. Please contact support if you were charged.');
+            }
+
+            return redirect()
+                ->route('checkout.payment', $order)
+                ->with('error', $exception->getMessage());
+        }
+
+        return redirect()->route('checkout.confirmation', $order);
     }
 
     public function storePaymentProof(
@@ -252,6 +299,27 @@ class CheckoutController extends Controller
         ]);
     }
 
+    private function redirectToPaystackOrPaymentPage(
+        Order $order,
+        StartPaystackPayment $startPaystackPayment,
+    ): RedirectResponse|\Symfony\Component\HttpFoundation\Response {
+        try {
+            $authorizationUrl = $startPaystackPayment->handle($order);
+        } catch (Throwable $exception) {
+            Log::notice('checkout.paystack_redirect_failed', [
+                'order' => $order->uuid,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('checkout.payment', $order)
+                ->with('error', $exception->getMessage());
+        }
+
+        // Inertia form posts cannot follow a normal external redirect; this forces a full browser visit.
+        return Inertia::location($authorizationUrl);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -269,6 +337,7 @@ class CheckoutController extends Controller
             'shipping_region' => $order->shipping_region,
             'subtotal' => $order->subtotal,
             'shipping_amount' => $order->shipping_amount,
+            'service_fee_amount' => $order->service_fee_amount,
             'discount_amount' => $order->discount_amount,
             'loyalty_discount_amount' => $order->loyalty_discount_amount,
             'promo_code' => $order->promo_code,

@@ -5,6 +5,7 @@ namespace App\Support;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class PaystackClient
@@ -15,14 +16,33 @@ class PaystackClient
      */
     public function initialize(array $payload): array
     {
-        $response = $this->client()
-            ->post('/transaction/initialize', $payload)
-            ->throw();
+        try {
+            $response = $this->client()
+                ->post('/transaction/initialize', $payload)
+                ->throw();
+        } catch (RequestException $exception) {
+            Log::error('paystack.initialize_http_error', [
+                'request' => $payload,
+                'status' => $exception->response?->status(),
+                'response' => $exception->response?->json() ?? $exception->response?->body(),
+                'message' => $exception->getMessage(),
+            ]);
+
+            throw new RuntimeException(
+                $exception->response?->json('message') ?? 'Unable to initialize Paystack payment.',
+                previous: $exception,
+            );
+        }
 
         /** @var array{status?: bool, message?: string, data?: array{authorization_url?: string, access_code?: string, reference?: string}} $body */
         $body = $response->json();
 
         if (($body['status'] ?? false) !== true || ! isset($body['data']['authorization_url'], $body['data']['access_code'], $body['data']['reference'])) {
+            Log::error('paystack.initialize_rejected', [
+                'request' => $payload,
+                'response' => $body,
+            ]);
+
             throw new RuntimeException($body['message'] ?? 'Unable to initialize Paystack payment.');
         }
 
@@ -40,7 +60,7 @@ class PaystackClient
     {
         try {
             $response = $this->client()
-                ->get('/transaction/verify/'.urlencode($reference))
+                ->get('/transaction/verify/'.rawurlencode($reference))
                 ->throw();
         } catch (RequestException $exception) {
             throw new RuntimeException('Unable to verify Paystack payment.', previous: $exception);
@@ -58,6 +78,23 @@ class PaystackClient
             'reference' => (string) ($data['reference'] ?? $reference),
             'paid_at' => $data['paid_at'] ?? null,
         ];
+    }
+
+    public function isValidWebhookSignature(string $payload, ?string $signature): bool
+    {
+        if (! filled($signature)) {
+            return false;
+        }
+
+        $secret = config('services.paystack.secret_key');
+
+        if (! filled($secret)) {
+            return false;
+        }
+
+        $computed = hash_hmac('sha512', $payload, (string) $secret);
+
+        return hash_equals($computed, $signature);
     }
 
     private function client(): PendingRequest

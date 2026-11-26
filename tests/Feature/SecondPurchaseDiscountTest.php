@@ -42,7 +42,8 @@ test('phone blur preview applies second purchase discount when exactly one paid 
             ->where('loyalty_eligible', true)
             ->where('loyalty_discount_amount', '10.00')
             ->where('discount_amount', '10.00')
-            ->where('total', '190.00')
+            ->where('service_fee_amount', '3.78')
+            ->where('total', '193.78')
         );
 });
 
@@ -65,7 +66,8 @@ test('pending orders do not unlock the second purchase discount', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->where('loyalty_eligible', false)
             ->where('loyalty_discount_amount', '0.00')
-            ->where('total', '200.00')
+            ->where('service_fee_amount', '3.98')
+            ->where('total', '203.98')
         );
 });
 
@@ -93,7 +95,7 @@ test('third paid order does not receive the second purchase discount', function 
 
     expect($order->loyalty_discount_amount)->toBe('0.00')
         ->and($order->discount_amount)->toBe('0.00')
-        ->and($order->total)->toBe('200.00');
+        ->and($order->total)->toBe('203.98');
 });
 
 test('checkout stores loyalty discount on the second paid-order purchase', function () {
@@ -122,7 +124,7 @@ test('checkout stores loyalty discount on the second paid-order purchase', funct
         ->and($order->customer_phone_normalized)->toBe('233244111222')
         ->and($order->loyalty_discount_amount)->toBe('10.00')
         ->and($order->discount_amount)->toBe('10.00')
-        ->and($order->total)->toBe('190.00');
+        ->and($order->total)->toBe('193.78');
 
     $response->assertRedirect(route('checkout.payment', $order));
 });
@@ -158,9 +160,9 @@ test('loyalty discount can stack with a promo code', function () {
 
     $order = Order::query()->latest('id')->first();
 
-    // 5% loyalty on 200 = 10; 10% promo on remaining 190 = 19; total discount 29; total 171
+    // 5% loyalty on 200 = 10; 10% promo on remaining 190 = 19; payable 171; service fee 3.41.
     expect($order->loyalty_discount_amount)->toBe('10.00')
         ->and($order->discount_amount)->toBe('29.00')
         ->and($order->promo_code)->toBe('WELLTH10')
-        ->and($order->total)->toBe('171.00');
+        ->and($order->total)->toBe('174.41');
 });

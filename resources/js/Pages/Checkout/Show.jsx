@@ -38,6 +38,7 @@ export default function Show({
     points_redeemed = 0,
     points_discount_amount = '0.00',
     points_per_paid_order = 10,
+    service_fee_amount = '0.00',
     total,
     locations,
 }) {
@@ -418,6 +419,10 @@ export default function Show({
                                                 <span className="font-semibold">−{formatMoney(discount_amount)}</span>
                                             </div>
                                         )}
+                                        <div className="flex justify-between text-ink/65">
+                                            <span>Service fee</span>
+                                            <span className="font-semibold text-ink">{formatMoney(service_fee_amount)}</span>
+                                        </div>
                                         <div className="flex justify-between border-t border-black/5 pt-3 text-base font-extrabold text-ink">
                                             <span>Total</span>
                                             <span>{formatMoney(total)}</span>
@@ -522,7 +527,7 @@ export default function Show({
                                         {processing ? 'Placing order…' : 'Continue to payment'}
                                     </button>
                                     <p className="mt-3 text-center text-xs leading-relaxed text-ink/45">
-                                        Next you&apos;ll pay by Mobile Money and upload your payment screenshot.
+                                        Next you&apos;ll pay securely with card or Mobile Money via Paystack.
                                     </p>
                                 </div>
                             </aside>

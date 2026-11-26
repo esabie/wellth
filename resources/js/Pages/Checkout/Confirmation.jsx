@@ -96,6 +96,13 @@ export default function Confirmation({ order }) {
                         ))}
                     </ul>
 
+                    {Number(order.service_fee_amount) > 0 && (
+                        <div className="mt-4 flex justify-between border-t border-black/5 pt-4 text-sm text-ink/65">
+                            <span>Service fee</span>
+                            <span className="font-semibold text-ink">{formatMoney(order.service_fee_amount)}</span>
+                        </div>
+                    )}
+
                     <div className="mt-6 border-t border-black/5 pt-5 text-sm text-ink/70">
                         <p className="font-semibold text-ink">Delivering to</p>
                         <p className="mt-1">{order.shipping_line1}</p>
