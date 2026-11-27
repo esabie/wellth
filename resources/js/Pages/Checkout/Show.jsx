@@ -61,6 +61,7 @@ export default function Show({
     const hasDiscount = Number(discount_amount) > 0;
     const canUsePoints = points_enabled && Number(points_balance) > 0;
     const blackFridayPromoCode = blackFriday?.promo_code || null;
+    const blackFridayIsLive = blackFriday?.phase === 'live';
     const showBlackFridayPromoHint = Boolean(blackFridayPromoCode) && !promo_code && !points_redeeming;
 
     const selectRegion = (nextRegion) => {
@@ -465,12 +466,17 @@ export default function Show({
                                                 </p>
                                                 <button
                                                     type="button"
-                                                    disabled
-                                                    aria-disabled="true"
-                                                    title="Available on 27th November"
-                                                    className="min-h-9 cursor-not-allowed rounded-lg bg-punch px-3 py-1.5 text-xs font-extrabold tracking-wide text-white uppercase opacity-50"
+                                                    onClick={() => submitPromo(blackFridayPromoCode)}
+                                                    disabled={!blackFridayIsLive || applyingPromo}
+                                                    aria-disabled={!blackFridayIsLive || applyingPromo}
+                                                    title={
+                                                        blackFridayIsLive
+                                                            ? undefined
+                                                            : `Available on ${blackFriday?.sale_date_label ?? 'the sale day'}`
+                                                    }
+                                                    className="min-h-9 cursor-pointer rounded-lg bg-punch px-3 py-1.5 text-xs font-extrabold tracking-wide text-white uppercase transition hover:bg-[#d44f1f] disabled:cursor-not-allowed disabled:opacity-50"
                                                 >
-                                                    Apply
+                                                    {applyingPromo ? '…' : 'Apply'}
                                                 </button>
                                             </div>
                                         ) : null}
