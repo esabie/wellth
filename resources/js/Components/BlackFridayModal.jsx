@@ -132,10 +132,12 @@ export default function BlackFridayModal() {
                 <div className="bg-punch px-6 py-5 text-white sm:px-8 sm:py-6">
                     <p className="text-[11px] font-bold tracking-[0.18em] text-white/80 uppercase">Wellth Foods</p>
                     <h2 id={titleId} className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-                        {isLive ? 'Black Friday is today.' : 'Black Friday Weekend is coming.'}
+                        {isLive ? 'Black Friday starts today.' : 'Black Friday Weekend is coming.'}
                     </h2>
-                    <p className="mt-3 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-extrabold tracking-[0.14em] text-punch uppercase">
-                        {isLive ? 'Today only' : 'This weekend only'} · {discountPercent}% off
+                    <p className="mt-3 inline-flex max-w-full flex-col items-center rounded-full bg-white px-3 py-1.5 text-center text-[11px] font-extrabold leading-snug tracking-[0.08em] text-punch uppercase sm:flex-row sm:gap-x-1.5 sm:py-1 sm:tracking-[0.12em]">
+                        <span>{isLive ? 'This weekend, starting today' : 'This weekend only'}</span>
+                        <span className="hidden sm:inline" aria-hidden="true">·</span>
+                        <span>{discountPercent}% off</span>
                     </p>
                 </div>
 
@@ -143,8 +145,8 @@ export default function BlackFridayModal() {
                     <p id={descriptionId} className="text-sm leading-relaxed text-ink/75 sm:text-base">
                         {isLive ? (
                             <>
-                                Take <strong className="font-bold text-ink">{discountPercent}% off</strong> wellness shots and
-                                drinks — today only, {saleDateLabel}.
+                                Enjoy <strong className="font-bold text-ink">{discountPercent}% off</strong> wellness shots and
+                                drinks this weekend, starting today.
                             </>
                         ) : (
                             <>
