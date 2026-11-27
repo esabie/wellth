@@ -8,6 +8,7 @@ class CheckoutPricing
         private PromoCodes $promos,
         private SecondPurchaseDiscount $secondPurchase,
         private LoyaltyPoints $loyaltyPoints,
+        private PaystackServiceFee $serviceFee,
     ) {}
 
     /**
@@ -48,7 +49,7 @@ class CheckoutPricing
                 2,
             );
 
-            return $this->withoutServiceFee([
+            return $this->withServiceFee([
                 'loyalty_discount_amount' => '0.00',
                 'loyalty_label' => null,
                 'loyalty_eligible' => false,
@@ -73,7 +74,7 @@ class CheckoutPricing
         $promo = $this->promos->quote($afterLoyalty, $shippingAmount, $phone);
         $discountAmount = bcadd($loyalty['discount_amount'], $promo['discount_amount'], 2);
 
-        return $this->withoutServiceFee([
+        return $this->withServiceFee([
             'loyalty_discount_amount' => $loyalty['discount_amount'],
             'loyalty_label' => $loyalty['label'],
             'loyalty_eligible' => $loyalty['eligible'],
@@ -97,9 +98,11 @@ class CheckoutPricing
      * @param  array<string, mixed>  $quote
      * @return array<string, mixed>
      */
-    private function withoutServiceFee(array $quote): array
+    private function withServiceFee(array $quote): array
     {
-        $quote['service_fee_amount'] = '0.00';
+        $fee = $this->serviceFee->quote((string) $quote['total']);
+        $quote['service_fee_amount'] = $fee['service_fee_amount'];
+        $quote['total'] = $fee['total'];
 
         return $quote;
     }

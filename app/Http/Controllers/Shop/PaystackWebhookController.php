@@ -19,12 +19,14 @@ class PaystackWebhookController extends Controller
         VerifyPaystackPayment $verifyPaystackPayment,
     ): Response {
         $payload = $request->getContent();
+        $data = $request->input('data');
+        $transaction = $paystack->transactionContext(is_array($data) ? $data : []);
 
         Log::info('checkout.paystack_webhook_received', [
             'event' => $request->input('event'),
-            'reference' => $request->input('data.reference'),
             'signature_present' => filled($request->header('x-paystack-signature')),
             'payload_bytes' => strlen($payload),
+            ...$transaction,
         ]);
 
         if (! $paystack->isValidWebhookSignature($payload, $request->header('x-paystack-signature'))) {
@@ -41,10 +43,12 @@ class PaystackWebhookController extends Controller
         $event = (string) $request->input('event');
 
         if ($event !== 'charge.success') {
-            Log::info('checkout.paystack_webhook_ignored', [
+            $declined = $event === 'charge.failed' || ($transaction['transaction_status'] ?? null) === 'failed';
+
+            Log::log($declined ? 'warning' : 'info', 'checkout.paystack_webhook_ignored', [
                 'event' => $event,
                 'reason' => 'unhandled_event',
-                'reference' => $request->input('data.reference'),
+                ...$transaction,
             ]);
 
             return response()->json(['status' => 'ignored']);

@@ -34,7 +34,7 @@ test('order placed customer sms includes the payment page link', function () {
     );
 
     expect($message)
-        ->toBe('Hi Ama, your Wellth order WLPLACE001 (GHS 200) is awaiting mobile money payment. Pay and upload your screenshot to confirm: '.route('checkout.payment', $order));
+        ->toBe('Hi Ama, your Wellth order WLPLACE001 (GHS 200) is awaiting payment. Complete checkout here: '.route('checkout.payment', $order));
 });
 
 test('sms templates render placeholders for customer payment confirmation', function () {

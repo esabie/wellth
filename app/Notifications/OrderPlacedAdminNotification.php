@@ -49,9 +49,9 @@ class OrderPlacedAdminNotification extends Notification implements ShouldQueue
             ->line('Phone: '.$order->customer_phone)
             ->line('Email: '.$order->customer_email)
             ->line('Payment reference: '.$order->paymentReference())
-            ->line('Status: awaiting MoMo payment proof.')
+            ->line('Status: awaiting Paystack payment.')
             ->action('Open order', OrderResource::getUrl('view', ['record' => $order]))
-            ->line('You will get another alert when the customer uploads payment proof.');
+            ->line('You will get another alert when payment is confirmed.');
     }
 
     /**
