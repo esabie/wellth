@@ -6,7 +6,9 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Support\Cart;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
@@ -57,8 +59,8 @@ function fakePaystackVerify(string $reference, int $amount = 20000, string $stat
     ]);
 }
 
-test('checkout store initializes paystack and redirects to the authorization url', function () {
-    fakePaystackInitialize();
+test('checkout store sends the customer to mobile money instructions without calling paystack', function () {
+    Http::fake();
 
     $product = Product::factory()->create(['price' => 20.00]);
     app(Cart::class)->add($product, 10);
@@ -75,44 +77,49 @@ test('checkout store initializes paystack and redirects to the authorization url
 
     expect($order)->not->toBeNull()
         ->and($order->status)->toBe(OrderStatus::Pending)
-        ->and($order->paystack_access_code)->toBe('access_test_123');
+        ->and($order->total)->toBe('200.00')
+        ->and($order->service_fee_amount)->toBe('0.00')
+        ->and($order->paystack_access_code)->toBeNull();
 
-    $response->assertRedirect('https://checkout.paystack.com/test-checkout');
+    $response->assertRedirect(route('checkout.payment', $order));
 
-    expect($order->paystack_reference)->toStartWith($order->uuid.'-');
-
-    Http::assertSent(fn ($request): bool => $request->url() === 'https://api.paystack.co/transaction/initialize'
-        && $request['amount'] === 20398
-        && $request['currency'] === 'GHS'
-        && $request['reference'] === $order->paystack_reference);
+    Http::assertNothingSent();
 });
 
-test('checkout store falls back to the payment page when paystack initialize fails', function () {
+test('a rejected paystack initialize logs the paystack status and message', function () {
+    $logged = [];
+
+    Log::listen(function (object $event) use (&$logged): void {
+        $logged[] = [
+            'level' => $event->level,
+            'message' => $event->message,
+            'context' => $event->context,
+        ];
+    });
+
     Http::fake([
         'api.paystack.co/transaction/initialize' => Http::response([
             'status' => false,
-            'message' => 'Gateway timeout',
-        ], 500),
+            'message' => 'Currency not supported',
+        ], 400),
     ]);
 
-    $product = Product::factory()->create(['price' => 20.00]);
-    app(Cart::class)->add($product, 10);
-
-    $response = $this->post(route('checkout.store'), [
-        'customer_name' => 'Ama Mensah',
-        'customer_phone' => '0244111222',
-        'shipping_line1' => '12 Liberation Road',
-        'shipping_city' => 'Accra',
-        'shipping_region' => 'Greater Accra',
+    $order = Order::factory()->create([
+        'status' => OrderStatus::Pending,
+        'total' => '200.00',
     ]);
 
-    $order = Order::query()->first();
+    $this->post(route('checkout.payment.start', $order))->assertRedirect();
 
-    expect($order)->not->toBeNull()
-        ->and($order->status)->toBe(OrderStatus::Pending);
+    $entry = collect($logged)->firstWhere('message', 'paystack.initialize_http_error');
 
-    $response->assertRedirect(route('checkout.payment', $order))
-        ->assertSessionHas('error');
+    expect($entry)->not->toBeNull()
+        ->and($entry['level'])->toBe('error')
+        ->and($entry['context']['status'])->toBe(400)
+        ->and($entry['context']['key_mode'])->toBe('test')
+        ->and($entry['context']['response']['message'])->toBe('Currency not supported')
+        ->and($entry['context']['reference'])->toBe(Order::query()->value('paystack_reference'))
+        ->and($entry['context']['exception'])->toBe(RequestException::class);
 });
 
 test('payment start retries paystack initialize with a fresh reference', function () {

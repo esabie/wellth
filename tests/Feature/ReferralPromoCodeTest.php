@@ -75,7 +75,7 @@ test('shoppers can apply a referral promo code that is not their own', function 
 
     expect($order->promo_code)->toBe('AMA10')
         ->and($order->discount_amount)->toBe('20.00')
-        ->and($order->total)->toBe('183.58')
+        ->and($order->total)->toBe('180.00')
         ->and($promo->fresh()->referrer_phone_normalized)->toBe(PhoneNumber::normalize('0244111222'));
 });
 

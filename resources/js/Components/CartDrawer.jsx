@@ -295,7 +295,7 @@ export default function CartDrawer({ open, onClose }) {
                                 <p className="text-xs font-bold tracking-[0.14em] text-ink/45 uppercase">Subtotal</p>
                                 <p className="font-display text-xl font-extrabold text-ink">{formatMoney(subtotal)}</p>
                             </div>
-                            <p className="mt-2 text-xs text-ink/45">TAXES CALCULATED AT CHECKOUT.</p>
+                            <p className="mt-2 text-xs text-ink/45">Shipping shared at dispatch · preorder, made fresh.</p>
                             {!meetsMinimumOrder && (
                                 <p className="mt-3 rounded-xl bg-[#f7f4ef] px-3 py-2.5 text-xs leading-relaxed font-semibold text-forest">
                                     Minimum order is {minimumOrderQuantity} {minimumUnit}. Add {remainingForMinimum}{' '}

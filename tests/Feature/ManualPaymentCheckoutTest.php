@@ -30,7 +30,7 @@ beforeEach(function () {
     ]);
 });
 
-test('payment page shows paystack retry for a pending order', function () {
+test('payment page shows momo instructions for a pending order', function () {
     $order = Order::factory()->create([
         'status' => OrderStatus::Pending,
         'total' => '200.00',
@@ -50,8 +50,8 @@ test('payment page shows paystack retry for a pending order', function () {
             ->component('Checkout/Payment')
             ->where('order.uuid', $order->uuid)
             ->where('order.total', '200.00')
-            ->where('order.service_fee_amount', '0.00')
-            ->missing('momo')
+            ->where('momo.display_number', '+233 54 536 5434')
+            ->where('momo.account_name', 'Wellth')
         );
 });
 

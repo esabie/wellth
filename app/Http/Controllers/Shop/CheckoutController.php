@@ -148,8 +148,7 @@ class CheckoutController extends Controller
         PromoCodes $promos,
         SecondPurchaseDiscount $loyalty,
         LoyaltyPoints $points,
-        StartPaystackPayment $startPaystackPayment,
-    ): RedirectResponse|\Symfony\Component\HttpFoundation\Response {
+    ): RedirectResponse {
         if ($cart->count() === 0) {
             return redirect()
                 ->route('shop.index')
@@ -179,7 +178,7 @@ class CheckoutController extends Controller
         $loyalty->clearPreviewPhone();
         $points->clearRedeem();
 
-        return $this->redirectToPaystackOrPaymentPage($order, $startPaystackPayment);
+        return redirect()->route('checkout.payment', $order);
     }
 
     public function payment(Order $order): Response|RedirectResponse
@@ -188,12 +187,18 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.confirmation', $order);
         }
 
-        abort_unless($order->canConfirmPayment(), 404);
+        abort_unless($order->canAcceptPaymentProof(), 404);
 
         $order->load('items');
 
         return Inertia::render('Checkout/Payment', [
             'order' => $this->orderPayload($order),
+            'momo' => [
+                'number' => config('shop.momo_number'),
+                'display_number' => config('shop.momo_display_number'),
+                'account_name' => config('shop.momo_account_name'),
+                'network' => config('shop.momo_network'),
+            ],
         ]);
     }
 
@@ -214,6 +219,11 @@ class CheckoutController extends Controller
     {
         $reference = $request->query('reference', $request->query('trxref'));
 
+        Log::info('checkout.paystack_callback_received', [
+            'reference' => is_string($reference) ? $reference : null,
+            'trxref' => $request->query('trxref'),
+        ]);
+
         if (! is_string($reference) || trim($reference) === '') {
             return redirect()
                 ->route('shop.index')
@@ -225,7 +235,9 @@ class CheckoutController extends Controller
         } catch (InvalidArgumentException|Throwable $exception) {
             Log::notice('checkout.paystack_callback_failed', [
                 'reference' => $reference,
+                'exception' => $exception::class,
                 'message' => $exception->getMessage(),
+                'previous' => $exception->getPrevious()?->getMessage(),
             ]);
 
             $order = Order::query()->where('paystack_reference', $reference)->first();
@@ -308,7 +320,9 @@ class CheckoutController extends Controller
         } catch (Throwable $exception) {
             Log::notice('checkout.paystack_redirect_failed', [
                 'order' => $order->uuid,
+                'exception' => $exception::class,
                 'message' => $exception->getMessage(),
+                'previous' => $exception->getPrevious()?->getMessage(),
             ]);
 
             return redirect()

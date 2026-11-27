@@ -45,8 +45,7 @@ test('checkout can apply a valid promo code', function () {
             ->where('subtotal', '200.00')
             ->where('promo_discount_amount', '20.00')
             ->where('promo_code', 'WELLTH10')
-            ->where('service_fee_amount', '3.58')
-            ->where('total', '183.58')
+            ->where('total', '180.00')
         );
 });
 
@@ -98,8 +97,7 @@ test('checkout order total includes the applied promo discount', function () {
         ->and($order->promo_code)->toBe('WELLTH10')
         ->and($order->discount_amount)->toBe('20.00')
         ->and($order->subtotal)->toBe('200.00')
-        ->and($order->service_fee_amount)->toBe('3.58')
-        ->and($order->total)->toBe('183.58');
+        ->and($order->total)->toBe('180.00');
 
     $response->assertRedirect(route('checkout.payment', $order));
 });
@@ -128,8 +126,7 @@ test('placing an order clears the promo so the next checkout starts clean', func
         ->assertInertia(fn (Assert $page) => $page
             ->where('promo_code', null)
             ->where('promo_discount_amount', '0.00')
-            ->where('service_fee_amount', '3.98')
-            ->where('total', '203.98')
+            ->where('total', '200.00')
         );
 });
 
@@ -160,8 +157,7 @@ test('checkout can remove an applied promo code', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->where('promo_code', null)
             ->where('promo_discount_amount', '0.00')
-            ->where('service_fee_amount', '3.98')
-            ->where('total', '203.98')
+            ->where('total', '200.00')
         );
 });
 

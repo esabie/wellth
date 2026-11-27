@@ -65,5 +65,5 @@ test('disabling loyalty in shop settings blocks the second purchase discount', f
     $order = Order::query()->latest('id')->first();
 
     expect($order->loyalty_discount_amount)->toBe('0.00')
-        ->and($order->total)->toBe('203.98');
+        ->and($order->total)->toBe('200.00');
 });

@@ -51,7 +51,9 @@ class VerifyPaystackPayment
             Log::error('checkout.paystack_verify_failed', [
                 'order' => $order->uuid,
                 'reference' => $reference,
+                'exception' => $exception::class,
                 'message' => $exception->getMessage(),
+                'previous' => $exception->getPrevious()?->getMessage(),
             ]);
 
             throw new RuntimeException(
@@ -64,6 +66,11 @@ class VerifyPaystackPayment
             Log::notice('checkout.paystack_verify_unsuccessful', [
                 'order' => $order->uuid,
                 'reference' => $reference,
+                'transaction_status' => $result['transaction_status'] ?? null,
+                'gateway_response' => $result['gateway_response'] ?? null,
+                'message' => $result['message'] ?? null,
+                'amount' => $result['amount'],
+                'currency' => $result['currency'],
             ]);
 
             throw new InvalidArgumentException('Payment was not successful. You can try again.');

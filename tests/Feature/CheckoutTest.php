@@ -57,8 +57,7 @@ test('checkout page shows cart summary with free delivery', function () {
             ->has('items', 1)
             ->where('subtotal', '200.00')
             ->where('shipping_amount', '0.00')
-            ->where('service_fee_amount', '3.98')
-            ->where('total', '203.98')
+            ->where('total', '200.00')
             ->has('locations.Greater Accra')
         );
 });
@@ -86,8 +85,7 @@ test('checkout creates a pending order and redirects to momo payment instruction
     expect($order)->not->toBeNull()
         ->and($order->status)->toBe(OrderStatus::Pending)
         ->and($order->customer_email)->toBeNull()
-        ->and($order->service_fee_amount)->toBe('3.98')
-        ->and($order->total)->toBe('203.98')
+        ->and($order->total)->toBe('200.00')
         ->and($order->shipping_amount)->toBe('0.00')
         ->and($order->items)->toHaveCount(1)
         ->and(app(Cart::class)->count())->toBe(0);

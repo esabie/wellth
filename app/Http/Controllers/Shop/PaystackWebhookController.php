@@ -20,9 +20,19 @@ class PaystackWebhookController extends Controller
     ): Response {
         $payload = $request->getContent();
 
+        Log::info('checkout.paystack_webhook_received', [
+            'event' => $request->input('event'),
+            'reference' => $request->input('data.reference'),
+            'signature_present' => filled($request->header('x-paystack-signature')),
+            'payload_bytes' => strlen($payload),
+        ]);
+
         if (! $paystack->isValidWebhookSignature($payload, $request->header('x-paystack-signature'))) {
             Log::warning('checkout.paystack_webhook_rejected', [
                 'reason' => 'invalid_signature',
+                'event' => $request->input('event'),
+                'reference' => $request->input('data.reference'),
+                'signature_present' => filled($request->header('x-paystack-signature')),
             ]);
 
             return response('Invalid signature', 401);
@@ -31,6 +41,12 @@ class PaystackWebhookController extends Controller
         $event = (string) $request->input('event');
 
         if ($event !== 'charge.success') {
+            Log::info('checkout.paystack_webhook_ignored', [
+                'event' => $event,
+                'reason' => 'unhandled_event',
+                'reference' => $request->input('data.reference'),
+            ]);
+
             return response()->json(['status' => 'ignored']);
         }
 
@@ -60,7 +76,9 @@ class PaystackWebhookController extends Controller
         } catch (Throwable $exception) {
             Log::error('checkout.paystack_webhook_failed', [
                 'reference' => $reference,
+                'exception' => $exception::class,
                 'message' => $exception->getMessage(),
+                'previous' => $exception->getPrevious()?->getMessage(),
             ]);
 
             return response()->json(['status' => 'failed'], 500);

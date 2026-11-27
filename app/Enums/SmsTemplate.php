@@ -41,9 +41,9 @@ enum SmsTemplate: string implements HasDescription, HasLabel
     {
         return match ($this) {
             self::OrderPlacedAdmin => 'Sent to the admin alert phone when a customer places an order.',
-            self::OrderPlacedCustomer => 'Sent to the customer when they place an order, before Paystack payment is completed.',
-            self::PaymentProofAdmin => 'Sent to the admin alert phone when legacy MoMo proof is uploaded.',
-            self::OrderPaidCustomer => 'Sent to the customer when payment is confirmed (Paystack or admin). {loyalty_suffix} only fills in for first-time buyers whose next order will qualify for the second-purchase discount.',
+            self::OrderPlacedCustomer => 'Sent to the customer when they place an order, before MoMo proof.',
+            self::PaymentProofAdmin => 'Sent to the admin alert phone when MoMo proof is uploaded.',
+            self::OrderPaidCustomer => 'Sent to the customer when payment is confirmed in admin. {loyalty_suffix} only fills in for first-time buyers whose next order will qualify for the second-purchase discount.',
             self::OrderShippedCustomer => 'Kept for older saved templates. Shipped orders no longer send this text.',
             self::OrderDeliveredCustomer => 'Sent to the customer when an order is marked as delivered. {loyalty_suffix} only fills in when their next order qualifies for the second-purchase discount.',
             self::OrderFeedbackInvite => 'Sent to already-delivered customers to request feedback without repeating the delivery notice.',
@@ -55,8 +55,8 @@ enum SmsTemplate: string implements HasDescription, HasLabel
     public function defaultMessage(): string
     {
         return match ($this) {
-            self::OrderPlacedAdmin => 'New order {order} from {name}. Total {currency} {total}. Waiting for payment.',
-            self::OrderPlacedCustomer => 'Hi {first_name}, your Wellth order {order} ({currency} {total}) is awaiting payment. Complete checkout here: {payment_url}',
+            self::OrderPlacedAdmin => 'New order {order} from {name}. Total {currency} {total}. Waiting for proof of payment.',
+            self::OrderPlacedCustomer => 'Hi {first_name}, your Wellth order {order} ({currency} {total}) is awaiting mobile money payment. Pay and upload your screenshot to confirm: {payment_url}',
             self::PaymentProofAdmin => 'Payment proof uploaded for {order} ({currency} {total}) by {name}. Review and confirm in admin.',
             self::OrderPaidCustomer => "Hi {first_name}, Your payment for order {order} ({currency} {total}) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!{loyalty_suffix}",
             self::OrderShippedCustomer => 'Hi {first_name}, your Wellth order {order} is on the way{city_suffix}. Thanks for choosing us!',

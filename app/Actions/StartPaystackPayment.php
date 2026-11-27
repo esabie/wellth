@@ -55,7 +55,12 @@ class StartPaystackPayment
             Log::error('checkout.paystack_initialize_failed', [
                 'order' => $order->uuid,
                 'reference' => $reference,
+                'amount' => $amount,
+                'currency' => $order->currency,
+                'callback_url' => route('checkout.paystack.callback'),
+                'exception' => $exception::class,
                 'message' => $exception->getMessage(),
+                'previous' => $exception->getPrevious()?->getMessage(),
             ]);
 
             throw new RuntimeException(
