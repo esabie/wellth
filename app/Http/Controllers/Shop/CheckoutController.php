@@ -148,7 +148,8 @@ class CheckoutController extends Controller
         PromoCodes $promos,
         SecondPurchaseDiscount $loyalty,
         LoyaltyPoints $points,
-    ): RedirectResponse {
+        StartPaystackPayment $startPaystackPayment,
+    ): RedirectResponse|\Symfony\Component\HttpFoundation\Response {
         if ($cart->count() === 0) {
             return redirect()
                 ->route('shop.index')
@@ -178,7 +179,7 @@ class CheckoutController extends Controller
         $loyalty->clearPreviewPhone();
         $points->clearRedeem();
 
-        return redirect()->route('checkout.payment', $order);
+        return $this->redirectToPaystackOrPaymentPage($order, $startPaystackPayment);
     }
 
     public function payment(Order $order): Response|RedirectResponse
@@ -187,18 +188,12 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.confirmation', $order);
         }
 
-        abort_unless($order->canAcceptPaymentProof(), 404);
+        abort_unless($order->canConfirmPayment(), 404);
 
         $order->load('items');
 
         return Inertia::render('Checkout/Payment', [
             'order' => $this->orderPayload($order),
-            'momo' => [
-                'number' => config('shop.momo_number'),
-                'display_number' => config('shop.momo_display_number'),
-                'account_name' => config('shop.momo_account_name'),
-                'network' => config('shop.momo_network'),
-            ],
         ]);
     }
 

@@ -164,18 +164,44 @@ class PaystackClient
         ];
 
         Log::info('paystack.verify_response', [
-            'reference' => $result['reference'],
             'http_ok' => $response->successful(),
             'paystack_status' => $body['status'] ?? null,
             'message' => $result['message'],
-            'transaction_status' => $result['transaction_status'],
-            'gateway_response' => $result['gateway_response'],
-            'amount' => $result['amount'],
-            'currency' => $result['currency'],
-            'paid_at' => $result['paid_at'],
+            ...$this->transactionContext(is_array($data) ? $data : []),
         ]);
 
         return $result;
+    }
+
+    /**
+     * Fields worth keeping when a charge succeeds or Paystack declines it.
+     * Omits authorization codes and signatures, which can be reused.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public function transactionContext(array $data): array
+    {
+        $authorization = is_array($data['authorization'] ?? null) ? $data['authorization'] : [];
+
+        return [
+            'reference' => $data['reference'] ?? null,
+            'transaction_status' => $data['status'] ?? null,
+            'gateway_response' => $data['gateway_response'] ?? null,
+            'transaction_message' => $data['message'] ?? null,
+            'channel' => $data['channel'] ?? null,
+            'amount' => $data['amount'] ?? null,
+            'fees' => $data['fees'] ?? null,
+            'currency' => $data['currency'] ?? null,
+            'paid_at' => $data['paid_at'] ?? null,
+            'ip_address' => $data['ip_address'] ?? null,
+            'domain' => $data['domain'] ?? null,
+            'authorization_channel' => $authorization['channel'] ?? null,
+            'authorization_bank' => $authorization['bank'] ?? null,
+            'authorization_brand' => $authorization['brand'] ?? null,
+            'authorization_last4' => $authorization['last4'] ?? null,
+            'authorization_country' => $authorization['country_code'] ?? null,
+        ];
     }
 
     public function isValidWebhookSignature(string $payload, ?string $signature): bool

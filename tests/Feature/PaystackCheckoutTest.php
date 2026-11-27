@@ -54,13 +54,22 @@ function fakePaystackVerify(string $reference, int $amount = 20000, string $stat
                 'currency' => $currency,
                 'reference' => $reference,
                 'paid_at' => '2026-11-27T10:00:00.000Z',
+                'gateway_response' => $status === 'success' ? 'Transaction successful' : 'Unable to process transaction',
+                'channel' => 'mobile_money',
+                'fees' => 4,
+                'authorization' => [
+                    'authorization_code' => 'AUTH_secret',
+                    'channel' => 'mobile_money',
+                    'brand' => 'MTN',
+                    'last4' => '4694',
+                ],
             ],
         ]),
     ]);
 }
 
-test('checkout store sends the customer to mobile money instructions without calling paystack', function () {
-    Http::fake();
+test('checkout store initializes paystack and redirects to the authorization url', function () {
+    fakePaystackInitialize();
 
     $product = Product::factory()->create(['price' => 20.00]);
     app(Cart::class)->add($product, 10);
@@ -77,13 +86,44 @@ test('checkout store sends the customer to mobile money instructions without cal
 
     expect($order)->not->toBeNull()
         ->and($order->status)->toBe(OrderStatus::Pending)
-        ->and($order->total)->toBe('200.00')
-        ->and($order->service_fee_amount)->toBe('0.00')
-        ->and($order->paystack_access_code)->toBeNull();
+        ->and($order->paystack_access_code)->toBe('access_test_123');
 
-    $response->assertRedirect(route('checkout.payment', $order));
+    $response->assertRedirect('https://checkout.paystack.com/test-checkout');
 
-    Http::assertNothingSent();
+    expect($order->paystack_reference)->toStartWith($order->uuid.'-');
+
+    Http::assertSent(fn ($request): bool => $request->url() === 'https://api.paystack.co/transaction/initialize'
+        && $request['amount'] === 20398
+        && $request['currency'] === 'GHS'
+        && $request['reference'] === $order->paystack_reference);
+});
+
+test('checkout store falls back to the payment page when paystack initialize fails', function () {
+    Http::fake([
+        'api.paystack.co/transaction/initialize' => Http::response([
+            'status' => false,
+            'message' => 'Gateway timeout',
+        ], 500),
+    ]);
+
+    $product = Product::factory()->create(['price' => 20.00]);
+    app(Cart::class)->add($product, 10);
+
+    $response = $this->post(route('checkout.store'), [
+        'customer_name' => 'Ama Mensah',
+        'customer_phone' => '0244111222',
+        'shipping_line1' => '12 Liberation Road',
+        'shipping_city' => 'Accra',
+        'shipping_region' => 'Greater Accra',
+    ]);
+
+    $order = Order::query()->first();
+
+    expect($order)->not->toBeNull()
+        ->and($order->status)->toBe(OrderStatus::Pending);
+
+    $response->assertRedirect(route('checkout.payment', $order))
+        ->assertSessionHas('error');
 });
 
 test('a rejected paystack initialize logs the paystack status and message', function () {
@@ -162,6 +202,15 @@ test('payment start retries paystack initialize with a fresh reference', functio
 });
 
 test('paystack callback marks the order paid on successful verification', function () {
+    $logged = [];
+
+    Log::listen(function (object $event) use (&$logged): void {
+        $logged[] = [
+            'message' => $event->message,
+            'context' => $event->context,
+        ];
+    });
+
     $order = Order::factory()->create([
         'status' => OrderStatus::Pending,
         'total' => '200.00',
@@ -177,8 +226,15 @@ test('paystack callback marks the order paid on successful verification', functi
     $this->get(route('checkout.paystack.callback', ['reference' => 'WLCBACK001']))
         ->assertRedirect(route('checkout.confirmation', $order));
 
+    $entry = collect($logged)->firstWhere('message', 'paystack.verify_response');
+
     expect($order->fresh()->status)->toBe(OrderStatus::Paid)
-        ->and($order->fresh()->paid_at)->not->toBeNull();
+        ->and($order->fresh()->paid_at)->not->toBeNull()
+        ->and($entry['context']['channel'])->toBe('mobile_money')
+        ->and($entry['context']['gateway_response'])->toBe('Transaction successful')
+        ->and($entry['context']['authorization_brand'])->toBe('MTN')
+        ->and($entry['context']['fees'])->toBe(4)
+        ->and(json_encode($entry['context']))->not->toContain('AUTH_secret');
 });
 
 test('paystack callback rejects a failed payment and returns to the payment page', function () {
@@ -274,6 +330,73 @@ test('paystack webhook with a valid signature completes payment idempotently', f
         ->assertJson(['status' => 'ok']);
 
     expect($order->fresh()->status)->toBe(OrderStatus::Paid);
+});
+
+test('a declined paystack charge webhook logs the gateway response', function () {
+    $logged = [];
+
+    Log::listen(function (object $event) use (&$logged): void {
+        $logged[] = [
+            'level' => $event->level,
+            'message' => $event->message,
+            'context' => $event->context,
+        ];
+    });
+
+    $order = Order::factory()->create([
+        'status' => OrderStatus::Pending,
+        'total' => '1.02',
+        'currency' => 'GHS',
+        'paystack_reference' => 'WLFAILHOOK',
+    ]);
+
+    $payload = json_encode([
+        'event' => 'charge.failed',
+        'data' => [
+            'reference' => 'WLFAILHOOK',
+            'status' => 'failed',
+            'gateway_response' => 'Unable to process transaction',
+            'message' => 'Unable to process transaction',
+            'channel' => 'mobile_money',
+            'amount' => 102,
+            'fees' => 2,
+            'currency' => 'GHS',
+            'authorization' => [
+                'authorization_code' => 'AUTH_secret',
+                'channel' => 'mobile_money',
+                'bank' => 'MTN',
+                'brand' => 'MTN',
+                'last4' => '4694',
+                'country_code' => 'GH',
+            ],
+        ],
+    ], JSON_THROW_ON_ERROR);
+
+    $this->call(
+        'POST',
+        route('webhooks.paystack'),
+        [],
+        [],
+        [],
+        [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_PAYSTACK_SIGNATURE' => hash_hmac('sha512', $payload, 'sk_test_wellth'),
+        ],
+        $payload,
+    )->assertOk()
+        ->assertJson(['status' => 'ignored']);
+
+    $entry = collect($logged)->firstWhere('message', 'checkout.paystack_webhook_ignored');
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Pending)
+        ->and($entry)->not->toBeNull()
+        ->and($entry['level'])->toBe('warning')
+        ->and($entry['context']['event'])->toBe('charge.failed')
+        ->and($entry['context']['gateway_response'])->toBe('Unable to process transaction')
+        ->and($entry['context']['channel'])->toBe('mobile_money')
+        ->and($entry['context']['authorization_brand'])->toBe('MTN')
+        ->and($entry['context']['authorization_last4'])->toBe('4694')
+        ->and(json_encode($entry['context']))->not->toContain('AUTH_secret');
 });
 
 test('paystack webhook rejects an invalid signature', function () {

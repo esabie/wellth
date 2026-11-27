@@ -109,7 +109,8 @@ test('redeeming points blocks second purchase discount and promo codes', functio
             ->where('loyalty_discount_amount', '0.00')
             ->where('promo_code', null)
             ->where('promo_discount_amount', '0.00')
-            ->where('total', '190.00')
+            ->where('service_fee_amount', '3.78')
+            ->where('total', '193.78')
         );
 });
 
@@ -146,7 +147,7 @@ test('placing an order reserves points and reduces wallet balance', function () 
     expect($order->points_redeemed)->toBe(50)
         ->and($order->points_discount_amount)->toBe('5.00')
         ->and($order->points_redeem_status)->toBe(PointsRedeemStatus::Reserved)
-        ->and($order->total)->toBe('195.00')
+        ->and($order->total)->toBe('198.88')
         ->and($wallet->balance)->toBe(0);
 });
 

@@ -94,7 +94,7 @@ test('full buy path awards buyer and referrer points after momo proof and admin 
     expect($order)->not->toBeNull()
         ->and($order->status)->toBe(OrderStatus::Pending)
         ->and($order->promo_code)->toBe('AMA10')
-        ->and($order->total)->toBe('180.00');
+        ->and($order->total)->toBe('183.58');
 
     Notification::assertSentOnDemand(OrderPlacedAdminNotification::class);
 
