@@ -125,7 +125,7 @@ test('customer sms notification message includes order number and total', functi
     );
 
     expect($message)
-        ->toBe("Hi Kwamz, Your payment for order WLK7M2P9QX (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!");
+        ->toBe("Hi Kwamz, Your payment for order WLK7M2P9QX (GHS 185.50) is confirmed. We're preparing your fresh blends with care. Your order will be ready within 72 hours. Thank you for choosing us!");
 });
 
 test('payment confirmed sms mentions the next-order perk for first-time buyers', function () {
@@ -149,7 +149,7 @@ test('payment confirmed sms mentions the next-order perk for first-time buyers',
     );
 
     expect($message)
-        ->toBe("Hi Kwamz, Your payment for order WLFIRST001 (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us! Your next order gets 5% off.");
+        ->toBe("Hi Kwamz, Your payment for order WLFIRST001 (GHS 185.50) is confirmed. We're preparing your fresh blends with care. Your order will be ready within 72 hours. Thank you for choosing us! Your next order gets 5% off.");
 });
 
 test('payment confirmed sms omits the next-order perk for returning buyers', function () {
@@ -181,7 +181,7 @@ test('payment confirmed sms omits the next-order perk for returning buyers', fun
     );
 
     expect($message)
-        ->toBe("Hi Kwamz, Your payment for order WLRETURN01 (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us!")
+        ->toBe("Hi Kwamz, Your payment for order WLRETURN01 (GHS 185.50) is confirmed. We're preparing your fresh blends with care. Your order will be ready within 72 hours. Thank you for choosing us!")
         ->and($message)->not->toContain('next order');
 });
 

@@ -83,7 +83,7 @@ test('delivered sms does not include a feedback url', function () {
         function (OrderDeliveredCustomerSmsNotification $notification, array $channels, object $notifiable): bool {
             $message = $notification->toMnotify($notifiable);
 
-            return $message === 'Hi Ama, your order has been delivered. Enjoy your Wellth shots and enjoy 5% off your next order.'
+            return $message === 'Hi Ama, your order has been delivered. Enjoy your Wellth blend and enjoy 5% off your next order.'
                 && ! str_contains($message, '/feedback/');
         },
     );
@@ -118,7 +118,7 @@ test('delivered sms omits the loyalty perk when the next order would not qualify
         OrderDeliveredCustomerSmsNotification::class,
         function (OrderDeliveredCustomerSmsNotification $notification, array $channels, object $notifiable): bool {
             return $notification->toMnotify($notifiable)
-                === 'Hi Ama, your order has been delivered. Enjoy your Wellth shots.';
+                === 'Hi Ama, your order has been delivered. Enjoy your Wellth blend.';
         },
     );
 });

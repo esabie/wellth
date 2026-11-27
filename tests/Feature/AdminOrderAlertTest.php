@@ -51,7 +51,7 @@ test('the admin panel shows database notifications', function () {
     expect($panel->hasDatabaseNotifications())->toBeTrue();
 });
 
-test('placing an order emails, texts, and databases the admin', function () {
+test('placing an order emails and databases the admin', function () {
     Notification::fake();
 
     $admin = User::factory()->create();
@@ -82,12 +82,7 @@ test('placing an order emails, texts, and databases the admin', function () {
             && in_array('database', $channels, true),
     );
 
-    Notification::assertSentOnDemand(
-        OrderPlacedAdminSmsNotification::class,
-        fn (OrderPlacedAdminSmsNotification $notification, array $channels, object $notifiable): bool => $notifiable->routes[MnotifyChannel::class] === PhoneNumber::forSms('0244000111')
-            && $notification->order->is($order)
-            && in_array(MnotifyChannel::class, $channels, true),
-    );
+    Notification::assertSentOnDemandTimes(OrderPlacedAdminSmsNotification::class, 0);
 
     Notification::assertSentOnDemand(
         OrderPlacedCustomerNotification::class,
@@ -104,7 +99,7 @@ test('placing an order emails, texts, and databases the admin', function () {
     );
 });
 
-test('uploading payment proof emails, texts, and databases the admin', function () {
+test('uploading payment proof emails and databases the admin', function () {
     Notification::fake();
 
     $admin = User::factory()->create();
@@ -134,19 +129,7 @@ test('uploading payment proof emails, texts, and databases the admin', function 
         fn (OrderPaymentProofSubmittedNotification $notification, array $channels): bool => in_array('database', $channels, true),
     );
 
-    Notification::assertSentOnDemandTimes(OrderPaymentProofSubmittedSmsNotification::class, 2);
-
-    Notification::assertSentOnDemand(
-        OrderPaymentProofSubmittedSmsNotification::class,
-        fn (OrderPaymentProofSubmittedSmsNotification $notification, array $channels, object $notifiable): bool => $notifiable->routes[MnotifyChannel::class] === PhoneNumber::forSms('0244000111')
-            && in_array(MnotifyChannel::class, $channels, true),
-    );
-
-    Notification::assertSentOnDemand(
-        OrderPaymentProofSubmittedSmsNotification::class,
-        fn (OrderPaymentProofSubmittedSmsNotification $notification, array $channels, object $notifiable): bool => $notifiable->routes[MnotifyChannel::class] === PhoneNumber::forSms('0201854694')
-            && in_array(MnotifyChannel::class, $channels, true),
-    );
+    Notification::assertSentOnDemandTimes(OrderPaymentProofSubmittedSmsNotification::class, 0);
 });
 
 test('confirming payment texts the buyer', function () {

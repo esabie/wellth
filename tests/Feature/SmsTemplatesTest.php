@@ -52,7 +52,7 @@ test('sms templates render placeholders for customer payment confirmation', func
     );
 
     expect($message)
-        ->toBe("Hi Kwamz, Your payment for order WLK7M2P9QX (GHS 185.50) is confirmed. We're preparing your fresh shots with care. Your order will be ready within 7 days. Thank you for choosing us! Your next order gets 5% off.");
+        ->toBe("Hi Kwamz, Your payment for order WLK7M2P9QX (GHS 185.50) is confirmed. We're preparing your fresh blends with care. Your order will be ready within 72 hours. Thank you for choosing us! Your next order gets 5% off.");
 });
 
 test('a saved order placed template still includes the payment page link', function () {
