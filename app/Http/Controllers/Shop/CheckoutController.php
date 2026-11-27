@@ -325,6 +325,15 @@ class CheckoutController extends Controller
                 ->with('error', $exception->getMessage());
         }
 
+        $order->refresh();
+
+        Log::info('checkout.redirecting_to_paystack', [
+            'order' => $order->uuid,
+            'reference' => $order->paystack_reference,
+            'amount' => $order->total,
+            'currency' => $order->currency,
+        ]);
+
         // Inertia form posts cannot follow a normal external redirect; this forces a full browser visit.
         return Inertia::location($authorizationUrl);
     }

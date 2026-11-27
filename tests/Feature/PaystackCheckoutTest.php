@@ -69,6 +69,15 @@ function fakePaystackVerify(string $reference, int $amount = 20000, string $stat
 }
 
 test('checkout store initializes paystack and redirects to the authorization url', function () {
+    $logged = [];
+
+    Log::listen(function (object $event) use (&$logged): void {
+        $logged[] = [
+            'message' => $event->message,
+            'context' => $event->context,
+        ];
+    });
+
     fakePaystackInitialize();
 
     $product = Product::factory()->create(['price' => 20.00]);
@@ -96,6 +105,14 @@ test('checkout store initializes paystack and redirects to the authorization url
         && $request['amount'] === 20398
         && $request['currency'] === 'GHS'
         && $request['reference'] === $order->paystack_reference);
+
+    $entry = collect($logged)->firstWhere('message', 'checkout.redirecting_to_paystack');
+
+    expect($entry)->not->toBeNull()
+        ->and($entry['context']['order'])->toBe($order->uuid)
+        ->and($entry['context']['reference'])->toBe($order->paystack_reference)
+        ->and($entry['context']['amount'])->toBe('203.98')
+        ->and($entry['context']['currency'])->toBe('GHS');
 });
 
 test('checkout store falls back to the payment page when paystack initialize fails', function () {
