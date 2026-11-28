@@ -4,7 +4,6 @@ namespace App\Support;
 
 use App\Enums\PromoCodeType;
 use App\Models\PromoCode;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -85,7 +84,7 @@ class PromoCodes
     }
 
     /**
-     * Black Friday codes are only redeemable on the configured sale day (Africa/Accra by default).
+     * Black Friday codes are redeemable from the sale start through sale_ends_at.
      */
     public function assertBlackFridayPromoIsLive(PromoCode $promo): void
     {
@@ -101,13 +100,11 @@ class PromoCodes
             return;
         }
 
-        $timezone = (string) config('shop.black_friday.timezone', 'Africa/Accra');
-        $today = CarbonImmutable::now($timezone)->startOfDay();
-        $saleDate = CarbonImmutable::parse((string) config('shop.black_friday.sale_date'), $timezone)->startOfDay();
+        $campaign = app(BlackFridayCampaign::class);
 
-        if ($today->lt($saleDate)) {
+        if (! $campaign->isLive()) {
             throw new InvalidArgumentException(
-                'This promo code can only be used on '.$saleDate->format('jS F'),
+                'This promo code can only be used until '.$campaign->endsAt()->format('jS F').', 11:59pm GMT',
             );
         }
     }

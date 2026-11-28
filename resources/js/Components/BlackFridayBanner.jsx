@@ -23,7 +23,7 @@ export default function BlackFridayBanner() {
                                 ·
                             </span>
                             <span className="rounded-full bg-white px-2.5 py-0.5 text-center text-[11px] font-extrabold tracking-[0.08em] text-punch uppercase sm:text-xs sm:tracking-[0.12em]">
-                                This weekend, starting today
+                                This weekend
                             </span>
                         </>
                     ) : (

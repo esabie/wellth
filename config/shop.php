@@ -137,8 +137,8 @@ return [
     | Black Friday banner
     |--------------------------------------------------------------------------
     |
-    | Slim site-wide notice for the one-day sale (Africa/Accra calendar days).
-    | Shown from teaser_starts through sale_date, then hidden.
+    | Site-wide notice from teaser_starts until sale_ends_at.
+    | The sale itself runs from sale_date through 11:59pm GMT on 29 November.
     |
     */
     'black_friday' => [
@@ -146,6 +146,7 @@ return [
         'timezone' => env('SHOP_BLACK_FRIDAY_TIMEZONE', 'Africa/Accra'),
         'teaser_starts' => env('SHOP_BLACK_FRIDAY_TEASER_STARTS', '2026-11-16'),
         'sale_date' => env('SHOP_BLACK_FRIDAY_SALE_DATE', '2026-11-27'),
+        'sale_ends_at' => env('SHOP_BLACK_FRIDAY_SALE_ENDS_AT', '2026-11-29 23:59:59'),
         'discount_percent' => (int) env('SHOP_BLACK_FRIDAY_DISCOUNT_PERCENT', 10),
         'promo_code' => strtoupper((string) env('SHOP_BLACK_FRIDAY_PROMO_CODE', 'WELLTH26')),
     ],

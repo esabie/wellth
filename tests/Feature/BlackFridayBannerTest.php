@@ -18,6 +18,7 @@ function configureBlackFridayCampaign(): void
         'shop.black_friday.timezone' => 'Africa/Accra',
         'shop.black_friday.teaser_starts' => '2026-11-16',
         'shop.black_friday.sale_date' => '2026-11-27',
+        'shop.black_friday.sale_ends_at' => '2026-11-29 23:59:59',
         'shop.black_friday.promo_code' => 'WELLTH26',
     ]);
 }
@@ -51,13 +52,26 @@ test('black friday campaign returns a live banner on the sale day', function () 
     ]);
 });
 
+test('black friday campaign stays live through sunday at 11:59pm gmt', function () {
+    configureBlackFridayCampaign();
+
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-28 08:00:00', 'Africa/Accra'));
+    expect(app(BlackFridayCampaign::class)->banner())->toMatchArray([
+        'phase' => 'live',
+        'promo_code' => 'WELLTH26',
+    ]);
+
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-29 23:59:59', 'Africa/Accra'));
+    expect(app(BlackFridayCampaign::class)->banner()['phase'] ?? null)->toBe('live');
+});
+
 test('black friday banner is hidden before the teaser window and after the sale', function () {
     configureBlackFridayCampaign();
 
     CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-15 18:00:00', 'Africa/Accra'));
     expect(app(BlackFridayCampaign::class)->banner())->toBeNull();
 
-    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-28 00:00:00', 'Africa/Accra'));
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-30 00:00:00', 'Africa/Accra'));
     expect(app(BlackFridayCampaign::class)->banner())->toBeNull();
 });
 

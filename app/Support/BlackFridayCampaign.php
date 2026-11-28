@@ -17,21 +17,44 @@ class BlackFridayCampaign
             return null;
         }
 
-        $timezone = (string) config('shop.black_friday.timezone');
-        $today = CarbonImmutable::now($timezone)->startOfDay();
-        $saleDate = CarbonImmutable::parse((string) config('shop.black_friday.sale_date'), $timezone)->startOfDay();
-        $teaserStarts = CarbonImmutable::parse((string) config('shop.black_friday.teaser_starts'), $timezone)->startOfDay();
+        $now = CarbonImmutable::now($this->timezone());
+        $teaserStarts = CarbonImmutable::parse((string) config('shop.black_friday.teaser_starts'), $this->timezone())->startOfDay();
 
-        if ($today->lt($teaserStarts) || $today->gt($saleDate)) {
+        if ($now->lt($teaserStarts) || $now->gt($this->endsAt())) {
             return null;
         }
 
         return [
-            'phase' => $today->equalTo($saleDate) ? 'live' : 'teaser',
-            'sale_date_label' => $saleDate->format('j F'),
+            'phase' => $this->isLive($now) ? 'live' : 'teaser',
+            'sale_date_label' => $this->startsAt()->format('j F'),
             'discount_percent' => (int) config('shop.black_friday.discount_percent', 10),
             'promo_code' => strtoupper((string) config('shop.black_friday.promo_code', 'WELLTH26')),
             'href' => '/shop',
         ];
+    }
+
+    public function timezone(): string
+    {
+        return (string) config('shop.black_friday.timezone', 'Africa/Accra');
+    }
+
+    public function startsAt(): CarbonImmutable
+    {
+        return CarbonImmutable::parse((string) config('shop.black_friday.sale_date'), $this->timezone())->startOfDay();
+    }
+
+    /**
+     * Last moment the sale and WELLTH26 are valid. Africa/Accra is GMT.
+     */
+    public function endsAt(): CarbonImmutable
+    {
+        return CarbonImmutable::parse((string) config('shop.black_friday.sale_ends_at'), $this->timezone());
+    }
+
+    public function isLive(?CarbonImmutable $now = null): bool
+    {
+        $now ??= CarbonImmutable::now($this->timezone());
+
+        return $now->greaterThanOrEqualTo($this->startsAt()) && $now->lessThanOrEqualTo($this->endsAt());
     }
 }
